@@ -8,9 +8,12 @@ final RegExp _ordinalsRe =
 final DateFormat _httpDateFmt =
     DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", 'en_US');
 
+/// Extension methods for parsing `String` values into [DateTime] instances.
 extension DateParsingTextX on String {
+  /// Parses this string using [DateTime.parse] after trimming.
   DateTime toDateTime() => DateTime.parse(trim());
 
+  /// Attempts to parse this string returning `null` when parsing fails.
   DateTime? tryToDateTime() {
     try {
       return toDateTime();
@@ -19,6 +22,7 @@ extension DateParsingTextX on String {
     }
   }
 
+  /// Parses this string using the supplied [format] and [locale].
   DateTime toDateFormatted(String format, String? locale, {bool utc = false}) {
     final df = _createDateFormat(format, locale);
     final input = trim();
@@ -26,6 +30,7 @@ extension DateParsingTextX on String {
     return utc ? dt.toUtc() : dt;
   }
 
+  /// Attempts to parse this string using the supplied [format] and [locale].
   DateTime? tryToDateFormatted(String format, String? locale,
       {bool utc = false}) {
     try {
@@ -168,6 +173,7 @@ extension DateParsingTextX on String {
     throw FormatException('Invalid or unsupported date format', raw);
   }
 
+  /// Attempts [toDateAutoFormat] while swallowing parsing errors.
   DateTime? tryToDateAutoFormat({
     String? locale,
     bool useCurrentLocale = false,

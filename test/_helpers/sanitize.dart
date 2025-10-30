@@ -6,7 +6,7 @@
 ///
 ///   final raw = e.toString(); // from a ConversionException
 ///   final stable = sanitizeForGolden(raw);
-///   expect(stable, contains('<List with 200 items>'));
+///   expect(stable, contains(`<List with 200 items>`));
 ///
 /// If you want strict golden matching, read the file and compare after
 /// sanitization to avoid OS-specific path/line-number diffs.

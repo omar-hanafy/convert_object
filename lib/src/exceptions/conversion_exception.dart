@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import '../utils/map_pretty.dart';
+import 'package:convert_object/src/utils/map_pretty.dart';
 
 /// Exception thrown when a conversion fails.
 class ConversionException implements Exception {
+  /// Creates a conversion error with the originating [error] and [context].
   ConversionException({
     required this.error,
     required Map<String, dynamic> context,
@@ -11,6 +12,7 @@ class ConversionException implements Exception {
   })  : context = Map.unmodifiable(context),
         stackTrace = stackTrace ?? StackTrace.current;
 
+  /// Convenience factory used when the source object is `null` or unsupported.
   factory ConversionException.nullObject({
     required Map<String, dynamic> context,
     required StackTrace stackTrace,
@@ -21,10 +23,16 @@ class ConversionException implements Exception {
         stackTrace: stackTrace,
       );
 
+  /// Original error or message that triggered the failure.
   final Object? error;
+
+  /// Context metadata captured at the time of the conversion attempt.
   final Map<String, dynamic> context;
+
+  /// Stack trace captured when the exception was created.
   final StackTrace stackTrace;
 
+  /// String representation of [error]'s runtime type.
   String get errorType => error?.runtimeType.toString() ?? 'null';
 
   bool _isHeavyValue(dynamic value) {
@@ -68,6 +76,7 @@ class ConversionException implements Exception {
     return filtered;
   }
 
+  /// Generates an indented JSON report of the full conversion context.
   String fullReport() {
     final encodable = context.map((k, v) {
       if (v is Function) return MapEntry(k, 'Function: ${v.runtimeType}');
@@ -82,6 +91,7 @@ class ConversionException implements Exception {
         '}';
   }
 
+  /// Returns a concise summary of the conversion failure.
   @override
   String toString() {
     final filtered = _filteredContext();

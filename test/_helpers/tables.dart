@@ -1,7 +1,7 @@
 /// Table-driven test helpers.
 ///
 /// Usage:
-///
+///   ```dart
 ///   tableTest<String, String>(
 ///     'toText basics',
 ///     [
@@ -10,7 +10,7 @@
 ///     ],
 ///     (input) => ConvertObject.toText(input),
 ///   );
-///
+///   ```
 /// For async functions, use `tableTestAsync`.
 ///
 /// You can also supply a custom equality via [equals] (e.g., deep/approx).
@@ -46,7 +46,7 @@ void tableTest<I, O>(
   });
 }
 
-/// Async variant of [tableTest] where [run] returns a Future<O>.
+/// Async variant of [tableTest] where [run] returns a `Future<O>`.
 void tableTestAsync<I, O>(
   String groupName,
   List<Case<I, O>> cases,

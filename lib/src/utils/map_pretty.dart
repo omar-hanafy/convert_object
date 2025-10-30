@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+/// Normalizes [value] so it can be safely encoded as JSON.
 dynamic makeValueEncodable(dynamic value) {
   if (value is String ||
       value is int ||
@@ -20,7 +21,7 @@ dynamic makeValueEncodable(dynamic value) {
   }
 }
 
-///  DHUMapExtension
+/// Provides JSON-friendly utilities for map instances.
 extension PrettyJsonMap<K, V> on Map<K, V> {
   /// Returns a new map with converted dynamic keys and values to a map with `String` keys and JSON-encodable values.
   ///
@@ -40,6 +41,7 @@ extension PrettyJsonMap<K, V> on Map<K, V> {
       const JsonEncoder.withIndent('  ').convert(encodableCopy);
 }
 
+/// Provides JSON-friendly utilities for iterable instances.
 extension PrettyJsonIterable on Iterable<dynamic> {
   /// Returns a JSON-encodable representation of this iterable.
   List<dynamic> get encodableList =>
@@ -53,6 +55,7 @@ extension PrettyJsonIterable on Iterable<dynamic> {
       JsonEncoder.withIndent(indent).convert(encodableList);
 }
 
+/// Provides JSON encoding helpers for arbitrary objects.
 extension PrettyJsonObject on Object? {
   /// Encodes this object into a JSON text.
   ///
