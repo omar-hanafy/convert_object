@@ -9,14 +9,15 @@ final _rnd = Random(1234567);
 int _randInt(int min, int max) => min + _rnd.nextInt(max - min + 1);
 
 DateTime _randUtc() {
-  final start = DateTime(1970, 1, 1);
-  final end = DateTime(2100, 1, 1);
+  final start = DateTime(1970);
+  final end = DateTime(2100);
   final spanDays = end.difference(start).inDays;
   final localDate = start.add(Duration(days: _rnd.nextInt(spanDays)));
   return localDate.toUtc();
 }
 
-int _expectedMillisForPattern(String fmt, String text, {required String locale}) {
+int _expectedMillisForPattern(String fmt, String text,
+    {required String locale}) {
   switch (fmt) {
     case 'yyyyMMdd':
       return _dateFromDigits(text).millisecondsSinceEpoch;
@@ -33,7 +34,8 @@ int _expectedMillisForPattern(String fmt, String text, {required String locale})
 
 DateTime _dateFromDigits(String digits) {
   if (!(digits.length == 8 || digits.length == 12 || digits.length == 14)) {
-    throw ArgumentError.value(digits, 'digits', 'Unexpected length for compact date');
+    throw ArgumentError.value(
+        digits, 'digits', 'Unexpected length for compact date');
   }
   final year = int.parse(digits.substring(0, 4));
   final month = int.parse(digits.substring(4, 6));
@@ -78,8 +80,7 @@ void main() {
             autoDetectFormat: true,
             locale: 'en_US',
           );
-          final expectMs =
-              _expectedMillisForPattern(fmt, s, locale: 'en_US');
+          final expectMs = _expectedMillisForPattern(fmt, s, locale: 'en_US');
           expect(parsed.millisecondsSinceEpoch, expectMs,
               reason: 'fmt=$fmt, s="$s"');
         }

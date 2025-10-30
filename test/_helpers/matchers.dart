@@ -19,6 +19,7 @@
 ///
 ///   expect(result, isSuccessResult());
 ///   expect(result, isFailureResult());
+library;
 
 import 'package:convert_object/convert_object.dart';
 import 'package:test/test.dart';

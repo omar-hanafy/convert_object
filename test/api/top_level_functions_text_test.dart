@@ -35,7 +35,7 @@ void main() {
     });
 
     test('mapKey on already-String input is ignored (no decode)', () {
-      final s = '{"k":"v"}';
+      const s = '{"k":"v"}';
       expect(toText(s, mapKey: 'k'), s);
       expect(tryToText(s, mapKey: 'k'), s);
     });

@@ -31,7 +31,7 @@ void main() {
     });
 
     test('decoded loads JSON strings before navigation', () {
-      final json = r'{"user":{"name":"Omar"}}';
+      const json = r'{"user":{"name":"Omar"}}';
       final name =
           json.convert.decoded.fromMap('user').fromMap('name').toText();
       expect(name, 'Omar');

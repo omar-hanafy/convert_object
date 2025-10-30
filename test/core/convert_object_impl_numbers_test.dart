@@ -24,7 +24,7 @@ void main() {
 
     test('toNum with explicit format/locale (en_US thousand separators)', () {
       // parse "12,345.67" using a format string
-      final s = '12,345.67';
+      const s = '12,345.67';
       final n = ConvertObjectImpl.toNum(
         s,
         format: '#,##0.##',

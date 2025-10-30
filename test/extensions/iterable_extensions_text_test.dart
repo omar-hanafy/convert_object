@@ -29,13 +29,13 @@ void main() {
 
   group('NullableIterableConversionX.tryGetText (on Iterable<E>?)', () {
     test('falls back to alternativeIndices when primary missing', () {
-      final List<String>? list = ['z'];
+      final List<String> list = ['z'];
       // Ask for index 2 but allow fallback to 0
       expect(list.tryGetText(2, alternativeIndices: [0]), 'z');
     });
 
     test('returns defaultValue when all indices missing', () {
-      final List<String>? list = ['only'];
+      final List<String> list = ['only'];
       expect(
         list.tryGetText(5, alternativeIndices: [4, 3], defaultValue: 'd'),
         'd',
@@ -43,13 +43,13 @@ void main() {
     });
 
     test('null iterable → tryGetText returns defaultValue/null', () {
-      final List<String>? list = null;
+      const List<String>? list = null;
       expect(list.tryGetMap<dynamic, dynamic>(0), isNull);
       expect(list.tryGetText(0, defaultValue: 'x'), 'x');
     });
 
     test('inner navigation with alternativeIndices', () {
-      final List<Map<String, dynamic>>? list = [
+      final List<Map<String, dynamic>> list = [
         {'name': 'first'},
       ];
       // index 3 doesn’t exist; fallback to 0

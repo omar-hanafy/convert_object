@@ -47,8 +47,8 @@ import 'utils/numbers_test.dart' as utils_numbers;
 import 'utils/uri_test.dart' as utils_uri;
 
 void main() {
-  final includeProperty = _envFlag('INCLUDE_PROPERTY', defaultValue: true);
-  final includeFuzz = _envFlag('INCLUDE_FUZZ', defaultValue: true);
+  final includeProperty = _envFlag('INCLUDE_PROPERTY');
+  final includeFuzz = _envFlag('INCLUDE_FUZZ');
 
   // API
   api_facade_text.main();

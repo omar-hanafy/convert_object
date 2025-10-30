@@ -19,11 +19,9 @@ void main() {
   final uri = toUri(payload, mapKey: 'email');
 
   // Fluent
-  final tags = Converter(payload)
-      .fromMap('meta')
-      .decoded
-      .toMap<String, dynamic>()
-      .getList<String>('tags');
+  final tags = Converter(
+    payload,
+  ).fromMap('meta').decoded.toMap<String, dynamic>().getList<String>('tags');
 
   print({'id': id, 'price': price, 'when': when.toIso8601String(), 'uri': uri});
   print(tags);

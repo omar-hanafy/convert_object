@@ -297,8 +297,8 @@ DateTime? _tryParseCompactDate(
     final year = int.parse(digitsOnly.substring(0, 4));
     final month = int.parse(digitsOnly.substring(4, 6));
     final day = int.parse(digitsOnly.substring(6, 8));
-    var hour = int.parse(digitsOnly.substring(8, 10));
-    var minute = int.parse(digitsOnly.substring(10, 12));
+    final hour = int.parse(digitsOnly.substring(8, 10));
+    final minute = int.parse(digitsOnly.substring(10, 12));
     var second = 0;
 
     if (digitsOnly.length == 14) {

@@ -10,6 +10,7 @@
 ///
 /// If you want strict golden matching, read the file and compare after
 /// sanitization to avoid OS-specific path/line-number diffs.
+library;
 
 /// Remove ANSI color/style escape codes.
 String stripAnsi(String input) {

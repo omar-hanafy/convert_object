@@ -68,15 +68,16 @@ void collectionConversions() {
     'age': '30',
     'active': 'true',
     'scores': [85, 90, 88],
-    'address': {'city': 'New York', 'zip': '10001'}
+    'address': {'city': 'New York', 'zip': '10001'},
   };
 
   final name = map.getText('name'); // 'John Doe'
   final age = map.getInt('age'); // 30
   final active = map.getBool('active'); // true
   final scores = map.getList<int>('scores'); // [85, 90, 88]
-  final city =
-      map.getMap<String, dynamic>('address').getText('city'); // 'New York'
+  final city = map
+      .getMap<String, dynamic>('address')
+      .getText('city'); // 'New York'
 
   print('Name: $name');
   print('Age: $age');
@@ -145,9 +146,9 @@ void advancedConversions() {
         'users': [
           {'id': '1', 'name': 'Alice'},
           {'id': '2', 'name': 'Bob'},
-        ]
-      }
-    }
+        ],
+      },
+    },
   };
 
   final users = nested.convert
@@ -171,8 +172,10 @@ void advancedConversions() {
   const nullableString = 'hello' as String?;
   final uppercase = nullableString.let((s) => s.toUpperCase()); // 'HELLO'
   const String? nullString = null;
-  final defaulted =
-      nullString.letOr((s) => s, defaultValue: 'default'); // 'default'
+  final defaulted = nullString.letOr(
+    (s) => s,
+    defaultValue: 'default',
+  ); // 'default'
 
   print('Let transformation: $uppercase');
   print('Let with default: $defaulted');
@@ -187,10 +190,7 @@ class User {
   User(this.name, this.age);
 
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      map.getText('name'),
-      map.getInt('age'),
-    );
+    return User(map.getText('name'), map.getInt('age'));
   }
 
   final String name;
@@ -212,8 +212,7 @@ void customConverters() {
     );
   }
 
-  final status = 'active'
-      .convert
+  final status = 'active'.convert
       .withConverter(statusConverter)
       .to<Status>(); // Status.active
 

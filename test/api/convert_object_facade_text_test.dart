@@ -36,8 +36,8 @@ void main() {
 
       expect(ConvertObject.toText(data, mapKey: 'name'), 'Omar');
       expect(ConvertObject.toText(data, mapKey: 'tags', listIndex: 1), 'utils');
-      expect(ConvertObject.toText(data, mapKey: 'nested', listIndex: null),
-          '{inner: [a, b, c]}');
+      expect(
+          ConvertObject.toText(data, mapKey: 'nested'), '{inner: [a, b, c]}');
 
       // Direct list access using listIndex (root object is a List)
       final list = ['x', 'y', 'z'];
@@ -53,7 +53,7 @@ void main() {
     });
 
     test('mapKey on a plain String is ignored (no decode for primitives)', () {
-      final jsonLike = '{"a":"v"}';
+      const jsonLike = '{"a":"v"}';
       // Because the input is already a String (target type), _convertObject returns it directly.
       expect(ConvertObject.toText(jsonLike, mapKey: 'a'), jsonLike);
       expect(ConvertObject.tryToText(jsonLike, mapKey: 'a'), jsonLike);

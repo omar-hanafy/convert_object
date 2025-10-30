@@ -33,7 +33,7 @@ void main() {
     });
 
     test('decoded → navigate into JSON string content', () {
-      final json = '{"a":{"b":["zero","one","two"]}}';
+      const json = '{"a":{"b":["zero","one","two"]}}';
       final v0 =
           json.convert.decoded.fromMap('a').fromMap('b').fromList(0).toText();
       final v2 =
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('tryToText with missing path returns null or default', () {
-      final json = '{"a":{"b":["zero"]}}';
+      const json = '{"a":{"b":["zero"]}}';
       final missing =
           json.convert.decoded.fromMap('a').fromMap('missing').tryToText();
       final withDefault =

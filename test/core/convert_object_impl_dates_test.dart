@@ -16,7 +16,7 @@ void main() {
     });
 
     test('HTTP-date via autoDetectFormat', () {
-      final s = 'Tue, 11 Jun 2024 14:15:00 GMT';
+      const s = 'Tue, 11 Jun 2024 14:15:00 GMT';
       final dt = ConvertObjectImpl.toDateTime(
         s,
         autoDetectFormat: true,
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('Unix epoch seconds (numeric)', () {
-      final secs = 1700000000; // 2023-11-14T22:13:20Z
+      const secs = 1700000000; // 2023-11-14T22:13:20Z
       final dt = ConvertObjectImpl.toDateTime(secs, utc: true);
       expect(dt.isUtc, isTrue);
       expect(dt.year >= 2020, isTrue); // sanity
@@ -42,7 +42,7 @@ void main() {
     });
 
     test('Unix epoch milliseconds (numeric)', () {
-      final ms = 1700000000000; // 2023-11-14T22:13:20Z
+      const ms = 1700000000000; // 2023-11-14T22:13:20Z
       final dt = ConvertObjectImpl.toDateTime(ms, utc: true);
       expect(dt.isUtc, isTrue);
       final expected = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
@@ -50,7 +50,7 @@ void main() {
     });
 
     test('Explicit format parsing (dd/MM/yyyy HH:mm:ss)', () {
-      final s = '11/06/2024 14:15:00';
+      const s = '11/06/2024 14:15:00';
       final dt = ConvertObjectImpl.toDateTime(
         s,
         format: 'dd/MM/yyyy HH:mm:ss',
@@ -66,7 +66,7 @@ void main() {
     });
 
     test('Auto-detect ambiguous numeric by locale preference', () {
-      final raw = '06/11/2024';
+      const raw = '06/11/2024';
       // US prefers MM/dd → June 11, 2024
       final us = ConvertObjectImpl.toDateTime(
         raw,
@@ -105,7 +105,7 @@ void main() {
         'Invalid string → tryToDateTime returns default or null; toDateTime throws',
         () {
       expect(ConvertObjectImpl.tryToDateTime('not-a-date'), isNull);
-      final fallback = DateTime(2000, 1, 1);
+      final fallback = DateTime(2000);
       expect(ConvertObjectImpl.tryToDateTime('nope', defaultValue: fallback),
           fallback);
       expect(() => ConvertObjectImpl.toDateTime('nope'),

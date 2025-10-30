@@ -26,7 +26,7 @@ void main() {
     });
 
     test('toDateAutoFormat parses HTTP-date (IMF-fixdate)', () {
-      final s = 'Tue, 11 Jun 2024 14:15:00 GMT';
+      const s = 'Tue, 11 Jun 2024 14:15:00 GMT';
       final dt = s.toDateAutoFormat(utc: true);
       expect(dt.isUtc, isTrue);
       expect(dt, DateTime.utc(2024, 6, 11, 14, 15));

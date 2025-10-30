@@ -17,7 +17,7 @@ extension _IterableIndexing<E> on Iterable<E> {
 }
 
 extension IterableConversionX<E> on Iterable<E> {
-  E? _valueAt(int index) => this._elementAtOrNull(index);
+  E? _valueAt(int index) => _elementAtOrNull(index);
 
   // Get-as helpers with inner selection and defaults
   String getText(

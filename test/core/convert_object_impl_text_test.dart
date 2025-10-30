@@ -54,7 +54,6 @@ void main() {
         ConvertObjectImpl.toText(
           data,
           mapKey: 'nested',
-          listIndex: null,
           // pull nested.list[1].id as text
           converter: (o) => ConvertObjectImpl.toText(o,
               mapKey: 'list',
@@ -66,7 +65,7 @@ void main() {
     });
 
     test('JSON strings are NOT auto-decoded for text primitives', () {
-      final json = '{"a":"v"}';
+      const json = '{"a":"v"}';
       // Because input is already a String, _convertObject<T> returns it directly
       // and ignores mapKey/listIndex for text primitives.
       expect(ConvertObjectImpl.toText(json, mapKey: 'a'), json);

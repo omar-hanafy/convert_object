@@ -31,15 +31,15 @@ BigInt _randBigInt() {
 
 DateTime _randDateTime() {
   // Between 1970-01-01 and 2100-01-01
-  final startSec = DateTime.utc(1970, 1, 1).millisecondsSinceEpoch ~/ 1000;
-  final endSec = DateTime.utc(2100, 1, 1).millisecondsSinceEpoch ~/ 1000;
+  final startSec = DateTime.utc(1970).millisecondsSinceEpoch ~/ 1000;
+  final endSec = DateTime.utc(2100).millisecondsSinceEpoch ~/ 1000;
   final spanSec = endSec - startSec;
   final secOffset = _rnd.nextInt(spanSec);
   final ms = (startSec + secOffset) * 1000;
   // Randomly UTC or local
   return _rnd.nextBool()
       ? DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true)
-      : DateTime.fromMillisecondsSinceEpoch(ms, isUtc: false);
+      : DateTime.fromMillisecondsSinceEpoch(ms);
 }
 
 Uri _randUri() {

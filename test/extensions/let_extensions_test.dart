@@ -21,13 +21,13 @@ void main() {
     });
 
     test('letOr uses block when non-null', () {
-      String? s = 'abc';
+      const String s = 'abc';
       final out = s.letOr((it) => it.toUpperCase(), defaultValue: 'DEFAULT');
       expect(out, 'ABC');
     });
 
     test('letNullable passes through non-null and returns its result', () {
-      String? s = 'x';
+      const String s = 'x';
       final out = s.letNullable((it) => it?.toUpperCase());
       expect(out, 'X');
     });

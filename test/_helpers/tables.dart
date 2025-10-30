@@ -14,15 +14,15 @@
 /// For async functions, use `tableTestAsync`.
 ///
 /// You can also supply a custom equality via [equals] (e.g., deep/approx).
+library;
 
 import 'package:test/test.dart';
 
 class Case<I, O> {
+  const Case(this.name, this.input, this.expected);
   final String name;
   final I input;
   final O expected;
-
-  const Case(this.name, this.input, this.expected);
 }
 
 void tableTest<I, O>(

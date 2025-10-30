@@ -13,6 +13,7 @@
 /// `configureTests(...)` at the start of your test's `main()` to register
 /// global `setUpAll` / `tearDownAll` hooks for that suite only.
 /// This avoids hidden global state across unrelated suites.
+library;
 
 import 'package:intl/intl.dart';
 import 'package:test/test.dart';

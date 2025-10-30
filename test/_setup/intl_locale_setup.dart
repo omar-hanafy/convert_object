@@ -11,6 +11,7 @@
 ///   testWithLocale('parses FR decimal', 'fr_FR', () {
 ///     // test body...
 ///   });
+library;
 
 import 'package:intl/intl.dart';
 import 'package:test/test.dart';
