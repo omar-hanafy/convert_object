@@ -1,0 +1,27 @@
+name: Pub Dry-Run (convert_object)
+
+on:
+  pull_request:
+    branches: [main, master]
+
+env:
+  PACKAGE_DIR: .
+
+jobs:
+  pub-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Dart (stable)
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart pub get
+
+      - name: Pub publish dry-run
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart pub publish --dry-run

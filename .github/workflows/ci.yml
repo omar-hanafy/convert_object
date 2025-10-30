@@ -1,0 +1,58 @@
+name: Dart CI (convert_object)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PACKAGE_DIR: .
+
+jobs:
+  test:
+    name: Test on ${{ matrix.sdk }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sdk: [stable, beta]
+    continue-on-error: ${{ matrix.sdk == 'beta' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Dart (${{ matrix.sdk }})
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Cache pub cache & .dart_tool
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ${{ env.PACKAGE_DIR }}/.dart_tool
+          key: ${{ runner.os }}-dart-${{ matrix.sdk }}-${{ hashFiles(format('{0}/pubspec.yaml', env.PACKAGE_DIR)) }}
+          restore-keys: |
+            ${{ runner.os }}-dart-${{ matrix.sdk }}-
+            ${{ runner.os }}-dart-
+
+      - name: Install dependencies
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart pub get
+
+      - name: Check formatting
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart analyze .
+
+      - name: Test
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart test --reporter expanded
