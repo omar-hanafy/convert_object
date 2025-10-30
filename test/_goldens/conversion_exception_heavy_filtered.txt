@@ -1,0 +1,11 @@
+ConversionException {
+  error: object is unsupported or null,
+  errorType: String,
+  context:
+{
+  "method": "toText",
+  "mapKey": "missing",
+  "object": "<Map with 1 entries>"
+},
+  stackTrace: <stack trace omitted>
+}

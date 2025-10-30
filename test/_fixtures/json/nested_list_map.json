@@ -1,0 +1,78 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "Hello",
+      "author": {
+        "name": "Omar",
+        "social": {
+          "twitter": "@omar"
+        }
+      },
+      "tags": [
+        "news",
+        "dart",
+        "utils"
+      ],
+      "meta": {
+        "likes": "10",
+        "featured": "false",
+        "published": "Tue, 11 Jun 2024 14:15:00 GMT"
+      }
+    },
+    {
+      "id": 2,
+      "title": "World",
+      "author": {
+        "name": "Khaled",
+        "social": {
+          "twitter": "@khaled"
+        }
+      },
+      "tags": [],
+      "meta": {
+        "likes": 20,
+        "featured": true,
+        "published": 1718115300
+      }
+    }
+  ],
+  "matrix": [
+    [
+      1,
+      "2",
+      3.0
+    ],
+    [
+      "4",
+      5,
+      "6"
+    ]
+  ],
+  "mapOfLists": {
+    "a": [
+      1,
+      2,
+      3
+    ],
+    "b": [
+      "4",
+      "5",
+      "6"
+    ],
+    "c": [
+      true,
+      "false",
+      0
+    ]
+  },
+  "listOfMaps": [
+    {
+      "k": "v1"
+    },
+    {
+      "k": "v2",
+      "n": "3"
+    }
+  ]
+}
