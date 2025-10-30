@@ -1,13 +1,12 @@
 import 'dart:developer';
 
-import 'package:meta/meta.dart';
-
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/bools.dart';
 import 'package:convert_object/src/utils/dates.dart';
 import 'package:convert_object/src/utils/json.dart';
 import 'package:convert_object/src/utils/numbers.dart';
 import 'package:convert_object/src/utils/uri.dart';
+import 'package:meta/meta.dart';
 
 /// Signature for transforming a value pulled from a collection during
 /// conversion.

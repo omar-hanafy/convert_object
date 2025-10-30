@@ -1,6 +1,6 @@
+import 'package:convert_object/src/core/convert_object_impl.dart';
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/json.dart';
-import 'package:convert_object/src/core/convert_object_impl.dart';
 
 /// Signature for lazily transforming a stored value before conversion.
 typedef DynamicConverter<T> = T Function(Object? value);

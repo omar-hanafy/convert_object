@@ -1,5 +1,5 @@
-import 'package:meta/meta.dart';
 import 'package:convert_object/src/core/convert_object_impl.dart';
+import 'package:meta/meta.dart';
 
 /// Signature for transforming a single element while converting collections.
 typedef ElementConverter<T> = T Function(Object? element);
