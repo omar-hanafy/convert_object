@@ -1,6 +1,4 @@
 import 'package:convert_object/convert_object.dart';
-import 'package:convert_object/src/utils/bools.dart';
-import 'package:convert_object/src/utils/numbers.dart';
 
 void main() {
   // Basic conversions

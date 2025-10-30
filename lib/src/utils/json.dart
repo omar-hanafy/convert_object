@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+/// Adds JSON decoding helpers to [String].
 extension TextJsonX on String {
   /// Tries to decode JSON; on failure, returns the original text.
   Object? tryDecode() {

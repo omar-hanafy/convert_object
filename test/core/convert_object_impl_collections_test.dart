@@ -15,6 +15,7 @@ void main() {
       });
 
       test('Set → List', () {
+        // ignore: equal_elements_in_set
         final out = ConvertObjectImpl.toList<int>({1, 2, 2, 3});
         expect(out..sort(), [1, 2, 3]);
       });

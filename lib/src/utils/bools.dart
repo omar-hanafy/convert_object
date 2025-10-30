@@ -1,3 +1,4 @@
+/// Adds boolean parsing helpers to dynamic values.
 extension BoolParsingX on Object? {
   /// Convert any value to a boolean with explicit, predictable semantics.
   ///

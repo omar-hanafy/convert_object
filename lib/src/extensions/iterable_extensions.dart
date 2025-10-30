@@ -1,4 +1,4 @@
-import '../core/convert_object_impl.dart';
+import 'package:convert_object/src/core/convert_object_impl.dart';
 
 extension _IterableIndexing<E> on Iterable<E> {
   E? _elementAtOrNull(int index) {
@@ -16,10 +16,12 @@ extension _IterableIndexing<E> on Iterable<E> {
   }
 }
 
+/// Conversion helpers for non-null [Iterable] collections.
 extension IterableConversionX<E> on Iterable<E> {
   E? _valueAt(int index) => _elementAtOrNull(index);
 
   // Get-as helpers with inner selection and defaults
+  /// Converts the element at [index] to a [String].
   String getText(
     int index, {
     dynamic innerMapKey,
@@ -36,6 +38,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to an [int].
   int getInt(
     int index, {
     dynamic innerMapKey,
@@ -56,6 +59,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [double].
   double getDouble(
     int index, {
     dynamic innerMapKey,
@@ -76,6 +80,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [num].
   num getNum(
     int index, {
     dynamic innerMapKey,
@@ -96,6 +101,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [bool].
   bool getBool(
     int index, {
     dynamic innerMapKey,
@@ -112,6 +118,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [BigInt].
   BigInt getBigInt(
     int index, {
     dynamic innerMapKey,
@@ -128,6 +135,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [DateTime].
   DateTime getDateTime(
     int index, {
     dynamic innerMapKey,
@@ -154,6 +162,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [Uri].
   Uri getUri(
     int index, {
     dynamic innerMapKey,
@@ -170,6 +179,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [List] of [T].
   List<T> getList<T>(int index,
           {dynamic innerMapKey, int? innerIndex, List<T>? defaultValue}) =>
       ConvertObjectImpl.toList<T>(
@@ -180,6 +190,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [Set] of [T].
   Set<T> getSet<T>(int index,
           {dynamic innerMapKey, int? innerIndex, Set<T>? defaultValue}) =>
       ConvertObjectImpl.toSet<T>(
@@ -190,6 +201,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to a [Map] of [K2] to [V2].
   Map<K2, V2> getMap<K2, V2>(int index,
           {dynamic innerMapKey, int? innerIndex, Map<K2, V2>? defaultValue}) =>
       ConvertObjectImpl.toMap<K2, V2>(
@@ -200,6 +212,7 @@ extension IterableConversionX<E> on Iterable<E> {
         debugInfo: {'index': index},
       );
 
+  /// Converts the element at [index] to an enum value using [parser].
   T getEnum<T extends Enum>(int index,
           {required T Function(dynamic) parser,
           dynamic innerMapKey,
@@ -215,6 +228,7 @@ extension IterableConversionX<E> on Iterable<E> {
       );
 
   // Convert all
+  /// Converts every element in this iterable to [T].
   List<T> convertAll<T>() =>
       map((e) => ConvertObjectImpl.toType<T>(e)).toList();
 
@@ -263,6 +277,7 @@ extension IterableConversionX<E> on Iterable<E> {
   }
 }
 
+/// Conversion helpers for nullable [Iterable] collections.
 extension NullableIterableConversionX<E> on Iterable<E>? {
   E? _firstForIndices(int index, {List<int>? alternativeIndices}) {
     final it = this;
@@ -278,6 +293,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     return null;
   }
 
+  /// Tries to convert the element at [index] (or fallback indices) to [String].
   String? tryGetText(
     int index, {
     List<int>? alternativeIndices,
@@ -299,6 +315,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [int].
   int? tryGetInt(
     int index, {
     List<int>? alternativeIndices,
@@ -324,6 +341,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [double].
   double? tryGetDouble(
     int index, {
     List<int>? alternativeIndices,
@@ -349,6 +367,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [bool].
   bool? tryGetBool(
     int index, {
     List<int>? alternativeIndices,
@@ -370,6 +389,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [num].
   num? tryGetNum(
     int index, {
     List<int>? alternativeIndices,
@@ -395,6 +415,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [BigInt].
   BigInt? tryGetBigInt(
     int index, {
     List<int>? alternativeIndices,
@@ -416,6 +437,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [DateTime].
   DateTime? tryGetDateTime(
     int index, {
     List<int>? alternativeIndices,
@@ -447,6 +469,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to [Uri].
   Uri? tryGetUri(
     int index, {
     List<int>? alternativeIndices,
@@ -468,6 +491,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to a [List] of [T].
   List<T>? tryGetList<T>(int index,
           {List<int>? alternativeIndices,
           dynamic innerMapKey,
@@ -485,6 +509,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to a [Set] of [T].
   Set<T>? tryGetSet<T>(int index,
           {List<int>? alternativeIndices,
           dynamic innerMapKey,
@@ -502,6 +527,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to a [Map] of [K2] to [V2].
   Map<K2, V2>? tryGetMap<K2, V2>(int index,
           {List<int>? alternativeIndices,
           dynamic innerMapKey,
@@ -519,6 +545,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
         },
       );
 
+  /// Tries to convert the element at [index] (or fallback indices) to an enum using [parser].
   T? tryGetEnum<T extends Enum>(int index,
           {required T Function(dynamic) parser,
           List<int>? alternativeIndices,
@@ -539,6 +566,8 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
       );
 }
 
+/// Converts nullable sets into a [Set] of a different type.
 extension SetConvertToX<E> on Set<E>? {
+  /// Converts this set into a [Set] of [R] using convert_object.
   Set<R> convertTo<R>() => ConvertObjectImpl.toSet<R>(this);
 }
