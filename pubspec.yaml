@@ -13,8 +13,8 @@ environment:
 
 dependencies:
   intl: ^0.20.2
+  meta: ^1.17.0
 
-  meta: any
 dev_dependencies:
   lints: ^6.0.0
   test: ^1.26.3
