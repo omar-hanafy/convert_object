@@ -124,80 +124,81 @@ class Converter {
   }
 
   // Primitive shortcuts ----------------------------------------------
-  /// Converts to [String], mirroring [ConvertObject.toText].
-  String toText() =>
-      ConvertObjectImpl.toText(_value, defaultValue: _defaultValue as String?);
+  /// Converts to [String], mirroring [Convert.toStringValue].
+  String toStringValue() => ConvertObjectImpl.toStringValue(_value,
+      defaultValue: _defaultValue as String?);
 
-  /// Converts to [String] without throwing, mirroring [ConvertObject.tryToText].
-  String? tryToText() => ConvertObjectImpl.tryToText(_value,
+  /// Converts to [String] without throwing, mirroring [Convert.tryToStringValue].
+  String? tryToStringValue() => ConvertObjectImpl.tryToStringValue(_value,
       defaultValue: _defaultValue as String?);
 
   /// Converts to [String], falling back to [defaultValue] when conversion fails.
-  String toTextOr(String defaultValue) => tryToText() ?? defaultValue;
+  String toStringValueOr(String defaultValue) =>
+      tryToStringValue() ?? defaultValue;
 
-  /// Converts to [num], mirroring [ConvertObject.toNum].
+  /// Converts to [num], mirroring [Convert.toNum].
   num toNum() =>
       ConvertObjectImpl.toNum(_value, defaultValue: _defaultValue as num?);
 
-  /// Converts to [num] without throwing, mirroring [ConvertObject.tryToNum].
+  /// Converts to [num] without throwing, mirroring [Convert.tryToNum].
   num? tryToNum() =>
       ConvertObjectImpl.tryToNum(_value, defaultValue: _defaultValue as num?);
 
   /// Converts to [num], falling back to [defaultValue] on conversion failure.
   num toNumOr(num defaultValue) => tryToNum() ?? defaultValue;
 
-  /// Converts to [int], mirroring [ConvertObject.toInt].
+  /// Converts to [int], mirroring [Convert.toInt].
   int toInt() =>
       ConvertObjectImpl.toInt(_value, defaultValue: _defaultValue as int?);
 
-  /// Converts to [int] without throwing, mirroring [ConvertObject.tryToInt].
+  /// Converts to [int] without throwing, mirroring [Convert.tryToInt].
   int? tryToInt() =>
       ConvertObjectImpl.tryToInt(_value, defaultValue: _defaultValue as int?);
 
   /// Converts to [int], falling back to [defaultValue] when conversion fails.
   int toIntOr(int defaultValue) => tryToInt() ?? defaultValue;
 
-  /// Converts to [double], mirroring [ConvertObject.toDouble].
+  /// Converts to [double], mirroring [Convert.toDouble].
   double toDouble() => ConvertObjectImpl.toDouble(_value,
       defaultValue: _defaultValue as double?);
 
   /// Converts to [double] without throwing, mirroring
-  /// [ConvertObject.tryToDouble].
+  /// [Convert.tryToDouble].
   double? tryToDouble() => ConvertObjectImpl.tryToDouble(_value,
       defaultValue: _defaultValue as double?);
 
   /// Converts to [double], falling back to [defaultValue] on failure.
   double toDoubleOr(double defaultValue) => tryToDouble() ?? defaultValue;
 
-  /// Converts to [bool], mirroring [ConvertObject.toBool].
+  /// Converts to [bool], mirroring [Convert.toBool].
   bool toBool() =>
       ConvertObjectImpl.toBool(_value, defaultValue: _defaultValue as bool?);
 
-  /// Converts to [bool] without throwing, mirroring [ConvertObject.tryToBool].
+  /// Converts to [bool] without throwing, mirroring [Convert.tryToBool].
   bool? tryToBool() =>
       ConvertObjectImpl.tryToBool(_value, defaultValue: _defaultValue as bool?);
 
   /// Converts to [bool], falling back to [defaultValue] on failure.
   bool toBoolOr(bool defaultValue) => tryToBool() ?? defaultValue;
 
-  /// Converts to [BigInt], mirroring [ConvertObject.toBigInt].
+  /// Converts to [BigInt], mirroring [Convert.toBigInt].
   BigInt toBigInt() => ConvertObjectImpl.toBigInt(_value,
       defaultValue: _defaultValue as BigInt?);
 
   /// Converts to [BigInt] without throwing, mirroring
-  /// [ConvertObject.tryToBigInt].
+  /// [Convert.tryToBigInt].
   BigInt? tryToBigInt() => ConvertObjectImpl.tryToBigInt(_value,
       defaultValue: _defaultValue as BigInt?);
 
   /// Converts to [BigInt], falling back to [defaultValue] on failure.
   BigInt toBigIntOr(BigInt defaultValue) => tryToBigInt() ?? defaultValue;
 
-  /// Converts to [DateTime], mirroring [ConvertObject.toDateTime].
+  /// Converts to [DateTime], mirroring [Convert.toDateTime].
   DateTime toDateTime() => ConvertObjectImpl.toDateTime(_value,
       defaultValue: _defaultValue as DateTime?);
 
   /// Converts to [DateTime] without throwing, mirroring
-  /// [ConvertObject.tryToDateTime].
+  /// [Convert.tryToDateTime].
   DateTime? tryToDateTime() => ConvertObjectImpl.tryToDateTime(_value,
       defaultValue: _defaultValue as DateTime?);
 
@@ -205,11 +206,11 @@ class Converter {
   DateTime toDateTimeOr(DateTime defaultValue) =>
       tryToDateTime() ?? defaultValue;
 
-  /// Converts to [Uri], mirroring [ConvertObject.toUri].
+  /// Converts to [Uri], mirroring [Convert.toUri].
   Uri toUri() =>
       ConvertObjectImpl.toUri(_value, defaultValue: _defaultValue as Uri?);
 
-  /// Converts to [Uri] without throwing, mirroring [ConvertObject.tryToUri].
+  /// Converts to [Uri] without throwing, mirroring [Convert.tryToUri].
   Uri? tryToUri() =>
       ConvertObjectImpl.tryToUri(_value, defaultValue: _defaultValue as Uri?);
 

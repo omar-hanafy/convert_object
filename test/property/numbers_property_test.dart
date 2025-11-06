@@ -20,14 +20,14 @@ void main() {
         if (asDouble) {
           final v = _round((_rnd.nextDouble() - 0.5) * 2e9, 6);
           final s = v.toString(); // includes scientific for large/small
-          final parsed = ConvertObject.toNum(s);
+          final parsed = Convert.toNum(s);
           expect(parsed, closeTo(v, 1e-9),
               reason: 'Failed to parse plain double "$s"');
         } else {
           final v =
               (_rnd.nextDouble() * 1e12).round() * (_rnd.nextBool() ? -1 : 1);
           final s = v.toString();
-          final parsed = ConvertObject.toNum(s);
+          final parsed = Convert.toNum(s);
           expect(parsed, v, reason: 'Failed to parse plain int "$s"');
         }
       }
@@ -41,7 +41,7 @@ void main() {
       for (var i = 0; i < 400; i++) {
         final v = _round((_rnd.nextDouble() - 0.5) * 1e8, 3);
         final s = f.format(v);
-        final parsed = ConvertObject.toNum(
+        final parsed = Convert.toNum(
           s,
           format: pattern,
           locale: locale,
@@ -61,7 +61,7 @@ void main() {
           final ch = _rnd.nextBool() ? ' ' : '\u00A0';
           s = s.substring(0, pos) + ch + s.substring(pos);
         }
-        final parsed = ConvertObject.toNum(s);
+        final parsed = Convert.toNum(s);
         expect(parsed, closeTo(v, 1e-9), reason: 'Failed to parse "$s"');
       }
     });

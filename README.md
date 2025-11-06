@@ -16,7 +16,7 @@
 * [Quick start](#quick-start)
 * [Core APIs](#core-apis)
 
-  * [Static facade: `ConvertObject`](#static-facade-convertobject)
+  * [Static facade: `Convert`](#static-facade-convertobject)
   * [Fluent API: `Converter` + `.convert` extension](#fluent-api-converter--convert-extension)
   * [Top‑level functions (`toInt`, `tryToDateTime`, …)](#top-level-functions)
   * [Map/Iterable/Object extensions](#mapiterableobject-extensions)
@@ -40,7 +40,7 @@
 
 `convert_object` gives you a **single, consistent API** to turn loosely‑typed or dynamic data (maps, lists, JSON, strings) into strongly‑typed values — with:
 
-* **Fluent** conversion (`obj.convert.toInt()`) and **static** helpers (`ConvertObject.toInt(obj)`).
+* **Fluent** conversion (`obj.convert.toInt()`) and **static** helpers (`Convert.toInt(obj)`).
 * **Safe** `try*` variants that never throw (return `null` or a default).
 * **Collections**: convert to `List<T>`, `Set<T>`, `Map<K,V>` with custom element/key/value converters.
 * **Enums**: robust parsers (`byName`, `caseInsensitive`, `byIndex`, fallback).
@@ -84,12 +84,12 @@ void main() {
   };
 
   // Static facade
-  final id = ConvertObject.toInt(data, mapKey: 'id');                // 42
-  final price = ConvertObject.toDouble(data, mapKey: 'price');       // 1234.56
-  final when = ConvertObject.toDateTime(data, mapKey: 'when', utc: true);
-  final site = ConvertObject.toUri(data, mapKey: 'site');            // Uri
-  final tags = ConvertObject.toList<int>(data, mapKey: 'tags');      // [1,2,3]
-  final email = ConvertObject.toUri(data, mapKey: 'user', listIndex: null,
+  final id = Convert.toInt(data, mapKey: 'id');                // 42
+  final price = Convert.toDouble(data, mapKey: 'price');       // 1234.56
+  final when = Convert.toDateTime(data, mapKey: 'when', utc: true);
+  final site = Convert.toUri(data, mapKey: 'site');            // Uri
+  final tags = Convert.toList<int>(data, mapKey: 'tags');      // [1,2,3]
+  final email = Convert.toUri(data, mapKey: 'user', listIndex: null,
                                     defaultValue: null);             // mailto:alice@example.com
 
   // Fluent API
@@ -98,7 +98,7 @@ void main() {
 
   // Enums
   enum Status { Active, Disabled }
-  final s = ConvertObject.toEnum<Status>(data['status'],
+  final s = Convert.toEnum<Status>(data['status'],
             parser: EnumParsers.byName(Status.values));              // Status.Active
 
   print([id, price, when, site, tags, asBool, maybeNum, s]);
@@ -109,7 +109,7 @@ void main() {
 
 ## Core APIs
 
-### Static facade: `ConvertObject`
+### Static facade: `Convert`
 
 Backwards‑compatible, static helpers that cover primitives, dates, URIs, enums, collections, and generic routing.
 
@@ -117,65 +117,65 @@ Backwards‑compatible, static helpers that cover primitives, dates, URIs, enums
 
 ```dart
 // Text
-String        ConvertObject.toText(obj, {mapKey, listIndex, defaultValue, converter});
-String?       ConvertObject.tryToText(obj, { ... });
+String        Convert.toStringValue(obj, {mapKey, listIndex, defaultValue, converter});
+String?       Convert.tryToStringValue(obj, { ... });
 
 // Numbers
-num           ConvertObject.toNum(obj, {format, locale, ...});
-num?          ConvertObject.tryToNum(obj, {format, locale, ...});
-int           ConvertObject.toInt(obj, {format, locale, ...});
-int?          ConvertObject.tryToInt(obj, {format, locale, ...});
-double        ConvertObject.toDouble(obj, {format, locale, ...});
-double?       ConvertObject.tryToDouble(obj, {format, locale, ...});
-BigInt        ConvertObject.toBigInt(obj, {...});
-BigInt?       ConvertObject.tryToBigInt(obj, {...});
+num           Convert.toNum(obj, {format, locale, ...});
+num?          Convert.tryToNum(obj, {format, locale, ...});
+int           Convert.toInt(obj, {format, locale, ...});
+int?          Convert.tryToInt(obj, {format, locale, ...});
+double        Convert.toDouble(obj, {format, locale, ...});
+double?       Convert.tryToDouble(obj, {format, locale, ...});
+BigInt        Convert.toBigInt(obj, {...});
+BigInt?       Convert.tryToBigInt(obj, {...});
 
 // Bool (predictable truthiness; see below)
-bool          ConvertObject.toBool(obj, {defaultValue});
-bool?         ConvertObject.tryToBool(obj, {defaultValue});
+bool          Convert.toBool(obj, {defaultValue});
+bool?         Convert.tryToBool(obj, {defaultValue});
 
 // DateTime
-DateTime      ConvertObject.toDateTime(obj, {
+DateTime      Convert.toDateTime(obj, {
                 format, locale, autoDetectFormat=false,
                 useCurrentLocale=false, utc=false, ...
               });
-DateTime?     ConvertObject.tryToDateTime(obj, { ... });
+DateTime?     Convert.tryToDateTime(obj, { ... });
 
 // Uri (detects email/phone and builds mailto:/tel:)
-Uri           ConvertObject.toUri(obj, {defaultValue});
-Uri?          ConvertObject.tryToUri(obj, {defaultValue});
+Uri           Convert.toUri(obj, {defaultValue});
+Uri?          Convert.tryToUri(obj, {defaultValue});
 ```
 
 #### Collections
 
 ```dart
 // Map
-Map<K,V>      ConvertObject.toMap<K,V>(obj, {
+Map<K,V>      Convert.toMap<K,V>(obj, {
                 keyConverter, valueConverter, defaultValue
               });
-Map<K,V>?     ConvertObject.tryToMap<K,V>(...);
+Map<K,V>?     Convert.tryToMap<K,V>(...);
 
 // Set
-Set<T>        ConvertObject.toSet<T>(obj, {elementConverter, defaultValue});
-Set<T>?       ConvertObject.tryToSet<T>(...);
+Set<T>        Convert.toSet<T>(obj, {elementConverter, defaultValue});
+Set<T>?       Convert.tryToSet<T>(...);
 
 // List
-List<T>       ConvertObject.toList<T>(obj, {elementConverter, defaultValue});
-List<T>?      ConvertObject.tryToList<T>(...);
+List<T>       Convert.toList<T>(obj, {elementConverter, defaultValue});
+List<T>?      Convert.tryToList<T>(...);
 ```
 
 #### Enums
 
 ```dart
-T             ConvertObject.toEnum<T extends Enum>(obj, { required parser, defaultValue });
-T?            ConvertObject.tryToEnum<T extends Enum>(obj, { required parser, defaultValue });
+T             Convert.toEnum<T extends Enum>(obj, { required parser, defaultValue });
+T?            Convert.tryToEnum<T extends Enum>(obj, { required parser, defaultValue });
 ```
 
 #### Generic routing
 
 ```dart
-T             ConvertObject.toType<T>(obj);   // supports bool,int,double,num,BigInt,String,DateTime,Uri
-T?            ConvertObject.tryToType<T>(obj);
+T             Convert.toType<T>(obj);   // supports bool,int,double,num,BigInt,String,DateTime,Uri
+T?            Convert.tryToType<T>(obj);
 ```
 
 > All `to*` methods **throw** a `ConversionException` on failure
@@ -249,11 +249,11 @@ final when  = user.getDateTime('joined', locale: 'en_GB');
 final tags  = user.getList<int>('tags');              // [1,2,3]
 
 // Try variants + alt keys
-final name  = user.tryGetText('name', alternativeKeys: ['username', 'handle']);
+final name  = user.tryGetString('name', alternativeKeys: ['username', 'handle']);
 ```
 
 Available getters on `Map<K,V>` and `Map<K,V>?`:
-`get/tryGetText`, `get/tryGetInt`, `get/tryGetDouble`, `get/tryGetNum`,
+`get/tryGetString`, `get/tryGetInt`, `get/tryGetDouble`, `get/tryGetNum`,
 `get/tryGetBool`, `get/tryGetBigInt`, `get/tryGetDateTime`, `get/tryGetUri`,
 `get/tryGetList<T>`, `get/tryGetSet<T>`, `get/tryGetMap<K2,V2>`, `get/tryGetEnum<T>()`.
 
@@ -310,11 +310,11 @@ final parserCaseInsensitive = EnumParsers.byNameCaseInsensitive(Mode.values);
 final parserByIndex         = EnumParsers.byIndex(Mode.values);
 final parserWithFallback    = EnumParsers.byNameOrFallback(Mode.values, Mode.light);
 
-// Usage with ConvertObject
-final m1 = ConvertObject.toEnum<Mode>('dark',  parser: parserByName);            // dark
-final m2 = ConvertObject.toEnum<Mode>('DARK',  parser: parserCaseInsensitive);   // dark
-final m3 = ConvertObject.toEnum<Mode>('oops',  parser: parserWithFallback);      // light
-final m4 = ConvertObject.toEnum<Mode>(1,       parser: parserByIndex);           // dark
+// Usage with Convert
+final m1 = Convert.toEnum<Mode>('dark',  parser: parserByName);            // dark
+final m2 = Convert.toEnum<Mode>('DARK',  parser: parserCaseInsensitive);   // dark
+final m3 = Convert.toEnum<Mode>('oops',  parser: parserWithFallback);      // light
+final m4 = Convert.toEnum<Mode>(1,       parser: parserByIndex);           // dark
 
 // Shortcuts from a list of enum values:
 final byName = Mode.values.parser;
@@ -329,7 +329,7 @@ A tiny monad to carry success/failure without throwing:
 ```dart
 ConversionResult<int> parseAge(Object? v) {
   try {
-    return ConversionResult.success(ConvertObject.toInt(v));
+    return ConversionResult.success(Convert.toInt(v));
   } on ConversionException catch (e) {
     return ConversionResult.failure(e);
   }
@@ -348,13 +348,13 @@ res.error?.toString();        // Human‑readable diagnostic
 
 ```dart
 // Explicit format
-final birth = ConvertObject.toDateTime('29/02/2024',
+final birth = Convert.toDateTime('29/02/2024',
               format: 'dd/MM/yyyy', locale: 'en_GB');
 
 // Auto‑detect (set `autoDetectFormat: true`)
-final a = ConvertObject.toDateTime('20240229', autoDetectFormat: true);
-final b = ConvertObject.toDateTime('02/29/2024', autoDetectFormat: true, locale: 'en_US');
-final c = ConvertObject.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
+final a = Convert.toDateTime('20240229', autoDetectFormat: true);
+final b = Convert.toDateTime('02/29/2024', autoDetectFormat: true, locale: 'en_US');
+final c = Convert.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
                                    autoDetectFormat: true, utc: true);
 ```
 
@@ -383,8 +383,8 @@ final c = ConvertObject.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
 * Localized parsing via `format` + `locale` (uses `intl:NumberFormat`).
 
 ```dart
-ConvertObject.toInt('1,234');                           // 1234
-ConvertObject.toNum('1.234,56', format: '#,##0.##', locale: 'de_DE'); // 1234.56
+Convert.toInt('1,234');                           // 1234
+Convert.toNum('1.234,56', format: '#,##0.##', locale: 'de_DE'); // 1234.56
 ```
 
 ### Booleans (`asBool`)
@@ -415,9 +415,9 @@ final nope = 'nope'.convert.toBool(); // false
 * **Phone numbers** → `tel:+14155551234`
 
 ```dart
-ConvertObject.toUri('alice@example.com');   // mailto:alice@example.com
-ConvertObject.toUri('+1 (415) 555-1234');   // tel:+14155551234
-ConvertObject.toUri('https://example.com'); // Uri
+Convert.toUri('alice@example.com');   // mailto:alice@example.com
+Convert.toUri('+1 (415) 555-1234');   // tel:+14155551234
+Convert.toUri('https://example.com'); // Uri
 ```
 
 Parsing safeguards (invalid host/path) are enforced. Use `tryToUri` or `defaultValue` to avoid throwing.
@@ -449,7 +449,7 @@ All throwing conversions use a single exception type:
 
 ```dart
 try {
-  final n = ConvertObject.toInt('oops');
+  final n = Convert.toInt('oops');
 } on ConversionException catch (e) {
   print(e);            // filtered context (safe + concise)
   // print(e.fullReport()); // full JSON context + stack (verbose)
@@ -472,13 +472,13 @@ final input = {
   'attrs':  {'a': '1', 'b': 2.5, 'c': '3'},
 };
 
-final prices = ConvertObject.toList<double>(input, mapKey: 'prices'); // [1.2,3.0,4.56]
+final prices = Convert.toList<double>(input, mapKey: 'prices'); // [1.2,3.0,4.56]
 
-final attrs = ConvertObject.toMap<String, int>(
+final attrs = Convert.toMap<String, int>(
   input,
   mapKey: 'attrs',
   keyConverter: (k) => k.toString(),
-  valueConverter: (v) => v is int ? v : ConvertObject.toInt(v),
+  valueConverter: (v) => v is int ? v : Convert.toInt(v),
 ); // {'a':1,'b':2,'c':3}
 ```
 
@@ -494,7 +494,7 @@ class User {
 
   factory User.fromJson(Map<String, Object?> json) => User(
         json.getInt('id'),
-        json.getText('email', alternativeKeys: ['mail']),
+        json.getString('email', alternativeKeys: ['mail']),
         json.getDateTime('created_at',
           autoDetectFormat: true, useCurrentLocale: true),
       );
@@ -514,7 +514,7 @@ final id = row.tryGetInt(1, alternativeIndices: [2]) ?? -1; // 42
 ```dart
 enum Role { admin, editor, viewer }
 
-final role = ConvertObject.toEnum<Role>(
+final role = Convert.toEnum<Role>(
   'EDITOR',
   parser: Role.values.parserCaseInsensitive,
 );
@@ -524,7 +524,7 @@ final role = ConvertObject.toEnum<Role>(
 
 ## Migration from `dart_helper_utils`
 
-This package provides a **backwards‑compatible** static facade named `ConvertObject` with the original method names and signatures, while offering a complete, modernized implementation.
+This package provides a **backwards‑compatible** static facade named `Convert` with the original method names and signatures, while offering a complete, modernized implementation.
 
 Notable notes:
 
@@ -592,70 +592,70 @@ typedef DynamicConverter<T> = T Function(Object? value);
 
 ---
 
-### Static facade — `ConvertObject`
+### Static facade — `Convert`
 
 ```dart
 // Text
-String  ConvertObject.toText(
+String  Convert.toStringValue(
   dynamic object, {dynamic mapKey, int? listIndex, String? defaultValue,
   ElementConverter<String>? converter});
 
-String? ConvertObject.tryToText(
+String? Convert.tryToStringValue(
   dynamic object, {dynamic mapKey, int? listIndex, String? defaultValue,
   ElementConverter<String>? converter});
 
 // Numbers
-num  ConvertObject.toNum(
+num  Convert.toNum(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   num? defaultValue, ElementConverter<num>? converter});
 
-num? ConvertObject.tryToNum(
+num? Convert.tryToNum(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   num? defaultValue, ElementConverter<num>? converter});
 
-int  ConvertObject.toInt(
+int  Convert.toInt(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   int? defaultValue, ElementConverter<int>? converter});
 
-int? ConvertObject.tryToInt(
+int? Convert.tryToInt(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   int? defaultValue, ElementConverter<int>? converter});
 
-double  ConvertObject.toDouble(
+double  Convert.toDouble(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   double? defaultValue, ElementConverter<double>? converter});
 
-double? ConvertObject.tryToDouble(
+double? Convert.tryToDouble(
   dynamic object, {dynamic mapKey, int? listIndex, String? format, String? locale,
   double? defaultValue, ElementConverter<double>? converter});
 
 // BigInt
-BigInt  ConvertObject.toBigInt(
+BigInt  Convert.toBigInt(
   dynamic object, {dynamic mapKey, int? listIndex, BigInt? defaultValue,
   ElementConverter<BigInt>? converter});
 
-BigInt? ConvertObject.tryToBigInt(
+BigInt? Convert.tryToBigInt(
   dynamic object, {dynamic mapKey, int? listIndex, BigInt? defaultValue,
   ElementConverter<BigInt>? converter});
 
 // Bool  (never throws; defaults to false if not convertible)
-bool   ConvertObject.toBool(
+bool   Convert.toBool(
   dynamic object, {dynamic mapKey, int? listIndex, bool? defaultValue,
   ElementConverter<bool>? converter});
 
-bool?  ConvertObject.tryToBool(
+bool?  Convert.tryToBool(
   dynamic object, {dynamic mapKey, int? listIndex, bool? defaultValue,
   ElementConverter<bool>? converter});
 
 // DateTime
-DateTime  ConvertObject.toDateTime(
+DateTime  Convert.toDateTime(
   dynamic object, {
     dynamic mapKey, int? listIndex, String? format, String? locale,
     bool autoDetectFormat=false, bool useCurrentLocale=false, bool utc=false,
     DateTime? defaultValue, ElementConverter<DateTime>? converter
   });
 
-DateTime? ConvertObject.tryToDateTime(
+DateTime? Convert.tryToDateTime(
   dynamic object, {
     dynamic mapKey, int? listIndex, String? format, String? locale,
     bool autoDetectFormat=false, bool useCurrentLocale=false, bool utc=false,
@@ -663,55 +663,55 @@ DateTime? ConvertObject.tryToDateTime(
   });
 
 // Uri (supports email→mailto and phone→tel)
-Uri   ConvertObject.toUri(
+Uri   Convert.toUri(
   dynamic object, {dynamic mapKey, int? listIndex, Uri? defaultValue,
   ElementConverter<Uri>? converter});
 
-Uri?  ConvertObject.tryToUri(
+Uri?  Convert.tryToUri(
   dynamic object, {dynamic mapKey, int? listIndex, Uri? defaultValue,
   ElementConverter<Uri>? converter});
 
 // Collections
-Map<K,V>  ConvertObject.toMap<K,V>(
+Map<K,V>  Convert.toMap<K,V>(
   dynamic object, {dynamic mapKey, int? listIndex, Map<K,V>? defaultValue,
   ElementConverter<K>? keyConverter, ElementConverter<V>? valueConverter});
 
-Map<K,V>? ConvertObject.tryToMap<K,V>(
+Map<K,V>? Convert.tryToMap<K,V>(
   dynamic object, {dynamic mapKey, int? listIndex, Map<K,V>? defaultValue,
   ElementConverter<K>? keyConverter, ElementConverter<V>? valueConverter});
 
-Set<T>  ConvertObject.toSet<T>(
+Set<T>  Convert.toSet<T>(
   dynamic object, {dynamic mapKey, int? listIndex, Set<T>? defaultValue,
   ElementConverter<T>? elementConverter});
 
-Set<T>? ConvertObject.tryToSet<T>(
+Set<T>? Convert.tryToSet<T>(
   dynamic object, {dynamic mapKey, int? listIndex, Set<T>? defaultValue,
   ElementConverter<T>? elementConverter});
 
-List<T>  ConvertObject.toList<T>(
+List<T>  Convert.toList<T>(
   dynamic object, {dynamic mapKey, int? listIndex, List<T>? defaultValue,
   ElementConverter<T>? elementConverter});
 
-List<T>? ConvertObject.tryToList<T>(
+List<T>? Convert.tryToList<T>(
   dynamic object, {dynamic mapKey, int? listIndex, List<T>? defaultValue,
   ElementConverter<T>? elementConverter});
 
 // Enums
-T   ConvertObject.toEnum<T extends Enum>(
+T   Convert.toEnum<T extends Enum>(
   dynamic object, {required T Function(dynamic) parser,
   dynamic mapKey, int? listIndex, T? defaultValue, Map<String, dynamic>? debugInfo});
 
-T?  ConvertObject.tryToEnum<T extends Enum>(
+T?  Convert.tryToEnum<T extends Enum>(
   dynamic object, {required T Function(dynamic) parser,
   dynamic mapKey, int? listIndex, T? defaultValue, Map<String, dynamic>? debugInfo});
 
 // Generic routing
-T   ConvertObject.toType<T>(dynamic object);
-T?  ConvertObject.tryToType<T>(dynamic object);
+T   Convert.toType<T>(dynamic object);
+T?  Convert.tryToType<T>(dynamic object);
 
 // Testing-helper (only for tests)
 @visibleForTesting
-Map<String, dynamic> ConvertObject.buildParsingInfo({ ... });
+Map<String, dynamic> Convert.buildParsingInfo({ ... });
 ```
 
 ---
@@ -720,53 +720,53 @@ Map<String, dynamic> ConvertObject.buildParsingInfo({ ... });
 
 ```dart
 // Text
-String  toText(dynamic object, {Object? mapKey, int? listIndex, String? defaultValue,
+String  convertToString(dynamic object, {Object? mapKey, int? listIndex, String? defaultValue,
         String Function(Object?)? converter});
-String? tryToText(dynamic object, {Object? mapKey, int? listIndex, String? defaultValue,
+String? tryConvertToString(dynamic object, {Object? mapKey, int? listIndex, String? defaultValue,
         String Function(Object?)? converter});
 
 // Numbers
-num   toNum(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+num   convertToNum(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
         num? defaultValue, num Function(Object?)? converter});
-num?  tryToNum(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+num?  tryConvertToNum(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
         num? defaultValue, num Function(Object?)? converter});
 
-int   toInt(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+int   convertToInt(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
         int? defaultValue, int Function(Object?)? converter});
-int?  tryToInt(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+int?  tryConvertToInt(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
         int? defaultValue, int Function(Object?)? converter});
 
-double   toDouble(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+double   convertToDouble(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
            double? defaultValue, double Function(Object?)? converter});
-double?  tryToDouble(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
+double?  tryConvertToDouble(dynamic object, {Object? mapKey, int? listIndex, String? format, String? locale,
            double? defaultValue, double Function(Object?)? converter});
 
 // BigInt
-BigInt   toBigInt(dynamic object, {Object? mapKey, int? listIndex, BigInt? defaultValue,
+BigInt   convertToBigInt(dynamic object, {Object? mapKey, int? listIndex, BigInt? defaultValue,
            BigInt Function(Object?)? converter});
-BigInt?  tryToBigInt(dynamic object, {Object? mapKey, int? listIndex, BigInt? defaultValue,
+BigInt?  tryConvertToBigInt(dynamic object, {Object? mapKey, int? listIndex, BigInt? defaultValue,
            BigInt Function(Object?)? converter});
 
 // Bool
-bool   toBool(dynamic object, {Object? mapKey, int? listIndex, bool? defaultValue,
+bool   convertToBool(dynamic object, {Object? mapKey, int? listIndex, bool? defaultValue,
          bool Function(Object?)? converter});
-bool?  tryToBool(dynamic object, {Object? mapKey, int? listIndex, bool? defaultValue,
+bool?  tryConvertToBool(dynamic object, {Object? mapKey, int? listIndex, bool? defaultValue,
          bool Function(Object?)? converter});
 
 // DateTime
-DateTime   toDateTime(dynamic object, {
+DateTime   convertToDateTime(dynamic object, {
             Object? mapKey, int? listIndex, String? format, String? locale,
             bool autoDetectFormat=false, bool useCurrentLocale=false, bool utc=false,
             DateTime? defaultValue, DateTime Function(Object?)? converter});
-DateTime?  tryToDateTime(dynamic object, {
+DateTime?  tryConvertToDateTime(dynamic object, {
             Object? mapKey, int? listIndex, String? format, String? locale,
             bool autoDetectFormat=false, bool useCurrentLocale=false, bool utc=false,
             DateTime? defaultValue, DateTime Function(Object?)? converter});
 
 // Uri
-Uri   toUri(dynamic object, {Object? mapKey, int? listIndex, Uri? defaultValue,
+Uri   convertToUri(dynamic object, {Object? mapKey, int? listIndex, Uri? defaultValue,
         Uri Function(Object?)? converter});
-Uri?  tryToUri(dynamic object, {Object? mapKey, int? listIndex, Uri? defaultValue,
+Uri?  tryConvertToUri(dynamic object, {Object? mapKey, int? listIndex, Uri? defaultValue,
         Uri Function(Object?)? converter});
 
 // Collections
@@ -775,19 +775,19 @@ Map<K,V>   toMap<K,V>(dynamic object, {Object? mapKey, int? listIndex, Map<K,V>?
 Map<K,V>?  tryToMap<K,V>(dynamic object, {Object? mapKey, int? listIndex, Map<K,V>? defaultValue,
              K Function(Object?)? keyConverter, V Function(Object?)? valueConverter});
 
-Set<T>   toSet<T>(dynamic object, {Object? mapKey, int? listIndex, Set<T>? defaultValue,
+Set<T>   convertToSet<T>(dynamic object, {Object? mapKey, int? listIndex, Set<T>? defaultValue,
            T Function(Object?)? elementConverter});
-Set<T>?  tryToSet<T>(dynamic object, {Object? mapKey, int? listIndex, Set<T>? defaultValue,
+Set<T>?  tryConvertToSet<T>(dynamic object, {Object? mapKey, int? listIndex, Set<T>? defaultValue,
            T Function(Object?)? elementConverter});
 
-List<T>   toList<T>(dynamic object, {Object? mapKey, int? listIndex, List<T>? defaultValue,
+List<T>   convertToList<T>(dynamic object, {Object? mapKey, int? listIndex, List<T>? defaultValue,
             T Function(Object?)? elementConverter});
-List<T>?  tryToList<T>(dynamic object, {Object? mapKey, int? listIndex, List<T>? defaultValue,
+List<T>?  tryConvertToList<T>(dynamic object, {Object? mapKey, int? listIndex, List<T>? defaultValue,
             T Function(Object?)? elementConverter});
 
 // Generic
-T   toType<T>(dynamic object);
-T?  tryToType<T>(dynamic object);
+T   convertToType<T>(dynamic object);
+T?  tryConvertToType<T>(dynamic object);
 ```
 
 ---
@@ -796,7 +796,7 @@ T?  tryToType<T>(dynamic object);
 
 ```dart
 // Entry point
-extension ConvertObjectExtension on Object? {
+extension ConvertExtension on Object? {
   Converter get convert;
 }
 
@@ -818,20 +818,20 @@ class Converter {
   T  toOr<T>(T defaultValue);
 
   // Primitive shortcuts
-  String  toText();   String?  tryToText();   String  toTextOr(String defaultValue);
+  String  convertToString();   String?  tryToStringValue();   String  convertToStringOr(String defaultValue);
   num     toNum();    num?     tryToNum();    num     toNumOr(num defaultValue);
   int     toInt();    int?     tryToInt();    int     toIntOr(int defaultValue);
-  double  toDouble(); double?  tryToDouble(); double  toDoubleOr(double defaultValue);
+  double  toDouble(); double?  tryConvertToDouble(); double  toDoubleOr(double defaultValue);
   bool    toBool();   bool?    tryToBool();   bool    toBoolOr(bool defaultValue);
-  BigInt  toBigInt(); BigInt?  tryToBigInt(); BigInt  toBigIntOr(BigInt defaultValue);
+  BigInt  toBigInt(); BigInt?  tryConvertToBigInt(); BigInt  toBigIntOr(BigInt defaultValue);
   DateTime  toDateTime(); DateTime? tryToDateTime(); DateTime toDateTimeOr(DateTime defaultValue);
   Uri       toUri();      Uri?      tryToUri();      Uri      toUriOr(Uri defaultValue);
 
   // Collections
   List<T>  toList<T>({DynamicConverter<T>? elementConverter});
   List<T>? tryToList<T>({DynamicConverter<T>? elementConverter});
-  Set<T>   toSet<T>({DynamicConverter<T>? elementConverter});
-  Set<T>?  tryToSet<T>({DynamicConverter<T>? elementConverter});
+  Set<T>   convertToSet<T>({DynamicConverter<T>? elementConverter});
+  Set<T>?  tryConvertToSet<T>({DynamicConverter<T>? elementConverter});
   Map<K,V>  toMap<K,V>({DynamicConverter<K>? keyConverter, DynamicConverter<V>? valueConverter});
   Map<K,V>? tryToMap<K,V>({DynamicConverter<K>? keyConverter, DynamicConverter<V>? valueConverter});
 }
@@ -845,7 +845,7 @@ class Converter {
 // Non-nullable Map<K,V>
 extension MapConversionX<K, V> on Map<K, V> {
   // Getters with inner selection and alternative keys
-  String  getText(K key, {List<K>? alternativeKeys, dynamic innerKey, int? innerListIndex, String? defaultValue});
+  String  getString(K key, {List<K>? alternativeKeys, dynamic innerKey, int? innerListIndex, String? defaultValue});
   int     getInt(K key,  {List<K>? alternativeKeys, dynamic innerKey, int? innerListIndex, int? defaultValue, String? format, String? locale});
   double  getDouble(K key, {List<K>? alternativeKeys, dynamic innerKey, int? innerListIndex, double? defaultValue, String? format, String? locale});
   num     getNum(K key, {List<K>? alternativeKeys, dynamic innerKey, int? innerListIndex, num? defaultValue, String? format, String? locale, ElementConverter<num>? converter});
@@ -875,7 +875,7 @@ extension MapConversionX<K, V> on Map<K, V> {
 
 // Nullable Map<K,V> → try* getters
 extension NullableMapConversionX<K, V> on Map<K, V>? {
-  String?  tryGetText(...);
+  String?  tryGetString(...);
   int?     tryGetInt(...);
   double?  tryGetDouble(...);
   num?     tryGetNum(...);
@@ -898,7 +898,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
 // On Iterable<E>
 extension IterableConversionX<E> on Iterable<E> {
   // Positional getters (with optional inner map/list selection)
-  String  getText(int index, {dynamic innerMapKey, int? innerIndex, String? defaultValue, ElementConverter<String>? converter});
+  String  getString(int index, {dynamic innerMapKey, int? innerIndex, String? defaultValue, ElementConverter<String>? converter});
   int     getInt(int index, {dynamic innerMapKey, int? innerIndex, String? format, String? locale, int? defaultValue, ElementConverter<int>? converter});
   double  getDouble(int index, {dynamic innerMapKey, int? innerIndex, String? format, String? locale, double? defaultValue, ElementConverter<double>? converter});
   num     getNum(int index, {dynamic innerMapKey, int? innerIndex, String? format, String? locale, num? defaultValue, ElementConverter<num>? converter});
@@ -928,7 +928,7 @@ extension IterableConversionX<E> on Iterable<E> {
 
 // Nullable Iterable<E> → try* positional getters with fallbacks
 extension NullableIterableConversionX<E> on Iterable<E>? {
-  String?  tryGetText(int index, {List<int>? alternativeIndices, dynamic innerMapKey, int? innerIndex, String? defaultValue, ElementConverter<String>? converter});
+  String?  tryGetString(int index, {List<int>? alternativeIndices, dynamic innerMapKey, int? innerIndex, String? defaultValue, ElementConverter<String>? converter});
   int?     tryGetInt(int index, {List<int>? alternativeIndices, dynamic innerMapKey, int? innerIndex, String? format, String? locale, int? defaultValue, ElementConverter<int>? converter});
   double?  tryGetDouble(int index, {List<int>? alternativeIndices, dynamic innerMapKey, int? innerIndex, String? format, String? locale, double? defaultValue, ElementConverter<double>? converter});
   num?     tryGetNum(int index, {List<int>? alternativeIndices, dynamic innerMapKey, int? innerIndex, String? format, String? locale, num? defaultValue, ElementConverter<num>? converter});
@@ -975,7 +975,7 @@ extension LetExtensionNullable<T extends Object> on T? {
 ```dart
 class EnumParsers {
   static T Function(dynamic) byName<T extends Enum>(List<T> values);
-  static T Function(dynamic) fromText<T>(T Function(String) fromText);
+  static T Function(dynamic) fromString<T>(T Function(String) fromString);
   static T Function(dynamic) byNameOrFallback<T extends Enum>(List<T> values, T fallback);
   static T Function(dynamic) byNameCaseInsensitive<T extends Enum>(List<T> values);
   static T Function(dynamic) byIndex<T extends Enum>(List<T> values);
@@ -1093,7 +1093,7 @@ class ConversionResult<T> {
 
 ```dart
 try {
-  final n = ConvertObject.toInt('oops');
+  final n = Convert.toInt('oops');
 } on ConversionException catch (e) {
   e.toString();     // concise, filtered context
   e.fullReport();   // verbose JSON context + stack trace (for logs)

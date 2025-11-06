@@ -58,7 +58,7 @@ void main() {
       for (var i = 0; i < 600; i++) {
         final v = _randDouble();
         final messy = _messyNumberString(v);
-        final parsed = ConvertObject.toNum(messy);
+        final parsed = Convert.toNum(messy);
         // toString for doubles can be lossy; allow small tolerance
         expect(parsed, closeTo(v, 1e-6), reason: 'Failed parsing "$messy"');
       }
@@ -68,7 +68,7 @@ void main() {
       for (var i = 0; i < 600; i++) {
         final v = _randInt();
         final messy = _messyNumberString(v);
-        final parsed = ConvertObject.toNum(messy);
+        final parsed = Convert.toNum(messy);
         expect(parsed, v, reason: 'Failed parsing "$messy"');
       }
     });

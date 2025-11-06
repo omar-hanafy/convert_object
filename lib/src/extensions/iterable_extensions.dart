@@ -22,14 +22,14 @@ extension IterableConversionX<E> on Iterable<E> {
 
   // Get-as helpers with inner selection and defaults
   /// Converts the element at [index] to a [String].
-  String getText(
+  String getString(
     int index, {
     dynamic innerMapKey,
     int? innerIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.toText(
+      ConvertObjectImpl.toStringValue(
         _valueAt(index),
         mapKey: innerMapKey,
         listIndex: innerIndex,
@@ -294,7 +294,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
   }
 
   /// Tries to convert the element at [index] (or fallback indices) to [String].
-  String? tryGetText(
+  String? tryGetString(
     int index, {
     List<int>? alternativeIndices,
     dynamic innerMapKey,
@@ -302,7 +302,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.tryToText(
+      ConvertObjectImpl.tryToStringValue(
         _firstForIndices(index, alternativeIndices: alternativeIndices),
         mapKey: innerMapKey,
         listIndex: innerIndex,

@@ -75,7 +75,7 @@ void main() {
         for (var i = 0; i < 40; i++) {
           final dt = _randUtc();
           final s = df.format(dt.toLocal()); // DateFormat defaults to local
-          final parsed = ConvertObject.toDateTime(
+          final parsed = Convert.toDateTime(
             s,
             autoDetectFormat: true,
             locale: 'en_US',
@@ -97,7 +97,7 @@ void main() {
         for (var i = 0; i < 40; i++) {
           final dt = _randUtc().toLocal();
           final s = df.format(dt);
-          final parsed = ConvertObject.toDateTime(
+          final parsed = Convert.toDateTime(
             s,
             autoDetectFormat: true,
             locale: 'en_US', // ensures MM/dd preference
@@ -115,7 +115,7 @@ void main() {
       for (var i = 0; i < 80; i++) {
         final dtUtc = _randUtc();
         final s = df.format(dtUtc); // string is GMT (UTC)
-        final parsed = ConvertObject.toDateTime(
+        final parsed = Convert.toDateTime(
           s,
           autoDetectFormat: true,
           locale: 'en_US',
@@ -136,12 +136,12 @@ void main() {
         final sSec = sec.toString();
         final sMs = ms.toString();
 
-        final pSec = ConvertObject.toDateTime(
+        final pSec = Convert.toDateTime(
           sSec,
           autoDetectFormat: true,
           locale: 'en_US',
         );
-        final pMs = ConvertObject.toDateTime(
+        final pMs = Convert.toDateTime(
           sMs,
           autoDetectFormat: true,
           locale: 'en_US',
@@ -165,8 +165,8 @@ void main() {
         final ms = dt.millisecondsSinceEpoch;
         final sec = (ms ~/ 1000);
 
-        final fromMs = ConvertObject.toDateTime(ms);
-        final fromSec = ConvertObject.toDateTime(sec);
+        final fromMs = Convert.toDateTime(ms);
+        final fromSec = Convert.toDateTime(sec);
 
         expect(fromMs.millisecondsSinceEpoch, ms, reason: 'from ms failed');
         expect(fromSec.millisecondsSinceEpoch, ms, reason: 'from sec failed');

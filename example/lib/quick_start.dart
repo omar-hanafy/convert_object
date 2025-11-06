@@ -13,10 +13,10 @@ void main() {
   };
 
   // Top-level
-  final id = toInt(payload, mapKey: 'id');
-  final price = toDouble(payload, mapKey: 'price');
-  final when = toDateTime(payload, mapKey: 'when', utc: true);
-  final uri = toUri(payload, mapKey: 'email');
+  final id = convertToInt(payload, mapKey: 'id');
+  final price = convertToDouble(payload, mapKey: 'price');
+  final when = convertToDateTime(payload, mapKey: 'when', utc: true);
+  final uri = convertToUri(payload, mapKey: 'email');
 
   // Fluent
   final tags = Converter(

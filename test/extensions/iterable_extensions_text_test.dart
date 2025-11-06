@@ -2,10 +2,10 @@ import 'package:convert_object/convert_object.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('IterableConversionX.getText', () {
+  group('IterableConversionX.getString', () {
     test('returns element at index', () {
       final list = ['a', 'b', 'c'];
-      expect(list.getText(1), 'b');
+      expect(list.getString(1), 'b');
     });
 
     test('supports innerMapKey / innerIndex navigation', () {
@@ -17,35 +17,35 @@ void main() {
           'names': ['carol', 'dave']
         },
       ];
-      expect(list.getText(0, innerMapKey: 'names', innerIndex: 1), 'bob');
-      expect(list.getText(1, innerMapKey: 'names', innerIndex: 0), 'carol');
+      expect(list.getString(0, innerMapKey: 'names', innerIndex: 1), 'bob');
+      expect(list.getString(1, innerMapKey: 'names', innerIndex: 0), 'carol');
     });
 
-    test('out-of-range index → getText throws ConversionException', () {
+    test('out-of-range index → getString throws ConversionException', () {
       final list = ['a'];
-      expect(() => list.getText(3), throwsA(isA<ConversionException>()));
+      expect(() => list.getString(3), throwsA(isA<ConversionException>()));
     });
   });
 
-  group('NullableIterableConversionX.tryGetText (on Iterable<E>?)', () {
+  group('NullableIterableConversionX.tryGetString (on Iterable<E>?)', () {
     test('falls back to alternativeIndices when primary missing', () {
       final List<String> list = ['z'];
       // Ask for index 2 but allow fallback to 0
-      expect(list.tryGetText(2, alternativeIndices: [0]), 'z');
+      expect(list.tryGetString(2, alternativeIndices: [0]), 'z');
     });
 
     test('returns defaultValue when all indices missing', () {
       final List<String> list = ['only'];
       expect(
-        list.tryGetText(5, alternativeIndices: [4, 3], defaultValue: 'd'),
+        list.tryGetString(5, alternativeIndices: [4, 3], defaultValue: 'd'),
         'd',
       );
     });
 
-    test('null iterable → tryGetText returns defaultValue/null', () {
+    test('null iterable → tryGetString returns defaultValue/null', () {
       const List<String>? list = null;
       expect(list.tryGetMap<dynamic, dynamic>(0), isNull);
-      expect(list.tryGetText(0, defaultValue: 'x'), 'x');
+      expect(list.tryGetString(0, defaultValue: 'x'), 'x');
     });
 
     test('inner navigation with alternativeIndices', () {
@@ -54,7 +54,7 @@ void main() {
       ];
       // index 3 doesn’t exist; fallback to 0
       expect(
-        list.tryGetText(3, alternativeIndices: [0], innerMapKey: 'name'),
+        list.tryGetString(3, alternativeIndices: [0], innerMapKey: 'name'),
         'first',
       );
     });

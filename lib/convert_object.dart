@@ -4,7 +4,7 @@
 /// with extensive support for collections, custom converters, and safe conversions.
 library;
 
-export 'src/core/convert_object.dart' show ConvertObject, ElementConverter;
+export 'src/core/convert_object.dart' show Convert, ElementConverter;
 export 'src/core/converter.dart' show Converter, DynamicConverter;
 export 'src/core/enum_parsers.dart' show EnumParsers, EnumValuesParsing;
 export 'src/exceptions/conversion_exception.dart' show ConversionException;

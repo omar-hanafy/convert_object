@@ -15,9 +15,9 @@ class EnumParsers {
         }
       };
 
-  /// Wraps a text parser so it can be used with dynamic values.
-  static T Function(dynamic) fromText<T>(T Function(String) fromText) =>
-      (dynamic obj) => fromText(obj.toString());
+  /// Wraps a string parser so it can be used with dynamic values.
+  static T Function(dynamic) fromString<T>(T Function(String) fromString) =>
+      (dynamic obj) => fromString(obj.toString());
 
   /// Builds a parser that returns [fallback] when the name cannot be resolved.
   static T Function(dynamic) byNameOrFallback<T extends Enum>(

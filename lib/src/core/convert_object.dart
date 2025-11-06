@@ -5,18 +5,17 @@ import 'package:meta/meta.dart';
 typedef ElementConverter<T> = T Function(Object? element);
 
 /// Backward-compatible static facade that mirrors the original ConvertObject API.
-abstract class ConvertObject {
-  // Text
-
+abstract class Convert {
+  // Strings
   /// Converts [object] to [String], throwing if the value cannot be coerced.
-  static String toText(
+  static String toStringValue(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.toText(
+      ConvertObjectImpl.toStringValue(
         object,
         mapKey: mapKey,
         listIndex: listIndex,
@@ -26,14 +25,14 @@ abstract class ConvertObject {
 
   /// Converts [object] to [String] and returns `null` or [defaultValue] on
   /// failure instead of throwing.
-  static String? tryToText(
+  static String? tryToStringValue(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.tryToText(
+      ConvertObjectImpl.tryToStringValue(
         object,
         mapKey: mapKey,
         listIndex: listIndex,

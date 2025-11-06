@@ -24,12 +24,12 @@ extension MapConversionX<K, V> on Map<K, V> {
   }
 
   /// Converts the value at [key] (or [alternativeKeys]) to [String].
-  String getText(K key,
+  String getString(K key,
           {List<K>? alternativeKeys,
           dynamic innerKey,
           int? innerListIndex,
           String? defaultValue}) =>
-      ConvertObjectImpl.toText(
+      ConvertObjectImpl.toStringValue(
         _firstValueForKeys(key, alternativeKeys: alternativeKeys),
         mapKey: innerKey,
         listIndex: innerListIndex,
@@ -323,12 +323,12 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   }
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to [String].
-  String? tryGetText(K key,
+  String? tryGetString(K key,
           {List<K>? alternativeKeys,
           dynamic innerKey,
           int? innerListIndex,
           String? defaultValue}) =>
-      ConvertObjectImpl.tryToText(
+      ConvertObjectImpl.tryToStringValue(
         _firstValueForKeys(key, alternativeKeys: alternativeKeys),
         mapKey: innerKey,
         listIndex: innerListIndex,

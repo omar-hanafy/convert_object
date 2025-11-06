@@ -1,16 +1,16 @@
 import 'package:convert_object/src/core/convert_object.dart';
 
-// Text
+// Strings
 
-/// Top-level convenience alias for [ConvertObject.toText].
-String toText(
+/// Top-level convenience alias for [Convert.toStringValue].
+String convertToString(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   String? defaultValue,
   String Function(Object?)? converter,
 }) =>
-    ConvertObject.toText(
+    Convert.toStringValue(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -18,15 +18,15 @@ String toText(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToText].
-String? tryToText(
+/// Top-level convenience alias for [Convert.tryToStringValue].
+String? tryConvertToString(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   String? defaultValue,
   String Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToText(
+    Convert.tryToStringValue(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -36,8 +36,8 @@ String? tryToText(
 
 // Numbers
 
-/// Top-level convenience alias for [ConvertObject.toNum].
-num toNum(
+/// Top-level convenience alias for [Convert.toNum].
+num convertToNum(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -46,7 +46,7 @@ num toNum(
   num? defaultValue,
   num Function(Object?)? converter,
 }) =>
-    ConvertObject.toNum(
+    Convert.toNum(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -56,8 +56,8 @@ num toNum(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToNum].
-num? tryToNum(
+/// Top-level convenience alias for [Convert.tryToNum].
+num? tryConvertToNum(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -66,7 +66,7 @@ num? tryToNum(
   num? defaultValue,
   num Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToNum(
+    Convert.tryToNum(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -76,8 +76,8 @@ num? tryToNum(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.toInt].
-int toInt(
+/// Top-level convenience alias for [Convert.toInt].
+int convertToInt(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -86,7 +86,7 @@ int toInt(
   int? defaultValue,
   int Function(Object?)? converter,
 }) =>
-    ConvertObject.toInt(
+    Convert.toInt(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -96,8 +96,8 @@ int toInt(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToInt].
-int? tryToInt(
+/// Top-level convenience alias for [Convert.tryToInt].
+int? tryConvertToInt(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -106,7 +106,7 @@ int? tryToInt(
   int? defaultValue,
   int Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToInt(
+    Convert.tryToInt(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -116,8 +116,8 @@ int? tryToInt(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.toDouble].
-double toDouble(
+/// Top-level convenience alias for [Convert.toDouble].
+double convertToDouble(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -126,7 +126,7 @@ double toDouble(
   double? defaultValue,
   double Function(Object?)? converter,
 }) =>
-    ConvertObject.toDouble(
+    Convert.toDouble(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -136,8 +136,8 @@ double toDouble(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToDouble].
-double? tryToDouble(
+/// Top-level convenience alias for [Convert.tryToDouble].
+double? tryConvertToDouble(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -146,7 +146,7 @@ double? tryToDouble(
   double? defaultValue,
   double Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToDouble(
+    Convert.tryToDouble(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -158,15 +158,15 @@ double? tryToDouble(
 
 // BigInt
 
-/// Top-level convenience alias for [ConvertObject.toBigInt].
-BigInt toBigInt(
+/// Top-level convenience alias for [Convert.toBigInt].
+BigInt convertToBigInt(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   BigInt? defaultValue,
   BigInt Function(Object?)? converter,
 }) =>
-    ConvertObject.toBigInt(
+    Convert.toBigInt(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -174,15 +174,15 @@ BigInt toBigInt(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToBigInt].
-BigInt? tryToBigInt(
+/// Top-level convenience alias for [Convert.tryToBigInt].
+BigInt? tryConvertToBigInt(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   BigInt? defaultValue,
   BigInt Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToBigInt(
+    Convert.tryToBigInt(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -192,15 +192,15 @@ BigInt? tryToBigInt(
 
 // Bool
 
-/// Top-level convenience alias for [ConvertObject.toBool].
-bool toBool(
+/// Top-level convenience alias for [Convert.toBool].
+bool convertToBool(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   bool? defaultValue,
   bool Function(Object?)? converter,
 }) =>
-    ConvertObject.toBool(
+    Convert.toBool(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -208,15 +208,15 @@ bool toBool(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToBool].
-bool? tryToBool(
+/// Top-level convenience alias for [Convert.tryToBool].
+bool? tryConvertToBool(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   bool? defaultValue,
   bool Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToBool(
+    Convert.tryToBool(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -226,8 +226,8 @@ bool? tryToBool(
 
 // DateTime
 
-/// Top-level convenience alias for [ConvertObject.toDateTime].
-DateTime toDateTime(
+/// Top-level convenience alias for [Convert.toDateTime].
+DateTime convertToDateTime(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -239,7 +239,7 @@ DateTime toDateTime(
   DateTime? defaultValue,
   DateTime Function(Object?)? converter,
 }) =>
-    ConvertObject.toDateTime(
+    Convert.toDateTime(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -252,8 +252,8 @@ DateTime toDateTime(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToDateTime].
-DateTime? tryToDateTime(
+/// Top-level convenience alias for [Convert.tryToDateTime].
+DateTime? tryConvertToDateTime(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -265,7 +265,7 @@ DateTime? tryToDateTime(
   DateTime? defaultValue,
   DateTime Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToDateTime(
+    Convert.tryToDateTime(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -280,15 +280,15 @@ DateTime? tryToDateTime(
 
 // Uri
 
-/// Top-level convenience alias for [ConvertObject.toUri].
-Uri toUri(
+/// Top-level convenience alias for [Convert.toUri].
+Uri convertToUri(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   Uri? defaultValue,
   Uri Function(Object?)? converter,
 }) =>
-    ConvertObject.toUri(
+    Convert.toUri(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -296,15 +296,15 @@ Uri toUri(
       converter: converter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToUri].
-Uri? tryToUri(
+/// Top-level convenience alias for [Convert.tryToUri].
+Uri? tryConvertToUri(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   Uri? defaultValue,
   Uri Function(Object?)? converter,
 }) =>
-    ConvertObject.tryToUri(
+    Convert.tryToUri(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -314,8 +314,8 @@ Uri? tryToUri(
 
 // Collections
 
-/// Top-level convenience alias for [ConvertObject.toMap].
-Map<K, V> toMap<K, V>(
+/// Top-level convenience alias for [Convert.toMap].
+Map<K, V> convertToMap<K, V>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -323,7 +323,7 @@ Map<K, V> toMap<K, V>(
   K Function(Object?)? keyConverter,
   V Function(Object?)? valueConverter,
 }) =>
-    ConvertObject.toMap<K, V>(
+    Convert.toMap<K, V>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -332,8 +332,8 @@ Map<K, V> toMap<K, V>(
       valueConverter: valueConverter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToMap].
-Map<K, V>? tryToMap<K, V>(
+/// Top-level convenience alias for [Convert.tryToMap].
+Map<K, V>? tryConvertToMap<K, V>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
@@ -341,7 +341,7 @@ Map<K, V>? tryToMap<K, V>(
   K Function(Object?)? keyConverter,
   V Function(Object?)? valueConverter,
 }) =>
-    ConvertObject.tryToMap<K, V>(
+    Convert.tryToMap<K, V>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -350,15 +350,15 @@ Map<K, V>? tryToMap<K, V>(
       valueConverter: valueConverter,
     );
 
-/// Top-level convenience alias for [ConvertObject.toSet].
-Set<T> toSet<T>(
+/// Top-level convenience alias for [Convert.toSet].
+Set<T> convertToSet<T>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   Set<T>? defaultValue,
   T Function(Object?)? elementConverter,
 }) =>
-    ConvertObject.toSet<T>(
+    Convert.toSet<T>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -366,15 +366,15 @@ Set<T> toSet<T>(
       elementConverter: elementConverter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToSet].
-Set<T>? tryToSet<T>(
+/// Top-level convenience alias for [Convert.tryToSet].
+Set<T>? tryConvertToSet<T>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   Set<T>? defaultValue,
   T Function(Object?)? elementConverter,
 }) =>
-    ConvertObject.tryToSet<T>(
+    Convert.tryToSet<T>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -382,15 +382,15 @@ Set<T>? tryToSet<T>(
       elementConverter: elementConverter,
     );
 
-/// Top-level convenience alias for [ConvertObject.toList].
-List<T> toList<T>(
+/// Top-level convenience alias for [Convert.toList].
+List<T> convertToList<T>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   List<T>? defaultValue,
   T Function(Object?)? elementConverter,
 }) =>
-    ConvertObject.toList<T>(
+    Convert.toList<T>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -398,15 +398,15 @@ List<T> toList<T>(
       elementConverter: elementConverter,
     );
 
-/// Top-level convenience alias for [ConvertObject.tryToList].
-List<T>? tryToList<T>(
+/// Top-level convenience alias for [Convert.tryToList].
+List<T>? tryConvertToList<T>(
   dynamic object, {
   Object? mapKey,
   int? listIndex,
   List<T>? defaultValue,
   T Function(Object?)? elementConverter,
 }) =>
-    ConvertObject.tryToList<T>(
+    Convert.tryToList<T>(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -416,8 +416,8 @@ List<T>? tryToList<T>(
 
 // Generic
 
-/// Top-level convenience alias for [ConvertObject.toType].
-T toType<T>(dynamic object) => ConvertObject.toType<T>(object);
+/// Top-level convenience alias for [Convert.toType].
+T convertToType<T>(dynamic object) => Convert.toType<T>(object);
 
-/// Top-level convenience alias for [ConvertObject.tryToType].
-T? tryToType<T>(dynamic object) => ConvertObject.tryToType<T>(object);
+/// Top-level convenience alias for [Convert.tryToType].
+T? tryConvertToType<T>(dynamic object) => Convert.tryToType<T>(object);

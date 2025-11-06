@@ -21,8 +21,8 @@ void basicConversions() {
   print('=== Basic Conversions ===');
 
   // String conversions
-  final text1 = 123.convert.toText(); // '123'
-  final text2 = true.convert.toText(); // 'true'
+  final text1 = 123.convert.toStringValue(); // '123'
+  final text2 = true.convert.toStringValue(); // 'true'
   print('123 to text: $text1');
   print('true to text: $text2');
 
@@ -69,13 +69,13 @@ void collectionConversions() {
     'address': {'city': 'New York', 'zip': '10001'},
   };
 
-  final name = map.getText('name'); // 'John Doe'
+  final name = map.getString('name'); // 'John Doe'
   final age = map.getInt('age'); // 30
   final active = map.getBool('active'); // true
   final scores = map.getList<int>('scores'); // [85, 90, 88]
   final city = map
       .getMap<String, dynamic>('address')
-      .getText('city'); // 'New York'
+      .getString('city'); // 'New York'
 
   print('Name: $name');
   print('Age: $age');
@@ -107,19 +107,21 @@ void safeConversions() {
   // Try variants
   const String? nullableValue = null;
   final safeInt = const Converter(nullableValue).tryToInt(); // null
-  final safeText = const Converter(nullableValue).tryToText(); // null
+  final safeString = const Converter(nullableValue).tryToStringValue(); // null
   print('null to int (safe): $safeInt');
-  print('null to text (safe): $safeText');
+  print('null to string (safe): $safeString');
 
   // Or variants with defaults
   final withDefault1 = 'invalid'.convert.toIntOr(42); // 42
-  final withDefault2 = const Converter(null).toTextOr('default'); // 'default'
+  final withDefault2 = const Converter(
+    null,
+  ).toStringValueOr('default'); // 'default'
   print('\'invalid\' to int with default 42: $withDefault1');
-  print('null to text with default: $withDefault2');
+  print('null to string with default: $withDefault2');
 
   // Using alternative keys in maps
   final data = {'username': 'john_doe'};
-  final userId = data.tryGetText(
+  final userId = data.tryGetString(
     'user_id',
     alternativeKeys: ['userId', 'username'],
   ); // 'john_doe'
@@ -188,7 +190,7 @@ class User {
   User(this.name, this.age);
 
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(map.getText('name'), map.getInt('age'));
+    return User(map.getString('name'), map.getInt('age'));
   }
 
   final String name;

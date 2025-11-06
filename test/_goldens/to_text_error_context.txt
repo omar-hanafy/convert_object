@@ -3,7 +3,7 @@ ConversionException {
   errorType: String,
   context:
 {
-  "method": "toText",
+  "method": "toStringValue",
   "mapKey": "items",
   "listIndex": 9,
   "object": "<Map with 1 entries>"

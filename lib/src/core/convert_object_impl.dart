@@ -12,11 +12,11 @@ import 'package:meta/meta.dart';
 /// conversion.
 typedef ElementConverter<T> = T Function(Object? element);
 
-extension _NullableTextX on String? {
+extension _NullableStringX on String? {
   bool get isNotBlank => this != null && this!.trim().isNotEmpty;
 }
 
-/// Implements the heavy lifting for the public [ConvertObject] API.
+/// Implements the heavy lifting for the public [Convert] API.
 ///
 /// The methods mirror the public facade but expose additional hooks used in
 /// tests and error reporting.
@@ -129,8 +129,8 @@ abstract class ConvertObjectImpl {
 
   // Primitives ---------------------------------------------------------
 
-  /// Internal implementation for [ConvertObject.toText].
-  static String toText(
+  /// Internal implementation for [Convert.toStringValue].
+  static String toStringValue(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
@@ -148,7 +148,7 @@ abstract class ConvertObjectImpl {
       if (defaultValue != null) return defaultValue;
       throw ConversionException.nullObject(
         context: buildContext(
-          method: 'toText',
+          method: 'toStringValue',
           object: object,
           mapKey: mapKey,
           listIndex: listIndex,
@@ -162,8 +162,8 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToText].
-  static String? tryToText(
+  /// Internal implementation for [Convert.tryToStringValue].
+  static String? tryToStringValue(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
@@ -180,7 +180,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toNum].
+  /// Internal implementation for [Convert.toNum].
   static num toNum(
     dynamic object, {
     dynamic mapKey,
@@ -221,7 +221,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToNum].
+  /// Internal implementation for [Convert.tryToNum].
   static num? tryToNum(
     dynamic object, {
     dynamic mapKey,
@@ -247,7 +247,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toInt].
+  /// Internal implementation for [Convert.toInt].
   static int toInt(
     dynamic object, {
     dynamic mapKey,
@@ -289,7 +289,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToInt].
+  /// Internal implementation for [Convert.tryToInt].
   static int? tryToInt(
     dynamic object, {
     dynamic mapKey,
@@ -316,7 +316,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toBigInt].
+  /// Internal implementation for [Convert.toBigInt].
   static BigInt toBigInt(
     dynamic object, {
     dynamic mapKey,
@@ -353,7 +353,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToBigInt].
+  /// Internal implementation for [Convert.tryToBigInt].
   static BigInt? tryToBigInt(
     dynamic object, {
     dynamic mapKey,
@@ -375,7 +375,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toDouble].
+  /// Internal implementation for [Convert.toDouble].
   static double toDouble(
     dynamic object, {
     dynamic mapKey,
@@ -419,7 +419,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToDouble].
+  /// Internal implementation for [Convert.tryToDouble].
   static double? tryToDouble(
     dynamic object, {
     dynamic mapKey,
@@ -446,7 +446,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toBool].
+  /// Internal implementation for [Convert.toBool].
   static bool toBool(
     dynamic object, {
     dynamic mapKey,
@@ -464,7 +464,7 @@ abstract class ConvertObjectImpl {
     return data ?? defaultValue ?? false;
   }
 
-  /// Internal implementation for [ConvertObject.tryToBool].
+  /// Internal implementation for [Convert.tryToBool].
   static bool? tryToBool(
     dynamic object, {
     dynamic mapKey,
@@ -482,7 +482,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toDateTime].
+  /// Internal implementation for [Convert.toDateTime].
   static DateTime toDateTime(
     dynamic object, {
     dynamic mapKey,
@@ -546,7 +546,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToDateTime].
+  /// Internal implementation for [Convert.tryToDateTime].
   static DateTime? tryToDateTime(
     dynamic object, {
     dynamic mapKey,
@@ -590,7 +590,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toUri].
+  /// Internal implementation for [Convert.toUri].
   static Uri toUri(
     dynamic object, {
     dynamic mapKey,
@@ -629,7 +629,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToUri].
+  /// Internal implementation for [Convert.tryToUri].
   static Uri? tryToUri(
     dynamic object, {
     dynamic mapKey,
@@ -655,7 +655,7 @@ abstract class ConvertObjectImpl {
 
   // Enums -------------------------------------------------------------
 
-  /// Internal implementation for [ConvertObject.toEnum].
+  /// Internal implementation for [Convert.toEnum].
   static T toEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -693,7 +693,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToEnum].
+  /// Internal implementation for [Convert.tryToEnum].
   static T? tryToEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -713,7 +713,7 @@ abstract class ConvertObjectImpl {
 
   // Collections --------------------------------------------------------
 
-  /// Internal implementation for [ConvertObject.toMap].
+  /// Internal implementation for [Convert.toMap].
   static Map<K, V> toMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -759,7 +759,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToMap].
+  /// Internal implementation for [Convert.tryToMap].
   static Map<K, V>? tryToMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -788,7 +788,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toSet].
+  /// Internal implementation for [Convert.toSet].
   static Set<T> toSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -835,7 +835,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToSet].
+  /// Internal implementation for [Convert.tryToSet].
   static Set<T>? tryToSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -866,7 +866,7 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
-  /// Internal implementation for [ConvertObject.toList].
+  /// Internal implementation for [Convert.toList].
   static List<T> toList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -919,7 +919,7 @@ abstract class ConvertObjectImpl {
     return data;
   }
 
-  /// Internal implementation for [ConvertObject.tryToList].
+  /// Internal implementation for [Convert.tryToList].
   static List<T>? tryToList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -956,7 +956,7 @@ abstract class ConvertObjectImpl {
 
   // Top-level generic routing ----------------------------------------
 
-  /// Internal implementation for [ConvertObject.toType].
+  /// Internal implementation for [Convert.toType].
   static T toType<T>(dynamic object) {
     if (object is T) return object;
     if (object == null) {
@@ -976,7 +976,7 @@ abstract class ConvertObjectImpl {
       if (T == double) return ConvertObjectImpl.toDouble(object) as T;
       if (T == num) return ConvertObjectImpl.toNum(object) as T;
       if (T == BigInt) return ConvertObjectImpl.toBigInt(object) as T;
-      if (T == String) return ConvertObjectImpl.toText(object) as T;
+      if (T == String) return ConvertObjectImpl.toStringValue(object) as T;
       if (T == DateTime) return ConvertObjectImpl.toDateTime(object) as T;
       if (T == Uri) return ConvertObjectImpl.toUri(object) as T;
     } catch (e, s) {
@@ -1007,7 +1007,7 @@ abstract class ConvertObjectImpl {
     );
   }
 
-  /// Internal implementation for [ConvertObject.tryToType].
+  /// Internal implementation for [Convert.tryToType].
   static T? tryToType<T>(dynamic object) {
     if (object is T) return object;
     if (object == null) return null;
@@ -1017,7 +1017,9 @@ abstract class ConvertObjectImpl {
       if (T == BigInt) return ConvertObjectImpl.tryToBigInt(object) as T?;
       if (T == double) return ConvertObjectImpl.tryToDouble(object) as T?;
       if (T == num) return ConvertObjectImpl.tryToNum(object) as T?;
-      if (T == String) return ConvertObjectImpl.tryToText(object) as T?;
+      if (T == String) {
+        return ConvertObjectImpl.tryToStringValue(object) as T?;
+      }
       if (T == DateTime) return ConvertObjectImpl.tryToDateTime(object) as T?;
       if (T == Uri) return ConvertObjectImpl.tryToUri(object) as T?;
     } catch (e, s) {

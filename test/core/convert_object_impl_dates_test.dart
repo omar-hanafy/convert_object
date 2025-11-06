@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('ConvertObjectImpl dates', () {
-    test('ISO-8601 (UTC "Z") via toText().toDateTime path', () {
+    test('ISO-8601 (UTC "Z") string input parses via toDateTime', () {
       final dt = ConvertObjectImpl.toDateTime('2024-06-11T14:15:00Z');
       expect(dt.isUtc, isTrue);
       expect(dt.toUtc().year, 2024);

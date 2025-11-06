@@ -8,29 +8,29 @@ void main() {
   // Ensure a stable default locale for this suite.
   configureTests(defaultLocale: 'en_US');
 
-  group('ConvertObjectImpl.toText / tryToText', () {
-    test('primitives → text', () {
-      expect(ConvertObjectImpl.toText('abc'), 'abc');
-      expect(ConvertObjectImpl.toText(42), '42');
-      expect(ConvertObjectImpl.toText(true), 'true');
-      expect(ConvertObjectImpl.toText(BigInt.from(7)), '7');
+  group('ConvertObjectImpl.toStringValue / tryToStringValue', () {
+    test('primitives → string', () {
+      expect(ConvertObjectImpl.toStringValue('abc'), 'abc');
+      expect(ConvertObjectImpl.toStringValue(42), '42');
+      expect(ConvertObjectImpl.toStringValue(true), 'true');
+      expect(ConvertObjectImpl.toStringValue(BigInt.from(7)), '7');
     });
 
-    test('null → throws (toText) and defaultValue is respected', () {
+    test('null → throws (toStringValue) and defaultValue is respected', () {
       expect(
-        () => ConvertObjectImpl.toText(null),
+        () => ConvertObjectImpl.toStringValue(null),
         throwsA(isA<ConversionException>()),
       );
       expect(
-        ConvertObjectImpl.toText(null, defaultValue: 'N/A'),
+        ConvertObjectImpl.toStringValue(null, defaultValue: 'N/A'),
         'N/A',
       );
     });
 
-    test('tryToText returns null or default', () {
-      expect(ConvertObjectImpl.tryToText(null), isNull);
+    test('tryToStringValue returns null or default', () {
+      expect(ConvertObjectImpl.tryToStringValue(null), isNull);
       expect(
-        ConvertObjectImpl.tryToText(null, defaultValue: 'x'),
+        ConvertObjectImpl.tryToStringValue(null, defaultValue: 'x'),
         'x',
       );
     });
@@ -47,64 +47,68 @@ void main() {
         }
       };
 
-      expect(ConvertObjectImpl.toText(data, mapKey: 'name'), 'Omar');
+      expect(ConvertObjectImpl.toStringValue(data, mapKey: 'name'), 'Omar');
       expect(
-          ConvertObjectImpl.toText(data, mapKey: 'items', listIndex: 2), 'c');
+          ConvertObjectImpl.toStringValue(data, mapKey: 'items', listIndex: 2),
+          'c');
       expect(
-        ConvertObjectImpl.toText(
+        ConvertObjectImpl.toStringValue(
           data,
           mapKey: 'nested',
-          // pull nested.list[1].id as text
-          converter: (o) => ConvertObjectImpl.toText(o,
+          // pull nested.list[1].id as string
+          converter: (o) => ConvertObjectImpl.toStringValue(o,
               mapKey: 'list',
               listIndex: 1,
-              converter: (e) => ConvertObjectImpl.toText(e, mapKey: 'id')),
+              converter: (e) =>
+                  ConvertObjectImpl.toStringValue(e, mapKey: 'id')),
         ),
         '20',
       );
     });
 
-    test('JSON strings are NOT auto-decoded for text primitives', () {
+    test('JSON strings are NOT auto-decoded for string primitives', () {
       const json = '{"a":"v"}';
       // Because input is already a String, _convertObject<T> returns it directly
       // and ignores mapKey/listIndex for text primitives.
-      expect(ConvertObjectImpl.toText(json, mapKey: 'a'), json);
-      expect(ConvertObjectImpl.tryToText(json, mapKey: 'a'), json);
+      expect(ConvertObjectImpl.toStringValue(json, mapKey: 'a'), json);
+      expect(ConvertObjectImpl.tryToStringValue(json, mapKey: 'a'), json);
     });
 
-    test('missing mapKey → toText throws, tryToText uses default', () {
+    test('missing mapKey → toStringValue throws, tryToStringValue uses default',
+        () {
       final m = {'a': 1};
       expect(
-        () => ConvertObjectImpl.toText(m, mapKey: 'b'),
+        () => ConvertObjectImpl.toStringValue(m, mapKey: 'b'),
         throwsA(isA<ConversionException>()),
       );
       expect(
-        ConvertObjectImpl.tryToText(m, mapKey: 'b', defaultValue: 'none'),
+        ConvertObjectImpl.tryToStringValue(m,
+            mapKey: 'b', defaultValue: 'none'),
         'none',
       );
     });
 
     test('custom converter is used', () {
-      final out =
-          ConvertObjectImpl.toText(7, converter: (o) => 'n=${o.toString()}');
+      final out = ConvertObjectImpl.toStringValue(7,
+          converter: (o) => 'n=${o.toString()}');
       expect(out, 'n=7');
     });
 
     test('ConversionException context contains method and debug info', () {
       try {
-        ConvertObjectImpl.toText(
+        ConvertObjectImpl.toStringValue(
           {'k': 'v'},
           mapKey: 'missing',
-          debugInfo: {'case': 'text-context'},
+          debugInfo: {'case': 'string-context'},
         );
         fail('Expected ConversionException');
       } on ConversionException catch (e) {
-        expect(e.context['method'], 'toText');
+        expect(e.context['method'], 'toStringValue');
         expect(e.context['mapKey'], 'missing');
         expect(e.context['defaultValue'], isNull);
         expect(e.context['converter'], anyOf(isNull, isA<String>()));
         expect(e.context['objectType'], isNotNull);
-        expect(e.context['case'], 'text-context');
+        expect(e.context['case'], 'string-context');
       }
     });
   });

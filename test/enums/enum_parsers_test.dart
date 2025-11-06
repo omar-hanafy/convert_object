@@ -67,7 +67,7 @@ void main() {
         }
       }
 
-      final parse = EnumParsers.fromText(fromAlias);
+      final parse = EnumParsers.fromString(fromAlias);
       expect(parse('kitty'), Pet.cat);
       expect(parse('D'), Pet.dog);
       expect(() => parse('???'), throwsA(isA<ArgumentError>()));
