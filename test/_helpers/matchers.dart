@@ -6,10 +6,10 @@
 ///
 /// Examples:
 ///
-///   expect(() => Convert.toStringValue(null), throwsConversionException());
+///   expect(() => Convert.string(null), throwsConversionException());
 ///   expect(
-///     () => Convert.toStringValue({'a':1}, mapKey: 'b'),
-///     throwsConversionException(contextIncludes: {'method': 'toStringValue'}),
+///     () => Convert.string({'a':1}, mapKey: 'b'),
+///     throwsConversionException(contextIncludes: {'method': 'string'}),
 ///   );
 ///
 ///   expect(uri, equalsUri(Uri.parse('mailto:hello@example.com')));

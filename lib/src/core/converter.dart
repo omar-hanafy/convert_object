@@ -124,17 +124,17 @@ class Converter {
   }
 
   // Primitive shortcuts ----------------------------------------------
-  /// Converts to [String], mirroring [Convert.toStringValue].
-  String toStringValue() => ConvertObjectImpl.toStringValue(_value,
-      defaultValue: _defaultValue as String?);
+  /// Converts to [String], mirroring [Convert.toString].
+  @override
+  String toString() =>
+      ConvertObjectImpl.string(_value, defaultValue: _defaultValue as String?);
 
-  /// Converts to [String] without throwing, mirroring [Convert.tryToStringValue].
-  String? tryToStringValue() => ConvertObjectImpl.tryToStringValue(_value,
+  /// Converts to [String] without throwing, mirroring [Convert.tryToString].
+  String? tryToString() => ConvertObjectImpl.tryToString(_value,
       defaultValue: _defaultValue as String?);
 
   /// Converts to [String], falling back to [defaultValue] when conversion fails.
-  String toStringValueOr(String defaultValue) =>
-      tryToStringValue() ?? defaultValue;
+  String toStringOr(String defaultValue) => tryToString() ?? defaultValue;
 
   /// Converts to [num], mirroring [Convert.toNum].
   num toNum() =>

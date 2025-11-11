@@ -1,3 +1,4 @@
+import 'package:convert_object/src/config/convert_config.dart';
 import 'package:convert_object/src/core/convert_object_impl.dart';
 import 'package:meta/meta.dart';
 
@@ -6,16 +7,32 @@ typedef ElementConverter<T> = T Function(Object? element);
 
 /// Backward-compatible static facade that mirrors the original ConvertObject API.
 abstract class Convert {
+  /// Returns the effective configuration for the current zone.
+  static ConvertConfig get config => ConvertConfig.effective;
+
+  /// Replaces the global configuration and returns the previous instance.
+  static ConvertConfig configure(ConvertConfig config) =>
+      ConvertConfig.configure(config);
+
+  /// Updates the global configuration using [updater].
+  static void updateConfig(
+          ConvertConfig Function(ConvertConfig current) updater) =>
+      ConvertConfig.update(updater);
+
+  /// Runs [body] with [overrides] applied on top of the current effective config.
+  static T runScopedConfig<T>(ConvertConfig overrides, T Function() body) =>
+      ConvertConfig.runScoped(overrides, body);
+
   // Strings
   /// Converts [object] to [String], throwing if the value cannot be coerced.
-  static String toStringValue(
+  static String string(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.toStringValue(
+      ConvertObjectImpl.string(
         object,
         mapKey: mapKey,
         listIndex: listIndex,
@@ -25,14 +42,14 @@ abstract class Convert {
 
   /// Converts [object] to [String] and returns `null` or [defaultValue] on
   /// failure instead of throwing.
-  static String? tryToStringValue(
+  static String? tryToString(
     dynamic object, {
     dynamic mapKey,
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.tryToStringValue(
+      ConvertObjectImpl.tryToString(
         object,
         mapKey: mapKey,
         listIndex: listIndex,

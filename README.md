@@ -19,6 +19,7 @@
   * [Static facade: `Convert`](#static-facade-convertobject)
   * [Fluent API: `Converter` + `.convert` extension](#fluent-api-converter--convert-extension)
   * [Top‑level functions (`toInt`, `tryToDateTime`, …)](#top-level-functions)
+  * [Global configuration (`ConvertConfig`)](#global-configuration-convertconfig)
   * [Map/Iterable/Object extensions](#mapiterableobject-extensions)
   * [Enum helpers: `EnumParsers`](#enum-helpers-enumparsers)
   * [Results: `ConversionResult<T>`](#results-conversionresultt)
@@ -45,7 +46,7 @@
 * **Collections**: convert to `List<T>`, `Set<T>`, `Map<K,V>` with custom element/key/value converters.
 * **Enums**: robust parsers (`byName`, `caseInsensitive`, `byIndex`, fallback).
 * **Dates**: smart auto‑detection, explicit formats & locales, clear local/UTC behavior.
-* **Numbers**: forgiving parsing (`"1 234.56"`, `"(1,234)"`), localized formats.
+* **Numbers**: forgiving parsing (`"1234.56"`, `"(1,234)"`), localized formats.
 * **URIs**: parse http/https + detect emails and phone numbers → `mailto:` / `tel:`.
 * Ergonomic **map/list extensions** for inner selection and fallbacks.
 * Helpful **exceptions** (`ConversionException`) with context for debugging.
@@ -117,8 +118,8 @@ Backwards‑compatible, static helpers that cover primitives, dates, URIs, enums
 
 ```dart
 // Text
-String        Convert.toStringValue(obj, {mapKey, listIndex, defaultValue, converter});
-String?       Convert.tryToStringValue(obj, { ... });
+String        Convert.string(obj, {mapKey, listIndex, defaultValue, converter});
+String?       Convert.tryToString(obj, { ... });
 
 // Numbers
 num           Convert.toNum(obj, {format, locale, ...});
@@ -231,6 +232,61 @@ import 'package:convert_object/convert_object.dart';
 final n = toInt('1,234');           // 1234
 final dt = toDateTime('20240229');  // Feb 29, 2024 (local)
 final list = toList<int>(['1', 2]); // [1,2]
+```
+
+---
+
+### Global configuration (`ConvertConfig`)
+
+Tune default behaviour once at app start, or override it in specific zones. Precedence is:
+
+`call-site arguments > Convert.runScopedConfig(...) overrides > global Convert.configure(...) > library defaults`.
+
+```dart
+import 'package:convert_object/convert_object.dart';
+
+void main() {
+  Convert.configure(Convert.config.copyWith(
+    locale: 'en_GB',
+    numbers: Convert.config.numbers.copyWith(
+      defaultLocale: 'de_DE',
+      defaultFormat: '#,##0.##',
+    ),
+    dates: Convert.config.dates.copyWith(
+      defaultFormat: 'dd/MM/yyyy',
+      autoDetectFormat: true,
+      utc: true,
+    ),
+    bools: const BoolOptions(truthy: {'si'}, falsy: {'no'}),
+    uri: const UriOptions(
+      defaultScheme: 'https',
+      coerceBareDomainsToDefaultScheme: true,
+      allowRelative: false,
+    ),
+    registry: TypeRegistry.empty().register<Duration>(
+      (value) => Duration(seconds: Convert.toInt(value)),
+    ),
+    onException: (ex) {
+      // Send to telemetry / logging sink.
+    },
+  ));
+}
+
+final utcDate = Convert.runScopedConfig(
+  Convert.config.copyWith(
+    dates: Convert.config.dates.copyWith(utc: true),
+  ),
+  () => Convert.toDateTime('2024-12-31T23:59:59'),
+);
+```
+
+The configuration primitives are exposed via `ConvertConfig`, but convenience helpers exist on the facade:
+
+```dart
+Convert.configure(...);               // set process-wide defaults
+Convert.updateConfig((cfg) => ...);   // atomic updates
+Convert.runScopedConfig(...);         // temporary overrides (uses Zone)
+final active = Convert.config;        // inspect effective config
 ```
 
 ---
@@ -379,7 +435,7 @@ final c = Convert.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
 
 ### Numbers
 
-* Accepts inputs like `"1 234.56"`, `"1,234"`, `"  123_456  "`, `"(2,500)"` (→ `-2500`).
+* Accepts inputs like `"1234.56"`, `"1,234"`, `"  123_456  "`, `"(2,500)"` (→ `-2500`).
 * Localized parsing via `format` + `locale` (uses `intl:NumberFormat`).
 
 ```dart
@@ -432,12 +488,31 @@ A few helpers are re‑exported to make JSON‑heavy flows ergonomic:
 // Strings -> try to decode JSON else return the original text
 final dynamic decoded = '{"a":1}'.tryDecode(); // Map<String,dynamic>
 
-// Map/Iterable pretty JSON
-final pretty = {'a': 1, 'b': { 'c': 3 }}.encodedJsonText;
+// Map/Iterable pretty JSON + normalization options
+final pretty = {'a': 1, 'b': {'c': 3}}.toJsonString(indent: '  ');
+
+final normalized = {
+  DateTime.utc(2024, 1, 1): Duration(milliseconds: 1500),
+  'payload': {'keep': 1, 'drop': null},
+}.toJsonMap(
+  options: const JsonOptions(
+    sortKeys: true,
+    dropNulls: true,
+    dateTimeStrategy: DateTimeStrategy.millisecondsSinceEpoch,
+    durationStrategy: DurationStrategy.iso8601,
+  ),
+);
+
+final cyc = <String, dynamic>{};
+cyc['self'] = cyc;
+final safe = jsonSafe(
+  cyc,
+  options: const JsonOptions(detectCycles: true, cyclePlaceholder: '<cycle>'),
+);
 
 /* Also available:
-   - Iterable: .encodedJson / .encodedJsonWithIndent()
-   - Any object: .encode(toEncodable: ...)
+   - Iterable: .toJsonList() / .toJsonString(indent: ...)
+   - Any object: .toJsonSafe() / .toJsonString()
 */
 ```
 
@@ -596,11 +671,11 @@ typedef DynamicConverter<T> = T Function(Object? value);
 
 ```dart
 // Text
-String  Convert.toStringValue(
+String  Convert.string(
   dynamic object, {dynamic mapKey, int? listIndex, String? defaultValue,
   ElementConverter<String>? converter});
 
-String? Convert.tryToStringValue(
+String? Convert.tryToString(
   dynamic object, {dynamic mapKey, int? listIndex, String? defaultValue,
   ElementConverter<String>? converter});
 
@@ -818,7 +893,7 @@ class Converter {
   T  toOr<T>(T defaultValue);
 
   // Primitive shortcuts
-  String  convertToString();   String?  tryToStringValue();   String  convertToStringOr(String defaultValue);
+  String  convertToString();   String?  tryToString();   String  toStringOr(String defaultValue);
   num     toNum();    num?     tryToNum();    num     toNumOr(num defaultValue);
   int     toInt();    int?     tryToInt();    int     toIntOr(int defaultValue);
   double  toDouble(); double?  tryConvertToDouble(); double  toDoubleOr(double defaultValue);
@@ -1034,20 +1109,71 @@ extension UriParsingX on String {
   Uri  get toUri;      // Uri.parse(this)
 }
 
-// Pretty JSON (Map/Iterable/Object)
-extension PrettyJsonMap<K, V> on Map<K, V> {
-  Map<String, dynamic> get encodableCopy;
-  String get encodedJsonText; // pretty JSON
+// JSON normalization / pretty helpers
+enum DateTimeStrategy { iso8601String, millisecondsSinceEpoch, microsecondsSinceEpoch }
+enum DurationStrategy { milliseconds, microseconds, iso8601 }
+enum NonFiniteDoubleStrategy { string, nullValue, error }
+
+class JsonOptions {
+  const JsonOptions({
+    this.encodeEnumsAsName = true,
+    this.dateTimeStrategy = DateTimeStrategy.iso8601String,
+    this.durationStrategy = DurationStrategy.milliseconds,
+    this.nonFiniteDoubles = NonFiniteDoubleStrategy.string,
+    this.stringifyUnknown = true,
+    this.setsAsLists = true,
+    this.dropNulls = false,
+    this.sortKeys = false,
+    this.detectCycles = false,
+    this.cyclePlaceholder = '<cycle>',
+  });
+
+  final bool encodeEnumsAsName;
+  final DateTimeStrategy dateTimeStrategy;
+  final DurationStrategy durationStrategy;
+  final NonFiniteDoubleStrategy nonFiniteDoubles;
+  final bool stringifyUnknown;
+  final bool setsAsLists;
+  final bool dropNulls;
+  final bool sortKeys;
+  final bool detectCycles;
+  final String cyclePlaceholder;
 }
 
-extension PrettyJsonIterable on Iterable<dynamic> {
-  List<dynamic> get encodableList;
-  String get encodedJson;
-  String encodedJsonWithIndent([String indent = '  ']);
+dynamic jsonSafe(dynamic value,
+    {JsonOptions options = const JsonOptions(),
+    Object? Function(dynamic object)? toEncodable});
+
+extension JsonMapX<K, V> on Map<K, V> {
+  Map<String, dynamic> toJsonMap(
+      {JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
+  String toJsonString(
+      {String? indent,
+      JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
+  String get encodeWithIndent; // 2-space pretty JSON
 }
 
-extension PrettyJsonObject on Object? {
-  String encode({Object? Function(dynamic object)? toEncodable});
+extension JsonIterableX<T> on Iterable<T> {
+  List<dynamic> toJsonList(
+      {JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
+  String toJsonString(
+      {String? indent,
+      JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
+  String get encodeWithIndent; // 2-space pretty JSON
+}
+
+extension JsonAnyX on Object? {
+  dynamic toJsonSafe(
+      {JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
+  String toJsonString(
+      {String? indent,
+      JsonOptions options = const JsonOptions(),
+      Object? Function(dynamic object)? toEncodable});
 }
 
 // Booleans (Object?)
@@ -1106,7 +1232,7 @@ try {
 
 ```dart
 // Booleans: truthy('true','1','yes','y','on','ok','t'), falsy('false','0','no','n','off','f')
-// Numbers: accepts "1 234.56", "1,234", "(2,500)" → -2500, underscores/spaces ignored
+// Numbers: accepts "1234.56", "1,234", "(2,500)" → -2500, underscores/spaces ignored
 // Dates: auto-detect supports ISO/RFC3339, HTTP-date (GMT), Unix epoch, slashed by locale,
 //        compact yyyyMMdd[HHmm[ss]], long names via intl, time-only → today
 // URIs: plain emails → mailto:, phones → tel:, http/https validation for host/path

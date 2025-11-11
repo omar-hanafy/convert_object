@@ -21,8 +21,8 @@ void basicConversions() {
   print('=== Basic Conversions ===');
 
   // String conversions
-  final text1 = 123.convert.toStringValue(); // '123'
-  final text2 = true.convert.toStringValue(); // 'true'
+  final text1 = 123.convert.toString(); // '123'
+  final text2 = true.convert.toString(); // 'true'
   print('123 to text: $text1');
   print('true to text: $text2');
 
@@ -107,15 +107,13 @@ void safeConversions() {
   // Try variants
   const String? nullableValue = null;
   final safeInt = const Converter(nullableValue).tryToInt(); // null
-  final safeString = const Converter(nullableValue).tryToStringValue(); // null
+  final safeString = const Converter(nullableValue).tryToString(); // null
   print('null to int (safe): $safeInt');
   print('null to string (safe): $safeString');
 
   // Or variants with defaults
   final withDefault1 = 'invalid'.convert.toIntOr(42); // 42
-  final withDefault2 = const Converter(
-    null,
-  ).toStringValueOr('default'); // 'default'
+  final withDefault2 = const Converter(null).toStringOr('default'); // 'default'
   print('\'invalid\' to int with default 42: $withDefault1');
   print('null to string with default: $withDefault2');
 

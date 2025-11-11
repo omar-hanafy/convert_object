@@ -78,8 +78,7 @@ Map<String, dynamic> _randMap() {
 }
 
 void main() {
-  group(
-      'Property (string roundtrip): toStringValue/tryToStringValue reflect .toString()',
+  group('Property (string roundtrip): string/tryToString reflect .toString()',
       () {
     test('random non-null values', () {
       for (var i = 0; i < 500; i++) {
@@ -96,20 +95,19 @@ void main() {
         };
 
         final expected = value.toString();
-        // toStringValue must equal .toString()
-        expect(Convert.toStringValue(value), expected,
+        // string must equal .toString()
+        expect(Convert.string(value), expected,
             reason: 'Mismatch for value: $value (${value.runtimeType})');
 
-        // tryToStringValue must not throw and matches .toString()
-        expect(Convert.tryToStringValue(value), expected);
+        // tryToString must not throw and matches .toString()
+        expect(Convert.tryToString(value), expected);
       }
     });
 
     test('null behavior', () {
-      expect(Convert.tryToStringValue(null), isNull);
-      expect(Convert.toStringValue(null, defaultValue: 'd'), 'd');
-      expect(() => Convert.toStringValue(null),
-          throwsA(isA<ConversionException>()));
+      expect(Convert.tryToString(null), isNull);
+      expect(Convert.string(null, defaultValue: 'd'), 'd');
+      expect(() => Convert.string(null), throwsA(isA<ConversionException>()));
     });
   });
 }

@@ -3,7 +3,7 @@ ConversionException {
   errorType: String,
   context:
 {
-  "method": "toStringValue"
+  "method": "string"
 },
   stackTrace: <stack trace omitted>
 }

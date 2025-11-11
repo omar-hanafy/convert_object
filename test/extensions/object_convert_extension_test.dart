@@ -3,20 +3,20 @@ import 'package:test/test.dart';
 
 void main() {
   group('ConvertObjectExtension (.convert) – String shortcuts', () {
-    test('toStringValue / tryToStringValue / toStringValueOr', () {
-      expect('x'.convert.toStringValue(), 'x');
-      expect(null.convert.tryToStringValue(), isNull);
-      expect(null.convert.toStringValueOr('fallback'), 'fallback');
+    test('string / tryToString / stringOr', () {
+      expect('x'.convert.toString(), 'x');
+      expect(null.convert.tryToString(), isNull);
+      expect(null.convert.toStringOr('fallback'), 'fallback');
     });
 
-    test('withDefault participates in toStringValue/tryToStringValue', () {
-      expect(null.convert.withDefault('d').tryToStringValue(), 'd');
-      expect(null.convert.withDefault('d').toStringValue(), 'd');
+    test('withDefault participates in string/tryToString', () {
+      expect(null.convert.withDefault('d').tryToString(), 'd');
+      expect(null.convert.withDefault('d').toString(), 'd');
     });
 
     test('withConverter overrides conversion path', () {
       final c = 5.convert.withConverter((v) => 'N=${v.toString()}');
-      expect(c.toStringValue(), '5');
+      expect(c.toString(), '5');
     });
 
     test('fromMap/fromList chaining', () {
@@ -25,18 +25,15 @@ void main() {
           {'name': 'Omar'}
         ]
       };
-      final name = obj.convert
-          .fromMap('users')
-          .fromList(0)
-          .fromMap('name')
-          .toStringValue();
+      final name =
+          obj.convert.fromMap('users').fromList(0).fromMap('name').toString();
       expect(name, 'Omar');
     });
 
     test('decoded loads JSON strings before navigation', () {
       const json = r'{"user":{"name":"Omar"}}';
       final name =
-          json.convert.decoded.fromMap('user').fromMap('name').toStringValue();
+          json.convert.decoded.fromMap('user').fromMap('name').toString();
       expect(name, 'Omar');
     });
   });

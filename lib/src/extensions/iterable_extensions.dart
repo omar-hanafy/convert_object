@@ -29,7 +29,7 @@ extension IterableConversionX<E> on Iterable<E> {
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.toStringValue(
+      ConvertObjectImpl.string(
         _valueAt(index),
         mapKey: innerMapKey,
         listIndex: innerIndex,
@@ -302,7 +302,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     String? defaultValue,
     ElementConverter<String>? converter,
   }) =>
-      ConvertObjectImpl.tryToStringValue(
+      ConvertObjectImpl.tryToString(
         _firstForIndices(index, alternativeIndices: alternativeIndices),
         mapKey: innerMapKey,
         listIndex: innerIndex,

@@ -4,6 +4,14 @@
 /// with extensive support for collections, custom converters, and safe conversions.
 library;
 
+export 'src/config/convert_config.dart'
+    show
+        BoolOptions,
+        ConvertConfig,
+        DateOptions,
+        NumberOptions,
+        TypeRegistry,
+        UriOptions;
 export 'src/core/convert_object.dart' show Convert, ElementConverter;
 export 'src/core/converter.dart' show Converter, DynamicConverter;
 export 'src/core/enum_parsers.dart' show EnumParsers, EnumValuesParsing;

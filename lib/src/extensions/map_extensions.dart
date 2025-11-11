@@ -29,7 +29,7 @@ extension MapConversionX<K, V> on Map<K, V> {
           dynamic innerKey,
           int? innerListIndex,
           String? defaultValue}) =>
-      ConvertObjectImpl.toStringValue(
+      ConvertObjectImpl.string(
         _firstValueForKeys(key, alternativeKeys: alternativeKeys),
         mapKey: innerKey,
         listIndex: innerListIndex,
@@ -328,7 +328,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
           dynamic innerKey,
           int? innerListIndex,
           String? defaultValue}) =>
-      ConvertObjectImpl.tryToStringValue(
+      ConvertObjectImpl.tryToString(
         _firstValueForKeys(key, alternativeKeys: alternativeKeys),
         mapKey: innerKey,
         listIndex: innerListIndex,

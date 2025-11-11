@@ -3,12 +3,12 @@
 /// Usage:
 ///   ```dart
 ///   tableTest<String, String>(
-///     'toStringValue basics',
+///     'string basics',
 ///     [
 ///       Case('string passthrough', 'x', 'x'),
 ///       Case('number -> string',  5,   '5'),
 ///     ],
-///     (input) => Convert.toStringValue(input),
+///     (input) => Convert.string(input),
 ///   );
 ///   ```
 /// For async functions, use `tableTestAsync`.

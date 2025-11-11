@@ -2,7 +2,7 @@ import 'package:convert_object/src/core/convert_object.dart';
 
 // Strings
 
-/// Top-level convenience alias for [Convert.toStringValue].
+/// Top-level convenience alias for [Convert.string].
 String convertToString(
   dynamic object, {
   Object? mapKey,
@@ -10,7 +10,7 @@ String convertToString(
   String? defaultValue,
   String Function(Object?)? converter,
 }) =>
-    Convert.toStringValue(
+    Convert.string(
       object,
       mapKey: mapKey,
       listIndex: listIndex,
@@ -18,7 +18,7 @@ String convertToString(
       converter: converter,
     );
 
-/// Top-level convenience alias for [Convert.tryToStringValue].
+/// Top-level convenience alias for [Convert.tryToString].
 String? tryConvertToString(
   dynamic object, {
   Object? mapKey,
@@ -26,7 +26,7 @@ String? tryConvertToString(
   String? defaultValue,
   String Function(Object?)? converter,
 }) =>
-    Convert.tryToStringValue(
+    Convert.tryToString(
       object,
       mapKey: mapKey,
       listIndex: listIndex,

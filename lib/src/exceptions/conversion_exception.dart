@@ -95,7 +95,7 @@ class ConversionException implements Exception {
   @override
   String toString() {
     final filtered = _filteredContext();
-    final json = filtered.encodedJsonText;
+    final json = filtered.encodeWithIndent;
     return 'ConversionException {\n'
         '  error: $error,\n'
         '  errorType: $errorType,\n'

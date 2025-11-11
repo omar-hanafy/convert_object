@@ -49,7 +49,7 @@ void main() {
         fail('Expected ConversionException');
       } on ConversionException catch (e) {
         // The context should include method + our debug info from the extension.
-        expect(e.context['method'], 'toStringValue');
+        expect(e.context['method'], 'string');
         expect(e.context['key'], 'missing');
         expect(e.context['altKeys'], ['alt1', 'alt2']);
       }
