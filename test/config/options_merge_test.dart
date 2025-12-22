@@ -89,8 +89,8 @@ void main() {
         withGlobalConfig(baseConfig, () {
           final overrides = makeTestConfig(
             locale: 'fr_FR',
-            numbers:
-                const NumberOptions(), // runtime default (NOT identical to const)
+            numbers: const NumberOptions()
+                .copyWith(), // runtime default (non-identical)
           );
 
           Convert.runScopedConfig(overrides, () {
@@ -183,7 +183,8 @@ void main() {
         // Act
         withGlobalConfig(baseConfig, () {
           final overrides = makeTestConfig(
-            bools: const BoolOptions(), // runtime default -> merge applies
+            bools: const BoolOptions()
+                .copyWith(), // runtime default -> merge applies
           );
 
           Convert.runScopedConfig(overrides, () {
@@ -269,8 +270,9 @@ void main() {
 
         // Act
         withGlobalConfig(baseConfig, () {
-          final overrides =
-              makeTestConfig(dates: const DateOptions()); // runtime default
+          final overrides = makeTestConfig(
+            dates: const DateOptions().copyWith(),
+          ); // runtime default
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
@@ -392,8 +394,9 @@ void main() {
 
         // Act
         withGlobalConfig(baseConfig, () {
-          final overrides =
-              makeTestConfig(uri: const UriOptions()); // runtime default
+          final overrides = makeTestConfig(
+            uri: const UriOptions().copyWith(),
+          ); // runtime default
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
