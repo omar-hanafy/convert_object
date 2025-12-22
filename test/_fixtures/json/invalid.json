@@ -1,9 +1,0 @@
-{
-  "name": "invalid",
-  "missing_quote: 123,
-  "array": [
-    1,
-    2,
-    3
-  ]
-}

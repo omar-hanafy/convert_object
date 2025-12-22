@@ -1,9 +1,0 @@
-ConversionException {
-  error: object is unsupported or null,
-  errorType: String,
-  context:
-{
-  "method": "string"
-},
-  stackTrace: <stack trace omitted>
-}
