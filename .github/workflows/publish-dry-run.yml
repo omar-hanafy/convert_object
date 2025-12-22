@@ -2,7 +2,10 @@ name: Pub Dry-Run (convert_object)
 
 on:
   pull_request:
-    branches: [main, master]
+    branches: [main]
+
+permissions:
+  contents: read
 
 env:
   PACKAGE_DIR: .
@@ -12,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Dart (stable)
         uses: dart-lang/setup-dart@v1
@@ -22,6 +27,46 @@ jobs:
         working-directory: ${{ env.PACKAGE_DIR }}
         run: dart pub get
 
+      - name: Enforce version bump
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: |
+          set -euo pipefail
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          base_version=$(git show "$base_sha:pubspec.yaml" | awk -F': ' '/^version: /{print $2}')
+          head_version=$(awk -F': ' '/^version: /{print $2}' pubspec.yaml)
+          if [ -z "$base_version" ] || [ -z "$head_version" ]; then
+            echo "Unable to read version from pubspec.yaml."
+            exit 1
+          fi
+          if [ "$base_version" = "$head_version" ]; then
+            echo "pubspec.yaml version not bumped (base: $base_version, head: $head_version)."
+            exit 1
+          fi
+          echo "Version bump detected: $base_version -> $head_version"
+
       - name: Pub publish dry-run
         working-directory: ${{ env.PACKAGE_DIR }}
         run: dart pub publish --dry-run
+
+      - name: Install pana
+        run: |
+          dart pub global activate pana
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Run pana (full score required)
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: |
+          set -euo pipefail
+          output=$(pana --no-warning .)
+          echo "$output"
+          score_line=$(echo "$output" | sed -n 's/^[[:space:]]*Points: //p' | head -n1)
+          if [ -z "$score_line" ]; then
+            echo "Could not parse pana score."
+            exit 1
+          fi
+          got=${score_line%%/*}
+          max=${score_line##*/}
+          if [ "$got" -ne "$max" ]; then
+            echo "pana score not perfect: $score_line"
+            exit 1
+          fi
