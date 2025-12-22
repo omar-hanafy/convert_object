@@ -123,11 +123,7 @@ extension DateParsingTextX on String {
     }
 
     // 4) Compact numeric (yyyyMMdd[HHmm[ss]]) and underscored/space variants
-    final compact = _tryParseCompactDate(
-      raw,
-      utc: utc,
-      localeForDateOnly: effectiveLocale,
-    );
+    final compact = _tryParseCompactDate(raw, utc: utc);
     if (compact != null) return compact;
 
     // 5) Long/alpha forms via intl
@@ -269,7 +265,7 @@ DateTime? _tryParseWith(String fmt, String s, String? locale) {
 }
 
 /// Parses compact calendar forms by stripping non-digits and reading:
-/// - 8  digits: yyyyMMdd  (parsed with intl to mirror formatter semantics)
+/// - 8  digits: yyyyMMdd  (parsed manually)
 /// - 12 digits: yyyyMMddHHmm (manual)
 /// - 14 digits: yyyyMMddHHmmss (manual)
 ///
@@ -277,18 +273,24 @@ DateTime? _tryParseWith(String fmt, String s, String? locale) {
 DateTime? _tryParseCompactDate(
   String input, {
   bool utc = false,
-  String? localeForDateOnly,
 }) {
   if (_alphaRe.hasMatch(input)) return null;
 
   final digitsOnly = input.replaceAll(_digitsOnlyRe, '');
   if (digitsOnly.isEmpty) return null;
 
-  // 8 -> use intl('yyyyMMdd') to match how the test formats dates.
+  // 8 -> parse yyyyMMdd manually (intl parsing is lenient for this pattern).
   if (digitsOnly.length == 8) {
     try {
-      final df = _createDateFormat('yyyyMMdd', localeForDateOnly);
-      final local = df.parse(digitsOnly);
+      final year = int.parse(digitsOnly.substring(0, 4));
+      final month = int.parse(digitsOnly.substring(4, 6));
+      final day = int.parse(digitsOnly.substring(6, 8));
+
+      if (year < 1800 || year > 2500) return null;
+      if (month < 1 || month > 12) return null;
+      if (day < 1 || day > 31) return null;
+
+      final local = DateTime(year, month, day);
       return utc ? local.toUtc() : local;
     } catch (_) {
       return null;

@@ -31,7 +31,8 @@ void main() {
       expect(type, equals('FormatException'));
     });
 
-    test('toString() should filter heavy context values and function values', () {
+    test('toString() should filter heavy context values and function values',
+        () {
       // Arrange
       final heavyMap = <int, int>{
         for (var i = 0; i < 11; i++) i: i,
@@ -63,7 +64,8 @@ void main() {
       expect(text, contains('<Function:'));
     });
 
-    test('fullReport() should include the full (unfiltered) context as JSON', () {
+    test('fullReport() should include the full (unfiltered) context as JSON',
+        () {
       // Arrange
       final ex = ConversionException(
         error: 'boom',

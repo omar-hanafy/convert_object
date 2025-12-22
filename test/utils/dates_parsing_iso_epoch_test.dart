@@ -7,16 +7,16 @@ import '../helpers/matchers.dart';
 
 void main() {
   group('DateParsingTextX (ISO + formatted + epoch)', () {
-    late String? _prevLocale;
+    late String? prevLocale;
 
     setUp(() {
       // Arrange
-      _prevLocale = Intl.defaultLocale;
+      prevLocale = Intl.defaultLocale;
       Intl.defaultLocale = 'en_US';
     });
 
     tearDown(() {
-      Intl.defaultLocale = _prevLocale;
+      Intl.defaultLocale = prevLocale;
     });
 
     group('toDateTime / tryToDateTime', () {
@@ -46,7 +46,9 @@ void main() {
     });
 
     group('toDateFormatted / tryToDateFormatted', () {
-      test('should parse a date using a provided format in local time by default', () {
+      test(
+          'should parse a date using a provided format in local time by default',
+          () {
         // Arrange
         const input = '2025-01-31';
         const format = 'yyyy-MM-dd';
@@ -64,7 +66,9 @@ void main() {
         expect(result.minute, equals(0));
       });
 
-      test('should parse a date using a provided format as UTC when utc is true', () {
+      test(
+          'should parse a date using a provided format as UTC when utc is true',
+          () {
         // Arrange
         const input = '2025-01-31';
         const format = 'yyyy-MM-dd';
@@ -120,7 +124,8 @@ void main() {
         expect(result, sameInstantAs(expected));
       });
 
-      test('should not treat yyyyMMddHHmm (12 digits) as epoch milliseconds', () {
+      test('should not treat yyyyMMddHHmm (12 digits) as epoch milliseconds',
+          () {
         // Arrange
         const input = '202501311530';
 

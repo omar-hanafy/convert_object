@@ -5,23 +5,23 @@ import 'package:test/test.dart';
 import '../helpers/fixtures.dart';
 
 void main() {
-  late ConvertConfig _prevConfig;
-  late ConvertConfig _baselineConfig;
-  late String? _prevIntlLocale;
+  late ConvertConfig prevConfig;
+  late ConvertConfig baselineConfig;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
-    _prevIntlLocale = Intl.defaultLocale;
+    prevIntlLocale = Intl.defaultLocale;
     Intl.defaultLocale = 'en_US';
 
-    _baselineConfig = makeTestConfig(locale: 'en_US');
-    _prevConfig = Convert.configure(_baselineConfig);
+    baselineConfig = makeTestConfig(locale: 'en_US');
+    prevConfig = Convert.configure(baselineConfig);
   });
 
   tearDown(() {
     // Arrange (cleanup)
-    Convert.configure(_prevConfig);
-    Intl.defaultLocale = _prevIntlLocale;
+    Convert.configure(prevConfig);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('Convert.configure', () {
@@ -33,7 +33,7 @@ void main() {
       final returnedPrev = Convert.configure(newConfig);
 
       // Assert
-      expect(identical(returnedPrev, _baselineConfig), isTrue);
+      expect(identical(returnedPrev, baselineConfig), isTrue);
       expect(Convert.config.locale, equals('fr_FR'));
     });
   });
@@ -57,7 +57,8 @@ void main() {
   });
 
   group('Convert.runScopedConfig', () {
-    test('should apply scoped overrides only inside the body and not leak globally',
+    test(
+        'should apply scoped overrides only inside the body and not leak globally',
         () {
       // Arrange
       final globalBefore = Convert.config;
@@ -74,7 +75,8 @@ void main() {
       expect(identical(Convert.config, globalBefore), isTrue);
     });
 
-    test('should expose the zone-effective config via Convert.config inside scope',
+    test(
+        'should expose the zone-effective config via Convert.config inside scope',
         () {
       // Arrange
       final global = Convert.config;

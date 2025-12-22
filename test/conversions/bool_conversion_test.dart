@@ -4,16 +4,16 @@ import 'package:test/test.dart';
 import '../helpers/fixtures.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toBool', () {
@@ -49,7 +49,9 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('should return defaultValue when parsing fails and defaultValue is provided', () {
+    test(
+        'should return defaultValue when parsing fails and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -74,7 +76,8 @@ void main() {
       expect(b, isFalse);
     });
 
-    test('should honor BoolOptions.numericPositiveIsTrue when set to false', () {
+    test('should honor BoolOptions.numericPositiveIsTrue when set to false',
+        () {
       // Arrange
       const overrides = ConvertConfig(
         bools: BoolOptions(numericPositiveIsTrue: false),
@@ -126,7 +129,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when parsing fails and defaultValue is provided', () {
+    test(
+        'should return defaultValue when parsing fails and defaultValue is provided',
+        () {
       // Arrange
 
       // Act

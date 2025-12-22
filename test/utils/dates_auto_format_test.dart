@@ -7,7 +7,7 @@ import '../helpers/matchers.dart';
 
 void main() {
   group('DateParsingTextX.toDateAutoFormat / tryToDateAutoFormat', () {
-    late String? _prevLocale;
+    late String? prevLocale;
 
     setUpAll(() async {
       // Arrange
@@ -16,12 +16,12 @@ void main() {
 
     setUp(() {
       // Arrange
-      _prevLocale = Intl.defaultLocale;
+      prevLocale = Intl.defaultLocale;
       Intl.defaultLocale = 'en_US';
     });
 
     tearDown(() {
-      Intl.defaultLocale = _prevLocale;
+      Intl.defaultLocale = prevLocale;
     });
 
     group('ISO / HTTP-date', () {
@@ -94,7 +94,8 @@ void main() {
         expect(result.day, equals(1));
       });
 
-      test('should allow passing an explicit locale to control interpretation', () {
+      test('should allow passing an explicit locale to control interpretation',
+          () {
         // Arrange
         const input = '01/02/2025';
 
@@ -125,7 +126,9 @@ void main() {
         expect(result.day, equals(31));
       });
 
-      test('should parse yyyyMMddHHmm (12 digits) as a calendar timestamp (local)', () {
+      test(
+          'should parse yyyyMMddHHmm (12 digits) as a calendar timestamp (local)',
+          () {
         // Arrange
         const input = '202501311530';
 
@@ -141,7 +144,9 @@ void main() {
         expect(result.minute, equals(30));
       });
 
-      test('should parse yyyyMMddHHmmss (14 digits) as a calendar timestamp (local)', () {
+      test(
+          'should parse yyyyMMddHHmmss (14 digits) as a calendar timestamp (local)',
+          () {
         // Arrange
         const input = '20250131153045';
 
@@ -158,7 +163,8 @@ void main() {
         expect(result.second, equals(45));
       });
 
-      test('should parse compact variants containing underscores or spaces', () {
+      test('should parse compact variants containing underscores or spaces',
+          () {
         // Arrange
         const input = '2025_01_31';
 
@@ -173,7 +179,9 @@ void main() {
     });
 
     group('long name formats and ordinals', () {
-      test('should parse month-name dates and remove ordinals when supported by intl data', () {
+      test(
+          'should parse month-name dates and remove ordinals when supported by intl data',
+          () {
         // Arrange
         // Ordinal should be normalized: "2nd" -> "2"
         const input = 'January 2nd, 2025';
@@ -183,7 +191,8 @@ void main() {
         try {
           result = input.toDateAutoFormat(utc: false);
         } catch (e) {
-          markTestSkipped('Intl date symbols for month names may be unavailable: $e');
+          markTestSkipped(
+              'Intl date symbols for month names may be unavailable: $e');
           return;
         }
 
@@ -195,7 +204,7 @@ void main() {
     });
 
     group('time-only inputs', () {
-      bool _sameLocalDate(DateTime a, DateTime b) =>
+      bool sameLocalDate(DateTime a, DateTime b) =>
           a.year == b.year && a.month == b.month && a.day == b.day;
 
       test('should interpret HH:mm as today at that time (local)', () {
@@ -210,7 +219,7 @@ void main() {
         // Assert
         // Avoid midnight flake: accept either "before" or "after" date.
         expect(
-          _sameLocalDate(result, before) || _sameLocalDate(result, after),
+          sameLocalDate(result, before) || sameLocalDate(result, after),
           isTrue,
           reason: 'Expected result date to match today (before/after capture)',
         );
@@ -220,7 +229,8 @@ void main() {
     });
 
     group('utc parameter behavior', () {
-      test('should return a UTC DateTime for epoch inputs when utc is true', () {
+      test('should return a UTC DateTime for epoch inputs when utc is true',
+          () {
         // Arrange
         const input = '1700000000';
         final expected =

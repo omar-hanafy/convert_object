@@ -7,7 +7,7 @@ void main() {
   group('BoolParsingX.asBool', () {
     test('should return false for null', () {
       // Arrange
-      Object? value = null;
+      Object? value;
 
       // Act
       final result = value.asBool;
@@ -101,7 +101,8 @@ void main() {
       }
     });
 
-    test('should return false for non-string, non-numeric, non-bool objects', () {
+    test('should return false for non-string, non-numeric, non-bool objects',
+        () {
       // Arrange
       final value = <String, dynamic>{'a': 1};
 

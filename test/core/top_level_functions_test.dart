@@ -5,14 +5,14 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Top-level string functions', () {
@@ -336,7 +336,8 @@ void main() {
       expect(result, equals(expected));
     });
 
-    test('convertToType should throw ConversionException when Convert.toType throws',
+    test(
+        'convertToType should throw ConversionException when Convert.toType throws',
         () {
       // Arrange
       const Object? input = null;

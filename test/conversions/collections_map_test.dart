@@ -5,16 +5,16 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toMap', () {
@@ -45,7 +45,8 @@ void main() {
       );
     });
 
-    test('should convert keys and values when keyConverter/valueConverter are provided',
+    test(
+        'should convert keys and values when keyConverter/valueConverter are provided',
         () {
       // Arrange
       final input = <String, String>{'1': '2', '3': '4'};
@@ -62,7 +63,8 @@ void main() {
       expect(result, equals(<int, int>{1: 2, 3: 4}));
     });
 
-    test('should decode JSON string input into a map when decodeInput is enabled',
+    test(
+        'should decode JSON string input into a map when decodeInput is enabled',
         () {
       // Arrange
       const json = '{"a":"1","b":2}';
@@ -76,7 +78,8 @@ void main() {
       expect(result['b'], equals(2));
     });
 
-    test('should decode JSON string and convert values with valueConverter', () {
+    test('should decode JSON string and convert values with valueConverter',
+        () {
       // Arrange
       const json = '{"a":"1","b":2}';
 
@@ -107,7 +110,8 @@ void main() {
       expect(result, equals(<String, int>{'x': 1}));
     });
 
-    test('should support listIndex selection to convert a map stored inside a list',
+    test(
+        'should support listIndex selection to convert a map stored inside a list',
         () {
       // Arrange
       final input = <dynamic>[
@@ -126,13 +130,15 @@ void main() {
       expect(result, equals(<String, int>{'y': 2}));
     });
 
-    test('should return defaultValue when conversion fails and defaultValue is provided',
+    test(
+        'should return defaultValue when conversion fails and defaultValue is provided',
         () {
       // Arrange
       final fallback = <String, int>{'fallback': 1};
 
       // Act
-      final result = Convert.toMap<String, int>('not-a-map', defaultValue: fallback);
+      final result =
+          Convert.toMap<String, int>('not-a-map', defaultValue: fallback);
 
       // Assert
       expect(result, equals(fallback));
@@ -140,7 +146,8 @@ void main() {
   });
 
   group('Convert.tryToMap', () {
-    test('should return null when conversion fails and no defaultValue is provided',
+    test(
+        'should return null when conversion fails and no defaultValue is provided',
         () {
       // Arrange
       final input = <String, dynamic>{'a': '1'};
@@ -152,14 +159,16 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when conversion fails and defaultValue is provided',
+    test(
+        'should return defaultValue when conversion fails and defaultValue is provided',
         () {
       // Arrange
       final input = <String, dynamic>{'a': '1'};
       final fallback = <String, int>{'x': 9};
 
       // Act
-      final result = Convert.tryToMap<String, int>(input, defaultValue: fallback);
+      final result =
+          Convert.tryToMap<String, int>(input, defaultValue: fallback);
 
       // Assert
       expect(result, equals(fallback));

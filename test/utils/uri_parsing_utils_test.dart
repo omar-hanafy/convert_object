@@ -54,7 +54,9 @@ void main() {
         expect(result, isTrue);
       });
 
-      test('should return false when the string has leading or trailing whitespace', () {
+      test(
+          'should return false when the string has leading or trailing whitespace',
+          () {
         // Arrange
         const input = ' user@example.com ';
 

@@ -1,40 +1,88 @@
 import 'package:convert_object/convert_object.dart';
 import 'package:test/test.dart';
 
+import '../helpers/fixtures.dart';
+
 void main() {
-  group('ConvertObjectExtension (.convert) – String shortcuts', () {
-    test('string / tryToString / stringOr', () {
-      expect('x'.convert.toString(), 'x');
-      expect(null.convert.tryToString(), isNull);
-      expect(null.convert.toStringOr('fallback'), 'fallback');
+  late ConvertConfig prev;
+
+  setUp(() {
+    // Arrange
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+  });
+
+  tearDown(() {
+    // Arrange
+    Convert.configure(prev);
+  });
+
+  group('Object?.convert', () {
+    test('should return null when calling tryToInt on a null receiver', () {
+      // Arrange
+      final Object? value = null;
+
+      // Act
+      final result = value.convert.tryToInt();
+
+      // Assert
+      expect(result, isNull);
     });
 
-    test('withDefault participates in string/tryToString', () {
-      expect(null.convert.withDefault('d').tryToString(), 'd');
-      expect(null.convert.withDefault('d').toString(), 'd');
+    test('should read a value from a Map and convert it via fluent chaining',
+        () {
+      // Arrange
+      final map = kNestedMap;
+
+      // Act
+      final result = map.convert.fromMap('id').toInt();
+
+      // Assert
+      expect(result, isA<int>());
+      expect(result, equals(42));
     });
 
-    test('withConverter overrides conversion path', () {
-      final c = 5.convert.withConverter((v) => 'N=${v.toString()}');
-      expect(c.toString(), '5');
+    test(
+        'should read nested values from a JSON-string map using fromMap chaining',
+        () {
+      // Arrange
+      const json = kNestedMapJson;
+
+      // Act
+      final result = json.convert.fromMap('meta').fromMap('age').toInt();
+
+      // Assert
+      expect(result, equals(30));
     });
 
-    test('fromMap/fromList chaining', () {
-      final obj = {
-        'users': [
-          {'name': 'Omar'}
-        ]
-      };
-      final name =
-          obj.convert.fromMap('users').fromList(0).fromMap('name').toString();
-      expect(name, 'Omar');
+    test(
+        'should decode JSON using .decoded and then navigate like a normal Map',
+        () {
+      // Arrange
+      const json = kNestedMapJson;
+
+      // Act
+      final lat = json.convert.decoded
+          .fromMap('meta')
+          .fromMap('coords')
+          .fromMap('lat')
+          .toDouble();
+
+      // Assert
+      expect(lat, isA<double>());
+      expect(lat, equals(30.0444));
     });
 
-    test('decoded loads JSON strings before navigation', () {
-      const json = r'{"user":{"name":"Omar"}}';
-      final name =
-          json.convert.decoded.fromMap('user').fromMap('name').toString();
-      expect(name, 'Omar');
+    test(
+        'should read from a JSON-string list using fromList and convert the value',
+        () {
+      // Arrange
+      const jsonList = kJsonList;
+
+      // Act
+      final result = jsonList.convert.fromList(3).toInt();
+
+      // Assert
+      expect(result, equals(4));
     });
   });
 }

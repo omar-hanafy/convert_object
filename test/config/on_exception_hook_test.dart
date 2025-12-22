@@ -5,23 +5,23 @@ import 'package:test/test.dart';
 import '../helpers/fixtures.dart';
 
 void main() {
-  late ConvertConfig _prevConfig;
-  late ConvertConfig _baselineConfig;
-  late String? _prevIntlLocale;
+  late ConvertConfig prevConfig;
+  late ConvertConfig baselineConfig;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
-    _prevIntlLocale = Intl.defaultLocale;
+    prevIntlLocale = Intl.defaultLocale;
     Intl.defaultLocale = 'en_US';
 
-    _baselineConfig = makeTestConfig(locale: 'en_US');
-    _prevConfig = Convert.configure(_baselineConfig);
+    baselineConfig = makeTestConfig(locale: 'en_US');
+    prevConfig = Convert.configure(baselineConfig);
   });
 
   tearDown(() {
     // Arrange (cleanup)
-    Convert.configure(_prevConfig);
-    Intl.defaultLocale = _prevIntlLocale;
+    Convert.configure(prevConfig);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('ConvertConfig.onException', () {
@@ -55,10 +55,11 @@ void main() {
 
       // Same instance is thrown after hook (ConvertObjectImpl._fail rethrows it).
       expect(identical(captured, thrown), isTrue);
-      expect(thrown!.context['method'], equals('toInt'));
+      expect(thrown.context['method'], equals('toInt'));
     });
 
-    test('should not invoke hook for try APIs that return null instead of throwing',
+    test(
+        'should not invoke hook for try APIs that return null instead of throwing',
         () {
       // Arrange
       var calls = 0;
@@ -78,7 +79,8 @@ void main() {
       expect(calls, equals(0));
     });
 
-    test('should swallow exceptions thrown by hook and still throw ConversionException',
+    test(
+        'should swallow exceptions thrown by hook and still throw ConversionException',
         () {
       // Arrange
       var calls = 0;
@@ -103,7 +105,7 @@ void main() {
       // Assert
       expect(calls, equals(1));
       expect(thrown, isNotNull);
-      expect(thrown!.context['method'], equals('toInt'));
+      expect(thrown.context['method'], equals('toInt'));
     });
 
     test('should invoke hook once per thrown ConversionException', () {

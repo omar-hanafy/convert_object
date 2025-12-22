@@ -23,16 +23,16 @@ class _DoubleCase {
 }
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toNum', () {
@@ -85,7 +85,9 @@ void main() {
       expect(result, equals(1234));
     });
 
-    test('should parse locale-formatted numbers when format and locale are provided', () {
+    test(
+        'should parse locale-formatted numbers when format and locale are provided',
+        () {
       // Arrange
       const input = '1.234,5';
 
@@ -101,7 +103,9 @@ void main() {
       expect(result, equals(1234.5));
     });
 
-    test('should use config defaultFormat/defaultLocale when format/locale are omitted', () {
+    test(
+        'should use config defaultFormat/defaultLocale when format/locale are omitted',
+        () {
       // Arrange
       const input = '1.234,5';
       final overrides = const ConvertConfig(
@@ -119,7 +123,9 @@ void main() {
       expect(result, equals(1234.5));
     });
 
-    test('should throw ConversionException when input is malformed and no defaultValue is provided', () {
+    test(
+        'should throw ConversionException when input is malformed and no defaultValue is provided',
+        () {
       // Arrange
 
       // Act + Assert
@@ -129,7 +135,9 @@ void main() {
       );
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -151,7 +159,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -163,7 +173,9 @@ void main() {
   });
 
   group('Convert.toInt', () {
-    test('should parse integers from strings and clean common grouping characters', () {
+    test(
+        'should parse integers from strings and clean common grouping characters',
+        () {
       // Arrange
       final cases = <_IntCase>[
         const _IntCase('1234', 1234),
@@ -209,7 +221,9 @@ void main() {
       expect(result, equals(1234));
     });
 
-    test('should parse locale-formatted integers when format and locale are provided', () {
+    test(
+        'should parse locale-formatted integers when format and locale are provided',
+        () {
       // Arrange
       const input = '1.234,5';
 
@@ -253,7 +267,9 @@ void main() {
       expect(b, equals(1234));
     });
 
-    test('should throw ConversionException when input is malformed and no defaultValue is provided', () {
+    test(
+        'should throw ConversionException when input is malformed and no defaultValue is provided',
+        () {
       // Arrange
 
       // Act + Assert
@@ -263,7 +279,9 @@ void main() {
       );
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -285,7 +303,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -297,7 +317,9 @@ void main() {
   });
 
   group('Convert.toDouble', () {
-    test('should parse doubles from strings and clean common grouping characters', () {
+    test(
+        'should parse doubles from strings and clean common grouping characters',
+        () {
       // Arrange
       final cases = <_DoubleCase>[
         const _DoubleCase('1234', 1234.0),
@@ -328,7 +350,9 @@ void main() {
       expect(result, equals(1234.5));
     });
 
-    test('should parse locale-formatted doubles when format and locale are provided', () {
+    test(
+        'should parse locale-formatted doubles when format and locale are provided',
+        () {
       // Arrange
       const input = '1.234,5';
 
@@ -372,7 +396,9 @@ void main() {
       expect(b, equals(1234.5));
     });
 
-    test('should throw ConversionException when input is malformed and no defaultValue is provided', () {
+    test(
+        'should throw ConversionException when input is malformed and no defaultValue is provided',
+        () {
       // Arrange
 
       // Act + Assert
@@ -382,7 +408,9 @@ void main() {
       );
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -404,7 +432,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act

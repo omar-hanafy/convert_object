@@ -7,16 +7,16 @@ import '../helpers/test_enums.dart';
 import '../helpers/test_models.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('MapConversionX', () {
@@ -31,7 +31,8 @@ void main() {
       expect(result, equals('Omar'));
     });
 
-    test('getString should fallback to alternativeKeys when primary key is missing',
+    test(
+        'getString should fallback to alternativeKeys when primary key is missing',
         () {
       // Arrange
       final map = kNestedMap;
@@ -43,7 +44,8 @@ void main() {
       expect(result, equals('Omar'));
     });
 
-    test('getString should fallback to alternativeKeys when primary value is null',
+    test(
+        'getString should fallback to alternativeKeys when primary value is null',
         () {
       // Arrange
       final map = <String, dynamic>{'a': null, 'b': 'x'};
@@ -71,7 +73,8 @@ void main() {
       final map = kNestedMap;
 
       // Act
-      final result = map.getDouble('items', innerListIndex: 1, innerKey: 'price');
+      final result =
+          map.getDouble('items', innerListIndex: 1, innerKey: 'price');
 
       // Assert
       expect(result, equals(5.5));
@@ -88,7 +91,8 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('getDateTime should parse ISO-8601 Z strings into the same instant', () {
+    test('getDateTime should parse ISO-8601 Z strings into the same instant',
+        () {
       // Arrange
       final map = kNestedMap;
 
@@ -116,7 +120,8 @@ void main() {
       final map = <String, dynamic>{'color': 'red'};
 
       // Act
-      final result = map.getEnum<TestColor>('color', parser: kTestColors.parser);
+      final result =
+          map.getEnum<TestColor>('color', parser: kTestColors.parser);
 
       // Assert
       expect(result, equals(TestColor.red));
@@ -137,7 +142,8 @@ void main() {
       expect(result, equals(TestColor.blue));
     });
 
-    test('keysList/valuesList should return materialized lists of keys/values', () {
+    test('keysList/valuesList should return materialized lists of keys/values',
+        () {
       // Arrange
       final map = <String, int>{'a': 1, 'b': 2};
 
@@ -150,7 +156,8 @@ void main() {
       expect(values, equals(<int>[1, 2]));
     });
 
-    test('keysSet/valuesSet should return materialized sets of keys/values', () {
+    test('keysSet/valuesSet should return materialized sets of keys/values',
+        () {
       // Arrange
       final map = <String, int>{'a': 1, 'b': 2};
 
@@ -232,9 +239,10 @@ void main() {
       expect(result, equals(7));
     });
 
-    test('tryGetInt should fallback to alternativeKeys when primary is missing', () {
+    test('tryGetInt should fallback to alternativeKeys when primary is missing',
+        () {
       // Arrange
-      final Map<String, dynamic>? map = <String, dynamic>{'b': '5'};
+      final Map<String, dynamic> map = <String, dynamic>{'b': '5'};
 
       // Act
       final result = map.tryGetInt('a', alternativeKeys: const ['b']);
@@ -245,7 +253,7 @@ void main() {
 
     test('tryGetInt should support nested selection via innerKey', () {
       // Arrange
-      final Map<String, dynamic>? map = kNestedMap;
+      final Map<String, dynamic> map = kNestedMap;
 
       // Act
       final result = map.tryGetInt('meta', innerKey: 'age');
@@ -256,7 +264,7 @@ void main() {
 
     test('tryGetEnum should return defaultValue when parsing fails', () {
       // Arrange
-      final Map<String, dynamic>? map = <String, dynamic>{'color': 'unknown'};
+      final Map<String, dynamic> map = <String, dynamic>{'color': 'unknown'};
 
       // Act
       final result = map.tryGetEnum<TestColor>(

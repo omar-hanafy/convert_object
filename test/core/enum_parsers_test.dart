@@ -6,14 +6,14 @@ import '../helpers/matchers.dart';
 import '../helpers/test_enums.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('EnumParsers.byName', () {
@@ -217,7 +217,8 @@ void main() {
       expect(result, equals(TestColor.red));
     });
 
-    test('Convert.toEnum should throw ConversionException when parsing fails and no defaultValue is provided',
+    test(
+        'Convert.toEnum should throw ConversionException when parsing fails and no defaultValue is provided',
         () {
       // Arrange
       const input = 'unknown';

@@ -2,71 +2,126 @@ import 'package:convert_object/convert_object.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('ConversionResult<T>', () {
-    test('success path basics', () {
-      final r = ConversionResult.success(42);
-      expect(r.isSuccess, isTrue);
-      expect(r.isFailure, isFalse);
-      expect(r.value, 42);
-      expect(r.valueOrNull, 42);
-      expect(r.valueOr(7), 42);
-      expect(r.error, isNull);
+  group('ConversionResult', () {
+    test('success should expose value and success flags', () {
+      // Arrange
+      final result = ConversionResult.success(5);
+
+      // Act
+      final isSuccess = result.isSuccess;
+      final isFailure = result.isFailure;
+      final value = result.value;
+      final valueOrNull = result.valueOrNull;
+      final valueOr = result.valueOr(99);
+      final error = result.error;
+
+      // Assert
+      expect(isSuccess, isTrue);
+      expect(isFailure, isFalse);
+      expect(value, equals(5));
+      expect(valueOrNull, equals(5));
+      expect(valueOr, equals(5));
+      expect(error, isNull);
     });
 
-    test('failure path basics', () {
-      final e = ConversionException(error: 'boom', context: {'k': 'v'});
-      final r = ConversionResult<Object?>.failure(e);
-      expect(r.isFailure, isTrue);
-      expect(r.isSuccess, isFalse);
-      expect(() => r.value, throwsA(isA<ConversionException>()));
-      expect(r.valueOrNull, isNull);
-      expect(r.valueOr(9), 9);
-      expect(r.error, same(e)); // identity
-    });
-
-    test('map keeps success and transforms value', () {
-      final r = ConversionResult.success(3).map((v) => v * 10);
-      expect(r.isSuccess, isTrue);
-      expect(r.value, 30);
-    });
-
-    test('map keeps failure as-is', () {
-      final e = ConversionException(error: 'bad', context: {});
-      final r = ConversionResult<int>.failure(e).map((v) => v * 10);
-      expect(r.isFailure, isTrue);
-      expect(r.error, same(e));
-    });
-
-    test('flatMap chains on success', () {
-      final r = ConversionResult.success(2)
-          .flatMap((v) => ConversionResult.success(v + 5))
-          .flatMap((v) => ConversionResult.success(v * 3));
-      expect(r.isSuccess, isTrue);
-      expect(r.value, 21);
-    });
-
-    test('flatMap short-circuits on failure', () {
-      final e = ConversionException(error: 'x', context: {});
-      final r = ConversionResult.success(2)
-          .flatMap((_) => ConversionResult<int>.failure(e))
-          .flatMap((_) => ConversionResult.success(999)); // not executed
-      expect(r.isFailure, isTrue);
-      expect(r.error, same(e));
-    });
-
-    test('fold dispatches correctly', () {
-      final ok = ConversionResult.success('ok').fold(
-        onSuccess: (v) => 'S:$v',
-        onFailure: (_) => 'F',
+    test('failure should expose error and failure flags', () {
+      // Arrange
+      final ex = ConversionException(
+        error: 'bad',
+        context: <String, dynamic>{'method': 'test'},
       );
-      final fail = ConversionResult<String>.failure(
-        ConversionException(error: 'no', context: {}),
-      ).fold(
-        onSuccess: (v) => 'S:$v',
-        onFailure: (_) => 'F',
+      final result = ConversionResult<int>.failure(ex);
+
+      // Act
+      final isSuccess = result.isSuccess;
+      final isFailure = result.isFailure;
+      final valueOrNull = result.valueOrNull;
+      final valueOr = result.valueOr(123);
+      final error = result.error;
+
+      // Assert
+      expect(isSuccess, isFalse);
+      expect(isFailure, isTrue);
+      expect(valueOrNull, isNull);
+      expect(valueOr, equals(123));
+      expect(error, equals(ex));
+    });
+
+    test('value should throw when the result is a failure', () {
+      // Arrange
+      final ex = ConversionException(
+        error: 'bad',
+        context: <String, dynamic>{'method': 'test'},
       );
-      expect(ok, 'S:ok');
-      expect(fail, 'F');
+      final result = ConversionResult<int>.failure(ex);
+
+      // Act / Assert
+      expect(() => result.value, throwsA(isA<ConversionException>()));
+    });
+
+    test('map should transform success values and preserve failures', () {
+      // Arrange
+      final success = ConversionResult.success(5);
+      final failure = ConversionResult<int>.failure(
+        ConversionException(
+            error: 'bad', context: <String, dynamic>{'method': 'test'}),
+      );
+
+      // Act
+      final mappedSuccess = success.map((v) => 'v=$v');
+      final mappedFailure = failure.map((v) => 'v=$v');
+
+      // Assert
+      expect(mappedSuccess.isSuccess, isTrue);
+      expect(mappedSuccess.value, equals('v=5'));
+
+      expect(mappedFailure.isFailure, isTrue);
+      expect(mappedFailure.error, isNotNull);
+    });
+
+    test('flatMap should chain success values and short-circuit failures', () {
+      // Arrange
+      final success = ConversionResult.success(5);
+      final failure = ConversionResult<int>.failure(
+        ConversionException(
+            error: 'bad', context: <String, dynamic>{'method': 'test'}),
+      );
+
+      // Act
+      final chainedSuccess =
+          success.flatMap((v) => ConversionResult.success(v * 2));
+      final chainedFailure =
+          failure.flatMap((v) => ConversionResult.success(v * 2));
+
+      // Assert
+      expect(chainedSuccess.isSuccess, isTrue);
+      expect(chainedSuccess.value, equals(10));
+
+      expect(chainedFailure.isFailure, isTrue);
+      expect(chainedFailure.error, isNotNull);
+    });
+
+    test('fold should return onSuccess for success and onFailure for failure',
+        () {
+      // Arrange
+      final success = ConversionResult.success(5);
+      final ex = ConversionException(
+          error: 'bad', context: <String, dynamic>{'method': 'test'});
+      final failure = ConversionResult<int>.failure(ex);
+
+      // Act
+      final successOut = success.fold(
+        onSuccess: (v) => 'ok:$v',
+        onFailure: (e) => 'err:${e.error}',
+      );
+      final failureOut = failure.fold(
+        onSuccess: (v) => 'ok:$v',
+        onFailure: (e) => 'err:${e.error}',
+      );
+
+      // Assert
+      expect(successOut, equals('ok:5'));
+      expect(failureOut, equals('err:bad'));
     });
   });
 }

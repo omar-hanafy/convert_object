@@ -7,9 +7,9 @@ import '../helpers/matchers.dart';
 import '../helpers/test_models.dart';
 
 void main() {
-  late ConvertConfig _prevConfig;
-  late ConvertConfig _baselineConfig;
-  late String? _prevIntlLocale;
+  late ConvertConfig prevConfig;
+  late ConvertConfig baselineConfig;
+  late String? prevIntlLocale;
 
   setUpAll(() async {
     // Arrange
@@ -18,17 +18,17 @@ void main() {
 
   setUp(() {
     // Arrange
-    _prevIntlLocale = Intl.defaultLocale;
+    prevIntlLocale = Intl.defaultLocale;
     Intl.defaultLocale = 'en_US';
 
-    _baselineConfig = makeTestConfig(locale: 'en_US');
-    _prevConfig = Convert.configure(_baselineConfig);
+    baselineConfig = makeTestConfig(locale: 'en_US');
+    prevConfig = Convert.configure(baselineConfig);
   });
 
   tearDown(() {
     // Arrange (cleanup)
-    Convert.configure(_prevConfig);
-    Intl.defaultLocale = _prevIntlLocale;
+    Convert.configure(prevConfig);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('ConvertConfig merge behavior', () {
@@ -37,7 +37,7 @@ void main() {
           'should not override base numbers when overrides.numbers is the default const instance',
           () {
         // Arrange
-        final baseNumbers = NumberOptions(
+        final baseNumbers = const NumberOptions(
           defaultFormat: '#,##0.###',
           defaultLocale: 'de_DE',
           tryFormattedFirst: false,
@@ -74,7 +74,7 @@ void main() {
           'should merge runtime-default numbers object and override booleans but keep null fields',
           () {
         // Arrange
-        final baseNumbers = NumberOptions(
+        final baseNumbers = const NumberOptions(
           defaultFormat: '#,##0.###',
           defaultLocale: 'de_DE',
           tryFormattedFirst: false,
@@ -89,7 +89,8 @@ void main() {
         withGlobalConfig(baseConfig, () {
           final overrides = makeTestConfig(
             locale: 'fr_FR',
-            numbers: NumberOptions(), // runtime default (NOT identical to const)
+            numbers:
+                const NumberOptions(), // runtime default (NOT identical to const)
           );
 
           Convert.runScopedConfig(overrides, () {
@@ -114,7 +115,7 @@ void main() {
           'should apply numbers.defaultFormat/defaultLocale from config when format/locale are not provided',
           () {
         // Arrange
-        final baseNumbers = NumberOptions(
+        final baseNumbers = const NumberOptions(
           defaultFormat: '#,##0.###',
           defaultLocale: 'de_DE',
           tryFormattedFirst: true,
@@ -140,7 +141,7 @@ void main() {
           'should not override base bools when overrides.bools is the default const instance',
           () {
         // Arrange
-        final baseBools = BoolOptions(
+        final baseBools = const BoolOptions(
           truthy: {'sure'},
           falsy: {'nah'},
           numericPositiveIsTrue: false,
@@ -172,7 +173,7 @@ void main() {
           'should override base bools when overrides.bools is a runtime default instance',
           () {
         // Arrange
-        final baseBools = BoolOptions(
+        final baseBools = const BoolOptions(
           truthy: {'sure'},
           falsy: {'nah'},
           numericPositiveIsTrue: false,
@@ -182,7 +183,7 @@ void main() {
         // Act
         withGlobalConfig(baseConfig, () {
           final overrides = makeTestConfig(
-            bools: BoolOptions(), // runtime default -> merge applies
+            bools: const BoolOptions(), // runtime default -> merge applies
           );
 
           Convert.runScopedConfig(overrides, () {
@@ -198,7 +199,8 @@ void main() {
         });
       });
 
-      test('should respect numericPositiveIsTrue from config for numeric inputs',
+      test(
+          'should respect numericPositiveIsTrue from config for numeric inputs',
           () {
         // Arrange
         final baseConfig = makeTestConfig(
@@ -223,11 +225,11 @@ void main() {
           'should not override base dates when overrides.dates is the default const instance',
           () {
         // Arrange
-        final baseDates = DateOptions(
+        final baseDates = const DateOptions(
           utc: true,
           autoDetectFormat: true,
           useCurrentLocale: true,
-          extraAutoDetectPatterns: const ['yyyyMMdd'],
+          extraAutoDetectPatterns: ['yyyyMMdd'],
         );
         final baseConfig = makeTestConfig(dates: baseDates);
 
@@ -257,17 +259,18 @@ void main() {
           'should override base dates when overrides.dates is a runtime default instance',
           () {
         // Arrange
-        final baseDates = DateOptions(
+        final baseDates = const DateOptions(
           utc: true,
           autoDetectFormat: true,
           useCurrentLocale: true,
-          extraAutoDetectPatterns: const ['yyyyMMdd'],
+          extraAutoDetectPatterns: ['yyyyMMdd'],
         );
         final baseConfig = makeTestConfig(dates: baseDates);
 
         // Act
         withGlobalConfig(baseConfig, () {
-          final overrides = makeTestConfig(dates: DateOptions()); // runtime default
+          final overrides =
+              makeTestConfig(dates: const DateOptions()); // runtime default
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
@@ -324,7 +327,8 @@ void main() {
       test('should respect DateOptions.utc from config for epoch numbers', () {
         // Arrange
         final utcConfig = makeTestConfig(dates: const DateOptions(utc: true));
-        final localConfig = makeTestConfig(dates: const DateOptions(utc: false));
+        final localConfig =
+            makeTestConfig(dates: const DateOptions(utc: false));
 
         // Act
         final utcDt = withGlobalConfig(utcConfig, () => Convert.toDateTime(0));
@@ -336,8 +340,10 @@ void main() {
         expect(localDt.isUtc, isFalse);
 
         // Both should represent the same instant.
-        expect(utcDt, sameInstantAs(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)));
-        expect(localDt, sameInstantAs(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)));
+        expect(utcDt,
+            sameInstantAs(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)));
+        expect(localDt,
+            sameInstantAs(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)));
       });
     });
 
@@ -346,7 +352,7 @@ void main() {
           'should not override base uri policy when overrides.uri is the default const instance',
           () {
         // Arrange
-        final baseUri = UriOptions(
+        final baseUri = const UriOptions(
           defaultScheme: 'https',
           coerceBareDomainsToDefaultScheme: true,
           allowRelative: false,
@@ -377,7 +383,7 @@ void main() {
           'should override base uri policy when overrides.uri is a runtime default instance',
           () {
         // Arrange
-        final baseUri = UriOptions(
+        final baseUri = const UriOptions(
           defaultScheme: 'https',
           coerceBareDomainsToDefaultScheme: true,
           allowRelative: false,
@@ -386,12 +392,14 @@ void main() {
 
         // Act
         withGlobalConfig(baseConfig, () {
-          final overrides = makeTestConfig(uri: UriOptions()); // runtime default
+          final overrides =
+              makeTestConfig(uri: const UriOptions()); // runtime default
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
             expect(Convert.config.uri.allowRelative, isTrue);
-            expect(Convert.config.uri.coerceBareDomainsToDefaultScheme, isFalse);
+            expect(
+                Convert.config.uri.coerceBareDomainsToDefaultScheme, isFalse);
             expect(Convert.config.uri.defaultScheme, equals('https'));
           });
 
@@ -401,7 +409,8 @@ void main() {
         });
       });
 
-      test('should enforce allowRelative=false policy during URI conversion', () {
+      test('should enforce allowRelative=false policy during URI conversion',
+          () {
         // Arrange
         final baseConfig = makeTestConfig(
           uri: const UriOptions(allowRelative: false),
@@ -430,7 +439,8 @@ void main() {
         );
 
         // Act
-        final uri = withGlobalConfig(baseConfig, () => Convert.toUri('example.com'));
+        final uri =
+            withGlobalConfig(baseConfig, () => Convert.toUri('example.com'));
 
         // Assert
         expect(uri, uriEquals('https://example.com'));
@@ -438,7 +448,8 @@ void main() {
     });
 
     group('TypeRegistry (merge via Convert.runScopedConfig)', () {
-      test('should merge registries with scoped registry taking precedence', () {
+      test('should merge registries with scoped registry taking precedence',
+          () {
         // Arrange
         final baseRegistry = const TypeRegistry.empty().register<UserId>(
           (_) => const UserId(1),

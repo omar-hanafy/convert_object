@@ -5,16 +5,16 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toUri', () {
@@ -49,7 +49,9 @@ void main() {
       expect(result.toString(), equals('user@example.com'));
     });
 
-    test('should return a relative URI for bare domains when coercion is disabled', () {
+    test(
+        'should return a relative URI for bare domains when coercion is disabled',
+        () {
       // Arrange
 
       // Act
@@ -71,7 +73,8 @@ void main() {
       );
 
       // Act
-      final result = withScopedConfig(overrides, () => Convert.toUri('example.com'));
+      final result =
+          withScopedConfig(overrides, () => Convert.toUri('example.com'));
 
       // Assert
       expect(result.toString(), equals('https://example.com'));
@@ -85,12 +88,15 @@ void main() {
 
       // Act + Assert
       expect(
-        () => withScopedConfig(overrides, () => Convert.toUri('/relative/path')),
+        () =>
+            withScopedConfig(overrides, () => Convert.toUri('/relative/path')),
         throwsConversionException(method: 'toUri'),
       );
     });
 
-    test('should reject bare domains when allowRelative is false and coercion is disabled', () {
+    test(
+        'should reject bare domains when allowRelative is false and coercion is disabled',
+        () {
       // Arrange
       const overrides = ConvertConfig(
         uri: UriOptions(allowRelative: false),
@@ -113,7 +119,9 @@ void main() {
       );
     });
 
-    test('should throw ConversionException on empty input when no defaultValue is provided', () {
+    test(
+        'should throw ConversionException on empty input when no defaultValue is provided',
+        () {
       // Arrange
 
       // Act + Assert
@@ -123,7 +131,9 @@ void main() {
       );
     });
 
-    test('should return defaultValue on invalid input when defaultValue is provided', () {
+    test(
+        'should return defaultValue on invalid input when defaultValue is provided',
+        () {
       // Arrange
       final fallback = Uri.parse('https://fallback.example');
 
@@ -160,7 +170,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue on invalid input when defaultValue is provided', () {
+    test(
+        'should return defaultValue on invalid input when defaultValue is provided',
+        () {
       // Arrange
       final fallback = Uri.parse('https://fallback.example');
 

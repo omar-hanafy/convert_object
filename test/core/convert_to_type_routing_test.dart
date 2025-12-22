@@ -10,14 +10,14 @@ class UnsupportedThing {
 }
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toType<T>', () {
@@ -175,7 +175,8 @@ void main() {
       expect(result, equals(const UserId(123)));
     });
 
-    test('should prefer TypeRegistry parser over built-in routing when registered',
+    test(
+        'should prefer TypeRegistry parser over built-in routing when registered',
         () {
       // Arrange
       final registry = const TypeRegistry.empty().register<int>((_) => 999);
@@ -229,7 +230,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return null when conversion fails for supported primitive types',
+    test(
+        'should return null when conversion fails for supported primitive types',
         () {
       // Arrange
       const input = 'abc';

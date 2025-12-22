@@ -5,14 +5,14 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Converter.fromMap', () {
@@ -39,13 +39,14 @@ void main() {
       expect(result, equals(30));
     });
 
-    test('should return a Converter(null) when the receiver is not a Map or JSON map',
+    test(
+        'should return a Converter(null) when the receiver is not a Map or JSON map',
         () {
       // Arrange
       const source = 'not-a-map';
 
       // Act
-      final result = Converter(source).fromMap('x').tryToString();
+      final result = const Converter(source).fromMap('x').tryToString();
 
       // Assert
       expect(result, isNull);
@@ -69,7 +70,7 @@ void main() {
       const source = kJsonList;
 
       // Act
-      final result = Converter(source).fromList(3).toInt();
+      final result = const Converter(source).fromList(3).toInt();
 
       // Assert
       expect(result, equals(4)); // "004" -> 4
@@ -93,7 +94,7 @@ void main() {
       const source = kNestedMapJson;
 
       // Act
-      final decoded = Converter(source).decoded;
+      final decoded = const Converter(source).decoded;
       final map = decoded.to<Map<String, dynamic>>();
 
       // Assert
@@ -116,7 +117,7 @@ void main() {
   group('Converter defaults', () {
     test('should use constructor defaultValue for primitive conversions', () {
       // Arrange
-      final c = Converter(null, defaultValue: 7);
+      final c = const Converter(null, defaultValue: 7);
 
       // Act
       final result = c.toInt();
@@ -136,7 +137,8 @@ void main() {
       expect(result, equals(99));
     });
 
-    test('toOr<T> should return the provided fallback when conversion throws', () {
+    test('toOr<T> should return the provided fallback when conversion throws',
+        () {
       // Arrange
       final c = const Converter('abc');
 
@@ -172,7 +174,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('withConverter should transform the value before generic to<T> conversion',
+    test(
+        'withConverter should transform the value before generic to<T> conversion',
         () {
       // Arrange
       final c = const Converter('ignored').withConverter((_) => '6');
@@ -184,7 +187,8 @@ void main() {
       expect(result, equals(6));
     });
 
-    test('withConverter exceptions should be wrapped in ConversionException', () {
+    test('withConverter exceptions should be wrapped in ConversionException',
+        () {
       // Arrange
       final c = const Converter('x').withConverter((_) {
         throw StateError('boom');

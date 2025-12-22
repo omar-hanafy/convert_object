@@ -6,16 +6,16 @@ import '../helpers/matchers.dart';
 import '../helpers/test_enums.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('IterableConversionX', () {
@@ -70,7 +70,9 @@ void main() {
     test('getList should convert a nested list using innerMapKey', () {
       // Arrange
       final data = <Map<String, dynamic>>[
-        {'nums': <dynamic>['1', '2']}
+        {
+          'nums': <dynamic>['1', '2']
+        }
       ];
 
       // Act
@@ -141,7 +143,8 @@ void main() {
       expect(result, equals(<int>{1, 2}));
     });
 
-    test('intersect should behave like a union between this iterable and the other',
+    test(
+        'intersect should behave like a union between this iterable and the other',
         () {
       // Arrange
       final a = <int>[1, 2];
@@ -165,7 +168,8 @@ void main() {
       expect(result, equals(<int>[2, 4, 6]));
     });
 
-    test('mapIndexedList should map elements with index and materialize into a List',
+    test(
+        'mapIndexedList should map elements with index and materialize into a List',
         () {
       // Arrange
       final data = <String>['a', 'b'];
@@ -201,10 +205,11 @@ void main() {
       expect(result, equals(7));
     });
 
-    test('tryGetInt should use alternativeIndices when the primary index is null',
+    test(
+        'tryGetInt should use alternativeIndices when the primary index is null',
         () {
       // Arrange
-      final List<Object?>? data = <Object?>[
+      final List<Object?> data = <Object?>[
         null,
         <String, dynamic>{'age': '30'},
       ];
@@ -225,7 +230,7 @@ void main() {
     test('convertTo should convert a Set<E> into a Set<R> using convert_object',
         () {
       // Arrange
-      final Set<String>? input = <String>{'1', '2'};
+      final Set<String> input = <String>{'1', '2'};
 
       // Act
       final result = input.convertTo<int>();

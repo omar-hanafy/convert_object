@@ -5,14 +5,14 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.string', () {
@@ -90,7 +90,8 @@ void main() {
   });
 
   group('Convert.tryToString', () {
-    test('should return null when input is null and no defaultValue is provided',
+    test(
+        'should return null when input is null and no defaultValue is provided',
         () {
       // Arrange
       const Object? input = null;
@@ -171,7 +172,8 @@ void main() {
       expect(result, equals(5));
     });
 
-    test('should throw ConversionException when conversion fails and no defaultValue is provided',
+    test(
+        'should throw ConversionException when conversion fails and no defaultValue is provided',
         () {
       // Arrange
       const input = 'abc';
@@ -199,7 +201,8 @@ void main() {
   });
 
   group('Convert.tryToInt', () {
-    test('should return null when conversion fails and no defaultValue is provided',
+    test(
+        'should return null when conversion fails and no defaultValue is provided',
         () {
       // Arrange
       const input = 'abc';
@@ -211,7 +214,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when conversion fails and defaultValue is provided',
+    test(
+        'should return defaultValue when conversion fails and defaultValue is provided',
         () {
       // Arrange
       const input = 'abc';
@@ -237,7 +241,8 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('should return false for unknown tokens when no defaultValue is provided',
+    test(
+        'should return false for unknown tokens when no defaultValue is provided',
         () {
       // Arrange
       const input = 'maybe';
@@ -284,7 +289,8 @@ void main() {
   });
 
   group('Convert.tryToBool', () {
-    test('should return null for unknown tokens when no defaultValue is provided',
+    test(
+        'should return null for unknown tokens when no defaultValue is provided',
         () {
       // Arrange
       const input = 'maybe';
@@ -296,7 +302,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue for unknown tokens when defaultValue is provided',
+    test(
+        'should return defaultValue for unknown tokens when defaultValue is provided',
         () {
       // Arrange
       const input = 'maybe';
@@ -334,7 +341,8 @@ void main() {
       expect(result, sameInstantAs(fallback));
     });
 
-    test('should throw ConversionException when input is null and no defaultValue is provided',
+    test(
+        'should throw ConversionException when input is null and no defaultValue is provided',
         () {
       // Arrange
       const Object? input = null;

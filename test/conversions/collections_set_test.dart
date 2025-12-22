@@ -5,16 +5,16 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toSet', () {
@@ -53,7 +53,8 @@ void main() {
       expect(result, equals(<int>{7}));
     });
 
-    test('should throw ConversionException when input is a scalar not iterable and not T',
+    test(
+        'should throw ConversionException when input is a scalar not iterable and not T',
         () {
       // Arrange
       const input = 'abc';
@@ -80,7 +81,8 @@ void main() {
       expect(result, equals(<String>{'s1', 's2'}));
     });
 
-    test('should decode a JSON list string into a set and convert elements', () {
+    test('should decode a JSON list string into a set and convert elements',
+        () {
       // Arrange
       const input = '[1,2,2,3]';
 
@@ -102,7 +104,8 @@ void main() {
       expect(result, equals(<int>{1, 2}));
     });
 
-    test('should return defaultValue when conversion fails and defaultValue is provided',
+    test(
+        'should return defaultValue when conversion fails and defaultValue is provided',
         () {
       // Arrange
       const input = 'not-a-set';
@@ -117,7 +120,8 @@ void main() {
   });
 
   group('Convert.tryToSet', () {
-    test('should return null when conversion fails and no defaultValue is provided',
+    test(
+        'should return null when conversion fails and no defaultValue is provided',
         () {
       // Arrange
       const input = 'abc';

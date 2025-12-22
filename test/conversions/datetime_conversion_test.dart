@@ -6,12 +6,12 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
-  late String? _prevIntlLocale;
+  late ConvertConfig prev;
+  late String? prevIntlLocale;
 
   setUpAll(() async {
     // Arrange
-    _prevIntlLocale = Intl.defaultLocale;
+    prevIntlLocale = Intl.defaultLocale;
 
     // Act
     await initTestIntl(defaultLocale: 'en_US');
@@ -22,17 +22,17 @@ void main() {
 
   tearDownAll(() {
     // Arrange
-    Intl.defaultLocale = _prevIntlLocale;
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toDateTime (epoch numbers)', () {
@@ -186,7 +186,9 @@ void main() {
       expect(result.second, equals(45));
     });
 
-    test('should interpret ambiguous slashed dates using en_US semantics by default', () {
+    test(
+        'should interpret ambiguous slashed dates using en_US semantics by default',
+        () {
       // Arrange
       const input = '01/02/2025';
 
@@ -200,7 +202,9 @@ void main() {
       expect(result.day, equals(2));
     });
 
-    test('should interpret ambiguous slashed dates using en_GB semantics when config locale is en_GB', () {
+    test(
+        'should interpret ambiguous slashed dates using en_GB semantics when config locale is en_GB',
+        () {
       // Arrange
       const input = '01/02/2025';
       const overrides = ConvertConfig(locale: 'en_GB');
@@ -273,7 +277,9 @@ void main() {
   });
 
   group('Convert.toDateTime error handling', () {
-    test('should throw ConversionException when input is malformed and no defaultValue is provided', () {
+    test(
+        'should throw ConversionException when input is malformed and no defaultValue is provided',
+        () {
       // Arrange
 
       // Act + Assert
@@ -283,7 +289,9 @@ void main() {
       );
     });
 
-    test('should return defaultValue when input is malformed and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is malformed and defaultValue is provided',
+        () {
       // Arrange
 
       // Act
@@ -306,7 +314,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when tryToDateTime receives malformed input and defaultValue is provided', () {
+    test(
+        'should return defaultValue when tryToDateTime receives malformed input and defaultValue is provided',
+        () {
       // Arrange
 
       // Act

@@ -5,16 +5,16 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig(locale: 'en_US'));
+    prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.toList', () {
@@ -129,7 +129,8 @@ void main() {
       );
     });
 
-    test('should return defaultValue when conversion fails and defaultValue is provided',
+    test(
+        'should return defaultValue when conversion fails and defaultValue is provided',
         () {
       // Arrange
       const input = 'not-a-list';
@@ -144,7 +145,8 @@ void main() {
   });
 
   group('Convert.tryToList', () {
-    test('should return null when input is a non-iterable scalar not assignable to T',
+    test(
+        'should return null when input is a non-iterable scalar not assignable to T',
         () {
       // Arrange
       const input = 'abc';
@@ -156,7 +158,8 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return a one-element list when input is already of type T', () {
+    test('should return a one-element list when input is already of type T',
+        () {
       // Arrange
       const input = 5;
 

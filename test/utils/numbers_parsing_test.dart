@@ -6,16 +6,16 @@ import '../helpers/fixtures.dart';
 
 void main() {
   group('NumParsingTextX', () {
-    late String? _prevLocale;
+    late String? prevLocale;
 
     setUp(() {
       // Arrange
-      _prevLocale = Intl.defaultLocale;
+      prevLocale = Intl.defaultLocale;
       Intl.defaultLocale = 'en_US';
     });
 
     tearDown(() {
-      Intl.defaultLocale = _prevLocale;
+      Intl.defaultLocale = prevLocale;
     });
 
     group('toNum / tryToNum', () {
@@ -115,7 +115,9 @@ void main() {
     });
 
     group('formatted parsing', () {
-      test('should parse formatted numbers with NumberFormat when format is provided', () {
+      test(
+          'should parse formatted numbers with NumberFormat when format is provided',
+          () {
         // Arrange
         const input = '1,234.50';
         const format = '#,##0.00';
@@ -156,7 +158,8 @@ void main() {
         expect(asDouble, equals(1234.5));
       });
 
-      test('should parse de_DE formatted numbers when locale data is available', () {
+      test('should parse de_DE formatted numbers when locale data is available',
+          () {
         // Arrange
         const input = '1.234,50';
         const format = '#,##0.00';

@@ -5,16 +5,16 @@ import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
 void main() {
-  late ConvertConfig _prev;
+  late ConvertConfig prev;
 
   setUp(() {
     // Arrange
-    _prev = Convert.configure(makeTestConfig());
+    prev = Convert.configure(makeTestConfig());
   });
 
   tearDown(() {
     // Arrange
-    Convert.configure(_prev);
+    Convert.configure(prev);
   });
 
   group('Convert.string', () {
@@ -72,7 +72,9 @@ void main() {
       expect(result, equals('fallback'));
     });
 
-    test('should throw ConversionException when input is null and no defaultValue', () {
+    test(
+        'should throw ConversionException when input is null and no defaultValue',
+        () {
       // Arrange
 
       // Act + Assert
@@ -122,7 +124,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should return defaultValue when input is null and defaultValue is provided', () {
+    test(
+        'should return defaultValue when input is null and defaultValue is provided',
+        () {
       // Arrange
 
       // Act

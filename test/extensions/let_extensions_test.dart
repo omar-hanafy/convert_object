@@ -2,40 +2,86 @@ import 'package:convert_object/convert_object.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('let extensions', () {
-    test('non-null let', () {
-      final out = 'omar'.let((it) => it.toUpperCase());
-      expect(out, 'OMAR');
+  group('LetExtension', () {
+    test(
+        'let should execute the block and return its result for non-null values',
+        () {
+      // Arrange
+      const value = 'hello';
+
+      // Act
+      final result = value.let((it) => it.length);
+
+      // Assert
+      expect(result, equals(5));
+    });
+  });
+
+  group('LetExtensionNullable', () {
+    test('let should return null and not execute when receiver is null', () {
+      // Arrange
+      String? value;
+
+      // Act
+      final result = value.let((it) => it.length);
+
+      // Assert
+      expect(result, isNull);
     });
 
-    test('nullable let -> null input yields null', () {
-      String? s;
-      final out = s.let((it) => it.toUpperCase());
-      expect(out, isNull);
+    test('let should execute when receiver is non-null', () {
+      // Arrange
+      String? value = 'hi';
+
+      // Act
+      final result = value.let((it) => it.toUpperCase());
+
+      // Assert
+      expect(result, equals('HI'));
     });
 
-    test('letOr uses default when null', () {
-      String? s;
-      final out = s.letOr((it) => it.toUpperCase(), defaultValue: 'DEFAULT');
-      expect(out, 'DEFAULT');
+    test('letOr should return defaultValue when receiver is null', () {
+      // Arrange
+      String? value;
+
+      // Act
+      final result = value.letOr((it) => it.length, defaultValue: -1);
+
+      // Assert
+      expect(result, equals(-1));
     });
 
-    test('letOr uses block when non-null', () {
-      const String s = 'abc';
-      final out = s.letOr((it) => it.toUpperCase(), defaultValue: 'DEFAULT');
-      expect(out, 'ABC');
+    test('letOr should execute block when receiver is non-null', () {
+      // Arrange
+      String? value = 'abcd';
+
+      // Act
+      final result = value.letOr((it) => it.length, defaultValue: -1);
+
+      // Assert
+      expect(result, equals(4));
     });
 
-    test('letNullable passes through non-null and returns its result', () {
-      const String s = 'x';
-      final out = s.letNullable((it) => it?.toUpperCase());
-      expect(out, 'X');
+    test('letNullable should return null when receiver is null', () {
+      // Arrange
+      String? value;
+
+      // Act
+      final result = value.letNullable((it) => it?.length);
+
+      // Assert
+      expect(result, isNull);
     });
 
-    test('letNullable returns null when receiver is null', () {
-      String? s;
-      final out = s.letNullable((it) => it?.toUpperCase());
-      expect(out, isNull);
+    test('letNullable should pass the receiver to the block when non-null', () {
+      // Arrange
+      String? value = 'a';
+
+      // Act
+      final result = value.letNullable((it) => it?.toUpperCase());
+
+      // Assert
+      expect(result, equals('A'));
     });
   });
 }

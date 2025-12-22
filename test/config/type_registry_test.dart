@@ -6,23 +6,23 @@ import '../helpers/fixtures.dart';
 import '../helpers/test_models.dart';
 
 void main() {
-  late ConvertConfig _prevConfig;
-  late ConvertConfig _baselineConfig;
-  late String? _prevIntlLocale;
+  late ConvertConfig prevConfig;
+  late ConvertConfig baselineConfig;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
-    _prevIntlLocale = Intl.defaultLocale;
+    prevIntlLocale = Intl.defaultLocale;
     Intl.defaultLocale = 'en_US';
 
-    _baselineConfig = makeTestConfig(locale: 'en_US');
-    _prevConfig = Convert.configure(_baselineConfig);
+    baselineConfig = makeTestConfig(locale: 'en_US');
+    prevConfig = Convert.configure(baselineConfig);
   });
 
   tearDown(() {
     // Arrange (cleanup)
-    Convert.configure(_prevConfig);
-    Intl.defaultLocale = _prevIntlLocale;
+    Convert.configure(prevConfig);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('TypeRegistry.register', () {
@@ -101,13 +101,15 @@ void main() {
       final config = makeTestConfig(registry: registry);
 
       // Act
-      final userId = withGlobalConfig(config, () => Convert.toType<UserId>('42'));
+      final userId =
+          withGlobalConfig(config, () => Convert.toType<UserId>('42'));
 
       // Assert
       expect(userId, equals(const UserId(42)));
     });
 
-    test('should prefer TypeRegistry over built-in routing when registered', () {
+    test('should prefer TypeRegistry over built-in routing when registered',
+        () {
       // Arrange
       final registry = const TypeRegistry.empty().register<int>((_) => 999);
       final config = makeTestConfig(registry: registry);
