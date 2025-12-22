@@ -31,6 +31,17 @@ void main() {
       expect(identical(result, input), isTrue);
     });
 
+    test('should honor listIndex even when input already matches List<T>', () {
+      // Arrange
+      final input = <int>[1, 2, 3];
+
+      // Act
+      final result = Convert.toList<int>(input, listIndex: 1);
+
+      // Assert
+      expect(result, equals(<int>[2]));
+    });
+
     test('should convert elements using toType<T> when types differ', () {
       // Arrange
       final input = <dynamic>['1', 2, '3'];

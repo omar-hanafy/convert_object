@@ -76,11 +76,6 @@ abstract class ConvertObjectImpl {
     T Function(dynamic)? converter,
   }) {
     if (object == null) return null;
-    if (object is T) return object;
-    try {
-      return object as T;
-    } catch (_) {}
-
     // decode input if requested
     if (decodeInput && object is String) {
       final decoded = object.tryDecode();
@@ -125,6 +120,11 @@ abstract class ConvertObjectImpl {
         return null;
       }
     }
+
+    if (object is T) return object;
+    try {
+      return object as T;
+    } catch (_) {}
 
     try {
       return converter?.call(object);

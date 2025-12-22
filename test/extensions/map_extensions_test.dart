@@ -115,6 +115,19 @@ void main() {
       expect(tags, equals(<String>['a', 'b', 'c']));
     });
 
+    test('getList should respect innerListIndex on a list value', () {
+      // Arrange
+      final map = <String, dynamic>{
+        'nums': <int>[1, 2, 3],
+      };
+
+      // Act
+      final result = map.getList<int>('nums', innerListIndex: 1);
+
+      // Assert
+      expect(result, equals(<int>[2]));
+    });
+
     test('getEnum should parse an enum using the provided parser', () {
       // Arrange
       final map = <String, dynamic>{'color': 'red'};
@@ -125,6 +138,25 @@ void main() {
 
       // Assert
       expect(result, equals(TestColor.red));
+    });
+
+    test('getMap should respect innerKey when the value is already a map', () {
+      // Arrange
+      final map = <String, dynamic>{
+        'mainOrganizer': <String, dynamic>{
+          'id': 4028,
+          'user': <String, dynamic>{'id': 8357, 'name': 'John'},
+        },
+      };
+
+      // Act
+      final result = map.getMap<String, dynamic>(
+        'mainOrganizer',
+        innerKey: 'user',
+      );
+
+      // Assert
+      expect(result, equals(<String, dynamic>{'id': 8357, 'name': 'John'}));
     });
 
     test('getEnum should return defaultValue when parsing fails', () {

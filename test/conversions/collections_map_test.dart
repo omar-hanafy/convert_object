@@ -31,6 +31,20 @@ void main() {
       expect(identical(result, input), isTrue);
     });
 
+    test('should honor mapKey even when input already matches Map<K, V>', () {
+      // Arrange
+      final input = <String, dynamic>{
+        'outer': <String, dynamic>{'x': 1},
+        'other': 2,
+      };
+
+      // Act
+      final result = Convert.toMap<String, dynamic>(input, mapKey: 'outer');
+
+      // Assert
+      expect(result, equals(<String, dynamic>{'x': 1}));
+    });
+
     test(
         'should throw ConversionException when map value types are incompatible and no converters are provided',
         () {
