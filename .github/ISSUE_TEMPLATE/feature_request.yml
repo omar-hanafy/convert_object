@@ -1,6 +1,6 @@
 name: Feature request
-description: Suggest an idea or improvement
-title: "[Feature] "
+description: Suggest an enhancement or new feature
+title: "feat: "
 labels: ["enhancement"]
 body:
   - type: textarea
@@ -14,16 +14,20 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
-      description: Describe the change you would like to see.
+      description: What do you want the API/behavior to be?
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Any alternative approaches or workarounds you tried.
+      description: Any other approaches you tried or considered.
+    validations:
+      required: false
   - type: textarea
     id: context
     attributes:
       label: Additional context
-      description: Links, references, or examples.
+      description: Links, screenshots, or examples.
+    validations:
+      required: false
