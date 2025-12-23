@@ -1,3 +1,7 @@
+## 1.0.0-dev.6
+
+- Release test for tag-driven publishing via PAT tag push (Trusted Publisher OIDC).
+
 ## 1.0.0-dev.5
 
 - Maintenance release: publish automation now tags/releases on version bumps for main/dev, with manual publish dispatch readiness.
