@@ -1,3 +1,7 @@
+## 1.0.0-dev.7
+
+- Release test for publish-on-release automation.
+
 ## 1.0.0-dev.6
 
 - Release test for tag-driven publishing via PAT tag push (Trusted Publisher OIDC).
