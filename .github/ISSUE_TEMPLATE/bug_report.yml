@@ -1,56 +1,62 @@
 name: Bug report
-description: Report a problem in convert_object
-title: "[Bug] "
+description: Report a bug or regression
+title: "bug: "
 labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: "Thanks for taking the time to file a bug report."
   - type: textarea
-    id: what-happened
+    id: summary
     attributes:
-      label: What happened?
-      description: A clear and concise description of the bug.
+      label: Summary
+      description: What happened? Include expected vs actual.
     validations:
       required: true
   - type: textarea
-    id: steps
+    id: repro
     attributes:
       label: Steps to reproduce
-      description: Include a minimal repro if possible.
+      description: Minimal steps or a short repro snippet.
       placeholder: |
         1. ...
         2. ...
+        3. ...
     validations:
       required: true
   - type: textarea
-    id: expected
+    id: logs
     attributes:
-      label: Expected behavior
+      label: Logs / output
+      description: Paste relevant logs, stack traces, or screenshots.
+      render: shell
     validations:
-      required: true
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behavior
-    validations:
-      required: true
+      required: false
   - type: input
     id: package-version
     attributes:
       label: Package version
-      description: Output of `dart pub deps --style=list | rg convert_object` or your pubspec.
+      placeholder: 1.2.3
     validations:
       required: true
   - type: input
-    id: dart-version
+    id: sdk-version
     attributes:
-      label: Dart SDK version
-      description: Output of `dart --version`.
+      label: SDK version
+      description: Output of `dart --version` or `flutter --version`.
     validations:
       required: true
   - type: input
     id: platform
     attributes:
       label: OS / Platform
-      description: e.g. macOS 14, Ubuntu 22.04, Windows 11.
+      placeholder: macOS 14, Ubuntu 22.04, Windows 11
+    validations:
+      required: true
+  - type: dropdown
+    id: reproducible
+    attributes:
+      label: Reproducibility
+      options:
+        - Always
+        - Sometimes
+        - Rarely
+    validations:
+      required: true
