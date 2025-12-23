@@ -24,7 +24,7 @@ This document is my default policy for how I manage all published package repos.
 - On merge to main or dev, create tag `<package>-v<version>` and a GitHub Release if pubspec.yaml version changed.
 - Publishing is triggered by GitHub Release events created by auto-release (OIDC-approved `ref_type=tag`).
 - Tag pushes (`convert_object-vX.Y.Z`) can also trigger publish when pushed manually.
-- Tag pushes from workflows use the fine-grained PAT secret `TAG_PUSH_PAT`.
+- Auto-release uses `actions/checkout` with `TAG_PUSH_PAT` so tag pushes are attributed to the PAT and can trigger workflows.
 - `workflow_dispatch` on `publish.yml` only works if you add a pub.dev token; OIDC rejects manual dispatch.
 - main releases: standard release (not prerelease).
 - dev releases: prerelease.
