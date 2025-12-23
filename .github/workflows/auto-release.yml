@@ -86,13 +86,19 @@ jobs:
 
       - name: Create tag
         if: steps.bump.outputs.version_bumped == 'true'
+        env:
+          TAG_PUSH_PAT: ${{ secrets.TAG_PUSH_PAT }}
         run: |
           set -euo pipefail
           tag="${{ steps.vars.outputs.tag }}"
+          if [ -z "${TAG_PUSH_PAT:-}" ]; then
+            echo "TAG_PUSH_PAT is not set."
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$tag"
-          git push origin "$tag"
+          git push "https://x-access-token:${TAG_PUSH_PAT}@github.com/${GITHUB_REPOSITORY}.git" "$tag"
 
       - name: Create GitHub Release
         if: steps.bump.outputs.version_bumped == 'true'
@@ -102,13 +108,3 @@ jobs:
           name: ${{ steps.vars.outputs.tag }}
           generate_release_notes: true
           prerelease: ${{ steps.vars.outputs.branch == 'dev' }}
-
-  publish:
-    needs: tag-and-release
-    if: needs.tag-and-release.outputs.version_bumped == 'true'
-    permissions:
-      contents: read
-      id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: .
