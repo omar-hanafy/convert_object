@@ -2,7 +2,7 @@ name: convert_object
 description: >
   A comprehensive type conversion library for Dart with a fluent API, safe try* variants,
   robust Date/Number/URI parsing, enum helpers, and extensive collection/map/list extensions.
-version: 1.0.0-dev.6
+version: 1.0.0-dev.7
 repository: https://github.com/omar-hanafy/convert_object
 homepage: https://github.com/omar-hanafy/convert_object
 issue_tracker: https://github.com/omar-hanafy/convert_object/issues
