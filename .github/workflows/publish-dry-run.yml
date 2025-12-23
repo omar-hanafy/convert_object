@@ -2,7 +2,7 @@ name: Pub Dry-Run (convert_object)
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 permissions:
   contents: read
