@@ -51,6 +51,24 @@ void main() {
       expect(result, equals(2));
     });
 
+    test('getInt should include index in error context', () {
+      // Arrange
+      final data = <String>['abc'];
+      ConversionException? thrown;
+
+      // Act
+      try {
+        data.getInt(0);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.error, isA<FormatException>());
+      expect(thrown.context['index'], equals(0));
+    });
+
     test('getBool should convert truthy/falsy strings using innerMapKey', () {
       // Arrange
       final data = <Map<String, dynamic>>[

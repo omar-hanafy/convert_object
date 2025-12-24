@@ -279,6 +279,65 @@ void main() {
       );
     });
 
+    test('should preserve the underlying error and stack trace', () {
+      // Arrange
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toInt('abc');
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.error, isA<FormatException>());
+      expect(thrown.stackTrace.toString(), contains('numbers.dart'));
+      expect(thrown.stackTrace.toString(), isNot(contains('_fail')));
+    });
+
+    test('should include mapKey and listIndex in error context', () {
+      // Arrange
+      final data = <String, dynamic>{
+        'n': <dynamic>['abc'],
+      };
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toInt(data, mapKey: 'n', listIndex: 0);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.error, isA<FormatException>());
+      expect(thrown.context['mapKey'], equals('n'));
+      expect(thrown.context['listIndex'], equals(0));
+    });
+
+    test('should wrap custom converter errors in ConversionException', () {
+      // Arrange
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toInt(
+          'x',
+          converter: (_) => throw StateError('boom'),
+        );
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.error, isA<StateError>());
+      expect(thrown.context['method'], equals('toInt'));
+    });
+
     test(
         'should return defaultValue when input is malformed and defaultValue is provided',
         () {

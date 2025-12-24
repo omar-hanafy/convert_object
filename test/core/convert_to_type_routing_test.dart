@@ -243,18 +243,15 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should throw ConversionException for unsupported target types', () {
+    test('should return null for unsupported target types', () {
       // Arrange
       const input = 'x';
 
-      // Act + Assert
-      expect(
-        () => Convert.tryToType<UnsupportedThing>(input),
-        throwsConversionException(
-          method: 'tryToType<UnsupportedThing>',
-          errorContains: 'Unsupported type:',
-        ),
-      );
+      // Act
+      final result = Convert.tryToType<UnsupportedThing>(input);
+
+      // Assert
+      expect(result, isNull);
     });
   });
 }

@@ -1,4 +1,25 @@
+import 'dart:collection';
+
 import 'package:intl/intl.dart';
+
+const int _kMaxNumberFormatCacheSize = 32;
+final LinkedHashMap<String, NumberFormat> _numberFormatCache =
+    LinkedHashMap<String, NumberFormat>();
+
+NumberFormat _getNumberFormat(String format, String? locale) {
+  final key = '$format|${locale ?? ''}';
+  final cached = _numberFormatCache.remove(key);
+  if (cached != null) {
+    _numberFormatCache[key] = cached;
+    return cached;
+  }
+  final created = NumberFormat(format, locale);
+  _numberFormatCache[key] = created;
+  if (_numberFormatCache.length > _kMaxNumberFormatCacheSize) {
+    _numberFormatCache.remove(_numberFormatCache.keys.first);
+  }
+  return created;
+}
 
 /// Extension methods for parsing numeric strings with lenient formatting.
 extension NumParsingTextX on String {
@@ -45,7 +66,7 @@ extension NumParsingTextX on String {
 
   /// Parses this string using an [NumberFormat] described by [format] and [locale].
   num toNumFormatted(String format, String? locale) {
-    final f = NumberFormat(format, locale);
+    final f = _getNumberFormat(format, locale);
     final parsed = f.parse(this);
     return parsed;
   }

@@ -131,5 +131,34 @@ void main() {
       // Assert
       expect(calls, equals(2));
     });
+
+    test('should invoke hook once when a ConversionException is rethrown', () {
+      // Arrange
+      var calls = 0;
+      ConversionException? captured;
+      final config = makeTestConfig(
+        onException: (e) {
+          calls++;
+          captured = e;
+        },
+      );
+
+      // Act
+      ConversionException? thrown;
+      try {
+        withGlobalConfig(config, () {
+          Convert.toType<int>('abc'); // toInt throws then rethrown in toType
+        });
+        fail('Expected Convert.toType to throw');
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(calls, equals(1));
+      expect(captured, isNotNull);
+      expect(thrown, isNotNull);
+      expect(identical(captured, thrown), isTrue);
+    });
   });
 }

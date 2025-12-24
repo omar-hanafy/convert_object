@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:convert_object/src/config/convert_config.dart';
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/dates.dart';
@@ -22,14 +20,18 @@ extension _NullableStringX on String? {
 /// The methods mirror the public facade but expose additional hooks used in
 /// tests and error reporting.
 abstract class ConvertObjectImpl {
+  static final Expando<bool> _hooked =
+      Expando<bool>('convert_object_on_exception_called');
+
   static Never _fail(ConversionException ex) {
     final hook = ConvertConfig.effective.onException;
-    if (hook != null) {
+    if (hook != null && _hooked[ex] != true) {
+      _hooked[ex] = true;
       try {
         hook(ex);
       } catch (_) {}
     }
-    throw ex;
+    Error.throwWithStackTrace(ex, ex.stackTrace);
   }
 
   /// Aggregates metadata describing a conversion attempt for diagnostics.
@@ -73,6 +75,7 @@ abstract class ConvertObjectImpl {
     dynamic mapKey,
     int? listIndex,
     bool decodeInput = false,
+    bool swallowConverterErrors = true,
     T Function(dynamic)? converter,
   }) {
     if (object == null) return null;
@@ -85,6 +88,7 @@ abstract class ConvertObjectImpl {
           mapKey: mapKey,
           listIndex: listIndex,
           decodeInput: decodeInput,
+          swallowConverterErrors: swallowConverterErrors,
           converter: converter,
         );
       }
@@ -92,33 +96,38 @@ abstract class ConvertObjectImpl {
 
     // List index
     if (listIndex != null && object is List) {
+      Object? elem;
       try {
-        final elem = (listIndex >= 0 && listIndex < object.length)
+        elem = (listIndex >= 0 && listIndex < object.length)
             ? object[listIndex]
             : null;
-        return _convertObject<T>(
-          elem,
-          mapKey: mapKey,
-          decodeInput: decodeInput,
-          converter: converter,
-        );
       } catch (_) {
         return null;
       }
+      return _convertObject<T>(
+        elem,
+        mapKey: mapKey,
+        decodeInput: decodeInput,
+        swallowConverterErrors: swallowConverterErrors,
+        converter: converter,
+      );
     }
 
     // Map key
     if (mapKey != null && object is Map) {
+      Object? value;
       try {
-        return _convertObject<T>(
-          object[mapKey],
-          decodeInput: decodeInput,
-          converter: converter,
-          listIndex: listIndex,
-        );
+        value = object[mapKey];
       } catch (_) {
         return null;
       }
+      return _convertObject<T>(
+        value,
+        decodeInput: decodeInput,
+        converter: converter,
+        listIndex: listIndex,
+        swallowConverterErrors: swallowConverterErrors,
+      );
     }
 
     if (object is T) return object;
@@ -129,11 +138,9 @@ abstract class ConvertObjectImpl {
     try {
       return converter?.call(object);
     } catch (e, s) {
-      log(
-        'Unsupported object type ($T) [objectType: ${object.runtimeType}, mapKey: $mapKey, listIndex: $listIndex, decodeInput: $decodeInput]: $e',
-        stackTrace: s,
-        error: e,
-      );
+      if (!swallowConverterErrors) {
+        Error.throwWithStackTrace(e, s);
+      }
       return null;
     }
   }
@@ -149,12 +156,35 @@ abstract class ConvertObjectImpl {
     ElementConverter<String>? converter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<String>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ?? ((o) => o.toString()),
-    );
+    String? data;
+    try {
+      data = _convertObject<String>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ?? ((o) => o.toString()),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'string',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -208,32 +238,58 @@ abstract class ConvertObjectImpl {
     final effFormat = format.isNotBlank ? format : numbersCfg.defaultFormat;
     final effLocale = locale ?? numbersCfg.defaultLocale ?? config.locale;
     final tryFormattedFirst = numbersCfg.tryFormattedFirst;
-    final data = _convertObject<num>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            final text = '$o';
-            if (effFormat != null && tryFormattedFirst) {
-              final formatted = text.tryToNumFormatted(effFormat, effLocale);
-              if (formatted != null) return formatted;
-            }
-            try {
-              final plain = text.toNum();
-              if (effFormat != null && !tryFormattedFirst) {
+    num? data;
+    try {
+      data = _convertObject<num>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              final text = '$o';
+              if (effFormat != null && tryFormattedFirst) {
                 final formatted = text.tryToNumFormatted(effFormat, effLocale);
-                return formatted ?? plain;
+                if (formatted != null) return formatted;
               }
-              return plain;
-            } catch (_) {
-              if (effFormat != null) {
-                return text.toNumFormatted(effFormat, effLocale);
+              try {
+                final plain = text.toNum();
+                if (effFormat != null && !tryFormattedFirst) {
+                  final formatted =
+                      text.tryToNumFormatted(effFormat, effLocale);
+                  return formatted ?? plain;
+                }
+                return plain;
+              } catch (_) {
+                if (effFormat != null) {
+                  return text.toNumFormatted(effFormat, effLocale);
+                }
+                rethrow;
               }
-              rethrow;
-            }
-          }),
-    );
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toNum',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          format: format,
+          locale: locale,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -317,40 +373,61 @@ abstract class ConvertObjectImpl {
     final effFormat = format.isNotBlank ? format : numbersCfg.defaultFormat;
     final effLocale = locale ?? numbersCfg.defaultLocale ?? config.locale;
     final tryFormattedFirst = numbersCfg.tryFormattedFirst;
-    final data = _convertObject<int>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            final text = '$o';
-            if (effFormat != null && tryFormattedFirst) {
-              final formatted = text.tryToIntFormatted(effFormat, effLocale);
-              if (formatted != null) return formatted;
-            }
-            if (o is num) {
-              final plain = o.toInt();
-              if (effFormat != null && !tryFormattedFirst) {
+    int? data;
+    try {
+      data = _convertObject<int>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              if (o is num) {
+                return o.toInt();
+              }
+              final text = '$o';
+              if (effFormat != null && tryFormattedFirst) {
                 final formatted = text.tryToIntFormatted(effFormat, effLocale);
-                return formatted ?? plain;
+                if (formatted != null) return formatted;
               }
-              return plain;
-            }
-            try {
-              final plain = text.toInt();
-              if (effFormat != null && !tryFormattedFirst) {
-                final formatted = text.tryToIntFormatted(effFormat, effLocale);
-                return formatted ?? plain;
+              try {
+                final plain = text.toInt();
+                if (effFormat != null && !tryFormattedFirst) {
+                  final formatted =
+                      text.tryToIntFormatted(effFormat, effLocale);
+                  return formatted ?? plain;
+                }
+                return plain;
+              } catch (_) {
+                if (effFormat != null) {
+                  return text.toIntFormatted(effFormat, effLocale);
+                }
+                rethrow;
               }
-              return plain;
-            } catch (_) {
-              if (effFormat != null) {
-                return text.toIntFormatted(effFormat, effLocale);
-              }
-              rethrow;
-            }
-          }),
-    );
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toInt',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          format: format,
+          locale: locale,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -394,20 +471,14 @@ abstract class ConvertObjectImpl {
           listIndex: listIndex,
           converter: converter ??
               ((o) {
+                if (o is num) {
+                  return o.toInt();
+                }
                 final text = '$o';
                 if (effFormat != null && tryFormattedFirst) {
                   final formatted =
                       text.tryToIntFormatted(effFormat, effLocale);
                   if (formatted != null) return formatted;
-                }
-                if (o is num) {
-                  final plain = o.toInt();
-                  if (effFormat != null && !tryFormattedFirst) {
-                    final formatted =
-                        text.tryToIntFormatted(effFormat, effLocale);
-                    return formatted ?? plain;
-                  }
-                  return plain;
                 }
                 final plain = text.tryToInt();
                 if (plain != null) {
@@ -436,16 +507,40 @@ abstract class ConvertObjectImpl {
     ElementConverter<BigInt>? converter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<BigInt>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            if (o is num) return BigInt.from(o);
-            return BigInt.parse('$o');
-          }),
-    );
+    BigInt? data;
+    try {
+      data = _convertObject<BigInt>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              if (o is BigInt) return o;
+              if (o is num) return BigInt.from(o);
+              return BigInt.parse('$o');
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toBigInt',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -480,6 +575,7 @@ abstract class ConvertObjectImpl {
           listIndex: listIndex,
           converter: converter ??
               ((o) {
+                if (o is BigInt) return o;
                 if (o is num) return BigInt.from(o);
                 return BigInt.tryParse('$o');
               }),
@@ -503,42 +599,62 @@ abstract class ConvertObjectImpl {
     final effFormat = format.isNotBlank ? format : numbersCfg.defaultFormat;
     final effLocale = locale ?? numbersCfg.defaultLocale ?? config.locale;
     final tryFormattedFirst = numbersCfg.tryFormattedFirst;
-    final data = _convertObject<double>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            final text = '$o';
-            if (effFormat != null && tryFormattedFirst) {
-              final formatted = text.tryToDoubleFormatted(effFormat, effLocale);
-              if (formatted != null) return formatted;
-            }
-            if (o is num) {
-              final plain = o.toDouble();
-              if (effFormat != null && !tryFormattedFirst) {
+    double? data;
+    try {
+      data = _convertObject<double>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              if (o is num) {
+                return o.toDouble();
+              }
+              final text = '$o';
+              if (effFormat != null && tryFormattedFirst) {
                 final formatted =
                     text.tryToDoubleFormatted(effFormat, effLocale);
-                return formatted ?? plain;
+                if (formatted != null) return formatted;
               }
-              return plain;
-            }
-            try {
-              final plain = text.toDouble();
-              if (effFormat != null && !tryFormattedFirst) {
-                final formatted =
-                    text.tryToDoubleFormatted(effFormat, effLocale);
-                return formatted ?? plain;
+              try {
+                final plain = text.toDouble();
+                if (effFormat != null && !tryFormattedFirst) {
+                  final formatted =
+                      text.tryToDoubleFormatted(effFormat, effLocale);
+                  return formatted ?? plain;
+                }
+                return plain;
+              } catch (_) {
+                if (effFormat != null) {
+                  return text.toDoubleFormatted(effFormat, effLocale);
+                }
+                rethrow;
               }
-              return plain;
-            } catch (_) {
-              if (effFormat != null) {
-                return text.toDoubleFormatted(effFormat, effLocale);
-              }
-              rethrow;
-            }
-          }),
-    );
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toDouble',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          format: format,
+          locale: locale,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -582,20 +698,14 @@ abstract class ConvertObjectImpl {
           listIndex: listIndex,
           converter: converter ??
               ((o) {
+                if (o is num) {
+                  return o.toDouble();
+                }
                 final text = '$o';
                 if (effFormat != null && tryFormattedFirst) {
                   final formatted =
                       text.tryToDoubleFormatted(effFormat, effLocale);
                   if (formatted != null) return formatted;
-                }
-                if (o is num) {
-                  final plain = o.toDouble();
-                  if (effFormat != null && !tryFormattedFirst) {
-                    final formatted =
-                        text.tryToDoubleFormatted(effFormat, effLocale);
-                    return formatted ?? plain;
-                  }
-                  return plain;
                 }
                 final plain = text.tryToDouble();
                 if (plain != null) {
@@ -675,44 +785,72 @@ abstract class ConvertObjectImpl {
     final effUseCurrentLocale = useCurrentLocale || dateCfg.useCurrentLocale;
     final effUtc = utc || dateCfg.utc;
     final extraPatterns = dateCfg.extraAutoDetectPatterns;
-    final data = _convertObject<DateTime>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            if (o is num) {
-              // treat as ms or s since epoch
-              final v = o.toInt();
-              final dt = v.abs() >= 100000000000
-                  ? DateTime.fromMillisecondsSinceEpoch(v, isUtc: effUtc)
-                  : DateTime.fromMillisecondsSinceEpoch(v * 1000,
-                      isUtc: effUtc);
-              return effUtc ? dt.toUtc() : dt.toLocal();
-            }
-            if (effFormat != null) {
-              return '$o'.toDateFormatted(effFormat, effLocale, utc: effUtc);
-            }
-            if (effAutoDetect) {
-              final text = '$o';
-              for (final pattern in extraPatterns) {
-                try {
-                  final df = DateFormat(pattern, effLocale);
-                  final parsed = effUtc ? df.parseUtc(text) : df.parse(text);
-                  return effUtc ? parsed.toUtc() : parsed;
-                } catch (_) {
-                  continue;
-                }
+    DateTime? data;
+    try {
+      data = _convertObject<DateTime>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              if (o is num) {
+                // treat as ms or s since epoch
+                final v = o.toInt();
+                final dt = v.abs() >= 100000000000
+                    ? DateTime.fromMillisecondsSinceEpoch(v, isUtc: effUtc)
+                    : DateTime.fromMillisecondsSinceEpoch(v * 1000,
+                        isUtc: effUtc);
+                return effUtc ? dt.toUtc() : dt.toLocal();
               }
-              return text.toDateAutoFormat(
-                locale: effLocale,
-                useCurrentLocale: effUseCurrentLocale,
-                utc: effUtc,
-              );
-            }
-            return '$o'.toDateTime();
-          }),
-    );
+              if (effFormat != null) {
+                return '$o'.toDateFormatted(effFormat, effLocale, utc: effUtc);
+              }
+              if (effAutoDetect) {
+                final text = '$o';
+                for (final pattern in extraPatterns) {
+                  try {
+                    final df = DateFormat(pattern, effLocale);
+                    final parsed = effUtc ? df.parseUtc(text) : df.parse(text);
+                    return effUtc ? parsed.toUtc() : parsed;
+                  } catch (_) {
+                    continue;
+                  }
+                }
+                return text.toDateAutoFormat(
+                  locale: effLocale,
+                  useCurrentLocale: effUseCurrentLocale,
+                  utc: effUtc,
+                );
+              }
+              return '$o'.toDateTime();
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toDateTime',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          format: format,
+          locale: locale,
+          autoDetectFormat: autoDetectFormat,
+          useCurrentLocale: useCurrentLocale,
+          utc: utc,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -813,18 +951,41 @@ abstract class ConvertObjectImpl {
     Map<String, dynamic>? debugInfo,
   }) {
     final policy = ConvertConfig.effective.uri;
-    final data = _convertObject<Uri>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: converter ??
-          ((o) {
-            final s = o.toString();
-            if (s.isValidPhoneNumber) return s.toPhoneUri;
-            if (s.isEmailAddress) return s.toMailUri;
-            return _parseUriWithPolicy(s, policy);
-          }),
-    );
+    Uri? data;
+    try {
+      data = _convertObject<Uri>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: converter ??
+            ((o) {
+              final s = o.toString();
+              if (s.isValidPhoneNumber) return s.toPhoneUri;
+              if (s.isEmailAddress) return s.toMailUri;
+              return _parseUriWithPolicy(s, policy);
+            }),
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toUri',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: converter,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -880,12 +1041,40 @@ abstract class ConvertObjectImpl {
     T? defaultValue,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<T>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: parser,
-    );
+    T? data;
+    try {
+      data = _convertObject<T>(
+        object,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: parser,
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toEnum<$T>',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: parser,
+          targetType: T,
+          debugInfo: {
+            ...?debugInfo,
+            'reason': 'enum parse failed',
+            'enumType': T.toString(),
+          },
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -940,22 +1129,47 @@ abstract class ConvertObjectImpl {
     ElementConverter<V>? valueConverter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<Map<K, V>>(
-      object,
-      decodeInput: true,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: (o) {
-        if (o is Map && o.isEmpty) return <K, V>{};
-        if (o is Map<K, V>) return o;
-        return (o as Map).map(
-          (key, value) => MapEntry(
-            keyConverter?.call(key) ?? key as K,
-            valueConverter?.call(value) ?? value as V,
-          ),
-        );
-      },
-    );
+    Map<K, V>? data;
+    try {
+      data = _convertObject<Map<K, V>>(
+        object,
+        decodeInput: true,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: (o) {
+          if (o is Map && o.isEmpty) return <K, V>{};
+          if (o is Map<K, V>) return o;
+          return (o as Map).map(
+            (key, value) => MapEntry(
+              keyConverter?.call(key) ?? key as K,
+              valueConverter?.call(value) ?? value as V,
+            ),
+          );
+        },
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toMap<$K, $V>',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter:
+              keyConverter != null || valueConverter != null ? 'custom' : null,
+          targetType: Map<K, V>,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -1015,25 +1229,75 @@ abstract class ConvertObjectImpl {
     ElementConverter<T>? elementConverter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<Set<T>>(
-      object,
-      decodeInput: true,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: (o) {
-        if (o is Iterable && o.isEmpty) return <T>{};
-        if (o is Set<T>) return o;
-        if (o is T) return <T>{o};
-        if (o is Map<dynamic, T>) return o.values.toSet();
-        return (o as Iterable)
-            .map(
-              (tmp) => elementConverter != null
+    Set<T>? data;
+    try {
+      data = _convertObject<Set<T>>(
+        object,
+        decodeInput: true,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: (o) {
+          if (o is Iterable && o.isEmpty) return <T>{};
+          if (o is Set<T>) return o;
+          if (o is T) return <T>{o};
+          if (o is Map<dynamic, T>) return o.values.toSet();
+          var index = 0;
+          final out = <T>{};
+          for (final tmp in o as Iterable) {
+            try {
+              final value = elementConverter != null
                   ? elementConverter(tmp)
-                  : (tmp is T ? tmp : toType<T>(tmp)),
-            )
-            .toSet();
-      },
-    );
+                  : (tmp is T ? tmp : toType<T>(tmp));
+              out.add(value);
+            } catch (e, s) {
+              final error = e is ConversionException ? e.error : e;
+              final trace = e is ConversionException ? e.stackTrace : s;
+              final ex = ConversionException(
+                error: error,
+                context: buildContext(
+                  method: 'toSet<$T>',
+                  object: object,
+                  mapKey: mapKey,
+                  listIndex: listIndex,
+                  defaultValue: defaultValue,
+                  converter: elementConverter,
+                  targetType: Set<T>,
+                  debugInfo: {
+                    ...?debugInfo,
+                    'elementIndex': index,
+                  },
+                ),
+                stackTrace: trace,
+              );
+              Error.throwWithStackTrace(ex, trace);
+            }
+            index++;
+          }
+          return out;
+        },
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toSet<$T>',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: elementConverter,
+          targetType: Set<T>,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -1094,31 +1358,81 @@ abstract class ConvertObjectImpl {
     ElementConverter<T>? elementConverter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final data = _convertObject<List<T>>(
-      object,
-      decodeInput: true,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      converter: (o) {
-        if (o is Iterable && o.isEmpty) return <T>[];
-        if (o is List<T>) return o;
-        if (o is T) return <T>[o];
-        if (o is Set<T>) return o.toList();
-        if (o is Map<dynamic, T>) return o.values.toList();
-        if (o is Iterable) {
-          return o
-              .map(
-                (tmp) => elementConverter != null
+    List<T>? data;
+    try {
+      data = _convertObject<List<T>>(
+        object,
+        decodeInput: true,
+        mapKey: mapKey,
+        listIndex: listIndex,
+        swallowConverterErrors: false,
+        converter: (o) {
+          if (o is Iterable && o.isEmpty) return <T>[];
+          if (o is List<T>) return o;
+          if (o is T) return <T>[o];
+          if (o is Set<T>) return o.toList();
+          if (o is Map<dynamic, T>) return o.values.toList();
+          if (o is Iterable) {
+            var index = 0;
+            final out = <T>[];
+            for (final tmp in o) {
+              try {
+                final value = elementConverter != null
                     ? elementConverter(tmp)
-                    : (tmp is T ? tmp : toType<T>(tmp)),
-              )
-              .toList();
-        }
-        // Single value fallback: convert to T and wrap
-        final single = toType<T>(o);
-        return <T>[single];
-      },
-    );
+                    : (tmp is T ? tmp : toType<T>(tmp));
+                out.add(value);
+              } catch (e, s) {
+                final error = e is ConversionException ? e.error : e;
+                final trace = e is ConversionException ? e.stackTrace : s;
+                final ex = ConversionException(
+                  error: error,
+                  context: buildContext(
+                    method: 'toList<$T>',
+                    object: object,
+                    mapKey: mapKey,
+                    listIndex: listIndex,
+                    defaultValue: defaultValue,
+                    converter: elementConverter,
+                    targetType: List<T>,
+                    debugInfo: {
+                      ...?debugInfo,
+                      'elementIndex': index,
+                    },
+                  ),
+                  stackTrace: trace,
+                );
+                Error.throwWithStackTrace(ex, trace);
+              }
+              index++;
+            }
+            return out;
+          }
+          // Single value fallback: convert to T and wrap
+          final single = toType<T>(o);
+          return <T>[single];
+        },
+      );
+    } on ConversionException catch (e) {
+      if (defaultValue != null) return defaultValue;
+      return _fail(e);
+    } catch (e, s) {
+      if (defaultValue != null) return defaultValue;
+      final ex = ConversionException(
+        error: e,
+        context: buildContext(
+          method: 'toList<$T>',
+          object: object,
+          mapKey: mapKey,
+          listIndex: listIndex,
+          defaultValue: defaultValue,
+          converter: elementConverter,
+          targetType: List<T>,
+          debugInfo: debugInfo,
+        ),
+        stackTrace: s,
+      );
+      return _fail(ex);
+    }
     if (data == null) {
       if (defaultValue != null) return defaultValue;
       final ex = ConversionException.nullObject(
@@ -1205,6 +1519,8 @@ abstract class ConvertObjectImpl {
       if (T == String) return ConvertObjectImpl.string(object) as T;
       if (T == DateTime) return ConvertObjectImpl.toDateTime(object) as T;
       if (T == Uri) return ConvertObjectImpl.toUri(object) as T;
+    } on ConversionException catch (e) {
+      return _fail(e);
     } catch (e, s) {
       final ex = ConversionException(
         error: e,
@@ -1255,33 +1571,13 @@ abstract class ConvertObjectImpl {
       }
       if (T == DateTime) return ConvertObjectImpl.tryToDateTime(object) as T?;
       if (T == Uri) return ConvertObjectImpl.tryToUri(object) as T?;
-    } catch (e, s) {
-      final ex = ConversionException(
-        error: e,
-        context: {
-          'method': 'tryToType<$T>',
-          'object': object,
-          'objectType': object.runtimeType.toString(),
-          'targetType': '$T',
-        },
-        stackTrace: s,
-      );
-      return _fail(ex);
+    } on ConversionException {
+      return null;
     }
     try {
       return object as T;
     } catch (_) {}
-    final ex = ConversionException(
-      error: 'Unsupported type: $T',
-      context: {
-        'method': 'tryToType<$T>',
-        'object': object,
-        'objectType': object.runtimeType.toString(),
-        'targetType': '$T',
-      },
-      stackTrace: StackTrace.current,
-    );
-    return _fail(ex);
+    return null;
   }
 
   static bool? _parseBool(Object? value, BoolOptions options) {

@@ -57,6 +57,25 @@ void main() {
       expect(result, equals('x'));
     });
 
+    test('getInt should include altKeys in error context', () {
+      // Arrange
+      final map = <String, dynamic>{'a': null, 'b': 'abc'};
+      ConversionException? thrown;
+
+      // Act
+      try {
+        map.getInt('a', alternativeKeys: const ['b']);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.error, isA<FormatException>());
+      expect(thrown.context['key'], equals('a'));
+      expect(thrown.context['altKeys'], equals(const ['b']));
+    });
+
     test('getInt should support nested selection via innerKey', () {
       // Arrange
       final map = kNestedMap;
