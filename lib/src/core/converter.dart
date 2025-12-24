@@ -108,7 +108,7 @@ class Converter {
     if (_value == null) return null;
     try {
       return to<T>();
-    } catch (_) {
+    } on ConversionException {
       return null;
     }
   }
@@ -118,7 +118,7 @@ class Converter {
     try {
       final v = to<T>();
       return v;
-    } catch (_) {
+    } on ConversionException {
       return defaultValue;
     }
   }

@@ -71,7 +71,7 @@ void main() {
       });
 
       test(
-          'should merge runtime-default numbers object and override booleans but keep null fields',
+          'should ignore runtime-default numbers when not explicitly overridden',
           () {
         // Arrange
         final baseNumbers = const NumberOptions(
@@ -101,13 +101,43 @@ void main() {
             expect(Convert.config.numbers.defaultFormat, equals('#,##0.###'));
             expect(Convert.config.numbers.defaultLocale, equals('de_DE'));
 
-            // Boolean should override because merge uses other.tryFormattedFirst.
-            expect(Convert.config.numbers.tryFormattedFirst, isTrue);
+            // No explicit override -> keep base boolean.
+            expect(Convert.config.numbers.tryFormattedFirst, isFalse);
           });
 
           // Assert (after scope)
           expect(Convert.config.locale, equals('en_US'));
           expect(Convert.config.numbers.tryFormattedFirst, isFalse);
+        });
+      });
+
+      test('should apply explicit numbers overrides even with default values',
+          () {
+        // Arrange
+        final baseNumbers = const NumberOptions(
+          defaultFormat: '#,##0.###',
+          defaultLocale: 'de_DE',
+          tryFormattedFirst: false,
+        );
+
+        final baseConfig = makeTestConfig(
+          locale: 'en_US',
+          numbers: baseNumbers,
+        );
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(
+            numbers: const NumberOptions(), // explicit override
+          );
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.locale, equals('en_US'));
+            expect(Convert.config.numbers.defaultFormat, equals('#,##0.###'));
+            expect(Convert.config.numbers.defaultLocale, equals('de_DE'));
+            expect(Convert.config.numbers.tryFormattedFirst, isTrue);
+          });
         });
       });
 
@@ -169,8 +199,7 @@ void main() {
         });
       });
 
-      test(
-          'should override base bools when overrides.bools is a runtime default instance',
+      test('should ignore runtime-default bools when not explicitly overridden',
           () {
         // Arrange
         final baseBools = const BoolOptions(
@@ -189,14 +218,38 @@ void main() {
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
-            expect(Convert.config.bools.numericPositiveIsTrue, isTrue);
-            expect(Convert.config.bools.truthy.contains('true'), isTrue);
-            expect(Convert.config.bools.truthy.contains('sure'), isFalse);
+            expect(Convert.config.bools.numericPositiveIsTrue, isFalse);
+            expect(Convert.config.bools.truthy.contains('sure'), isTrue);
+            expect(Convert.config.bools.truthy.contains('true'), isFalse);
           });
 
           // Assert (after scope)
           expect(Convert.config.bools.numericPositiveIsTrue, isFalse);
           expect(Convert.config.bools.truthy.contains('sure'), isTrue);
+        });
+      });
+
+      test('should apply explicit bool overrides even with default values', () {
+        // Arrange
+        final baseBools = const BoolOptions(
+          truthy: {'sure'},
+          falsy: {'nah'},
+          numericPositiveIsTrue: false,
+        );
+        final baseConfig = makeTestConfig(bools: baseBools);
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(
+            bools: const BoolOptions(), // explicit override
+          );
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.bools.numericPositiveIsTrue, isTrue);
+            expect(Convert.config.bools.truthy.contains('true'), isTrue);
+            expect(Convert.config.bools.truthy.contains('sure'), isFalse);
+          });
         });
       });
 
@@ -256,8 +309,7 @@ void main() {
         });
       });
 
-      test(
-          'should override base dates when overrides.dates is a runtime default instance',
+      test('should ignore runtime-default dates when not explicitly overridden',
           () {
         // Arrange
         final baseDates = const DateOptions(
@@ -276,14 +328,41 @@ void main() {
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
-            expect(Convert.config.dates.utc, isFalse);
-            expect(Convert.config.dates.autoDetectFormat, isFalse);
-            expect(Convert.config.dates.useCurrentLocale, isFalse);
+            expect(Convert.config.dates.utc, isTrue);
+            expect(Convert.config.dates.autoDetectFormat, isTrue);
+            expect(Convert.config.dates.useCurrentLocale, isTrue);
           });
 
           // Assert (after scope)
           expect(Convert.config.dates.utc, isTrue);
           expect(Convert.config.dates.autoDetectFormat, isTrue);
+        });
+      });
+
+      test('should apply explicit date overrides even with default values', () {
+        // Arrange
+        final baseDates = const DateOptions(
+          utc: true,
+          autoDetectFormat: true,
+          useCurrentLocale: true,
+          extraAutoDetectPatterns: ['yyyyMMdd'],
+        );
+        final baseConfig = makeTestConfig(dates: baseDates);
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(
+            dates: const DateOptions(), // explicit override
+          );
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.dates.utc, isFalse);
+            expect(Convert.config.dates.autoDetectFormat, isFalse);
+            expect(Convert.config.dates.useCurrentLocale, isFalse);
+            expect(Convert.config.dates.extraAutoDetectPatterns,
+                equals(<String>['yyyyMMdd']));
+          });
         });
       });
 
@@ -382,7 +461,7 @@ void main() {
       });
 
       test(
-          'should override base uri policy when overrides.uri is a runtime default instance',
+          'should ignore runtime-default uri policy when not explicitly overridden',
           () {
         // Arrange
         final baseUri = const UriOptions(
@@ -400,15 +479,39 @@ void main() {
 
           Convert.runScopedConfig(overrides, () {
             // Assert (inside scope)
-            expect(Convert.config.uri.allowRelative, isTrue);
-            expect(
-                Convert.config.uri.coerceBareDomainsToDefaultScheme, isFalse);
+            expect(Convert.config.uri.allowRelative, isFalse);
+            expect(Convert.config.uri.coerceBareDomainsToDefaultScheme, isTrue);
             expect(Convert.config.uri.defaultScheme, equals('https'));
           });
 
           // Assert (after scope)
           expect(Convert.config.uri.allowRelative, isFalse);
           expect(Convert.config.uri.coerceBareDomainsToDefaultScheme, isTrue);
+        });
+      });
+
+      test('should apply explicit uri overrides even with default values', () {
+        // Arrange
+        final baseUri = const UriOptions(
+          defaultScheme: 'https',
+          coerceBareDomainsToDefaultScheme: true,
+          allowRelative: false,
+        );
+        final baseConfig = makeTestConfig(uri: baseUri);
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(
+            uri: const UriOptions(), // explicit override
+          );
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.uri.allowRelative, isTrue);
+            expect(
+                Convert.config.uri.coerceBareDomainsToDefaultScheme, isFalse);
+            expect(Convert.config.uri.defaultScheme, equals('https'));
+          });
         });
       });
 

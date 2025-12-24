@@ -10,11 +10,51 @@ import 'package:meta/meta.dart';
 /// errors or collect metrics; do not modify control flow.
 typedef ExceptionHook = void Function(ConversionException error);
 
-const NumberOptions _kDefaultNumberOptions = NumberOptions();
-const DateOptions _kDefaultDateOptions = DateOptions();
-const BoolOptions _kDefaultBoolOptions = BoolOptions();
-const UriOptions _kDefaultUriOptions = UriOptions();
-const TypeRegistry _kEmptyRegistry = TypeRegistry.empty();
+const Set<String> _kDefaultTruthy = {'true', '1', 'yes', 'y', 'on', 'ok', 't'};
+const Set<String> _kDefaultFalsy = {'false', '0', 'no', 'n', 'off', 'f'};
+
+const int _overrideLocale = 1 << 0;
+const int _overrideNumbers = 1 << 1;
+const int _overrideDates = 1 << 2;
+const int _overrideBools = 1 << 3;
+const int _overrideUri = 1 << 4;
+const int _overrideRegistry = 1 << 5;
+const int _overrideOnException = 1 << 6;
+
+bool _hasOverride(int mask, int flag) => (mask & flag) != 0;
+
+bool _setEquals(Set<String> a, Set<String> b) {
+  if (a.length != b.length) return false;
+  for (final value in a) {
+    if (!b.contains(value)) return false;
+  }
+  return true;
+}
+
+bool _isDefaultNumberOptions(NumberOptions options) =>
+    options.defaultFormat == null &&
+    options.defaultLocale == null &&
+    options.tryFormattedFirst == true;
+
+bool _isDefaultDateOptions(DateOptions options) =>
+    options.defaultFormat == null &&
+    options.locale == null &&
+    options.utc == false &&
+    options.autoDetectFormat == false &&
+    options.useCurrentLocale == false &&
+    options.extraAutoDetectPatterns.isEmpty;
+
+bool _isDefaultBoolOptions(BoolOptions options) =>
+    options.numericPositiveIsTrue == true &&
+    _setEquals(options.truthy, _kDefaultTruthy) &&
+    _setEquals(options.falsy, _kDefaultFalsy);
+
+bool _isDefaultUriOptions(UriOptions options) =>
+    options.defaultScheme == null &&
+    options.coerceBareDomainsToDefaultScheme == false &&
+    options.allowRelative == true;
+
+bool _isDefaultRegistry(TypeRegistry registry) => registry._parsers.isEmpty;
 
 /// Global and scoped configuration used by the `convert_object` APIs.
 @immutable
@@ -34,7 +74,60 @@ class ConvertConfig {
     this.uri = const UriOptions(),
     this.registry = const TypeRegistry.empty(),
     this.onException,
-  });
+  }) : _overrideMask = 0;
+
+  const ConvertConfig._override({
+    this.locale,
+    this.numbers = const NumberOptions(),
+    this.dates = const DateOptions(),
+    this.bools = const BoolOptions(),
+    this.uri = const UriOptions(),
+    this.registry = const TypeRegistry.empty(),
+    this.onException,
+    required int overrideMask,
+  }) : _overrideMask = overrideMask;
+
+  /// Creates a config intended for scoped overrides.
+  ///
+  /// Provide only the fields you want to override; unset fields keep the
+  /// current effective values when merged in [runScoped].
+  factory ConvertConfig.overrides({
+    String? locale,
+    bool clearLocale = false,
+    NumberOptions? numbers,
+    DateOptions? dates,
+    BoolOptions? bools,
+    UriOptions? uri,
+    TypeRegistry? registry,
+    ExceptionHook? onException,
+    bool clearOnException = false,
+  }) {
+    var mask = 0;
+    String? effectiveLocale;
+    if (locale != null || clearLocale) {
+      mask |= _overrideLocale;
+      effectiveLocale = clearLocale ? null : locale;
+    }
+    if (numbers != null) mask |= _overrideNumbers;
+    if (dates != null) mask |= _overrideDates;
+    if (bools != null) mask |= _overrideBools;
+    if (uri != null) mask |= _overrideUri;
+    if (registry != null) mask |= _overrideRegistry;
+    if (onException != null || clearOnException) {
+      mask |= _overrideOnException;
+    }
+
+    return ConvertConfig._override(
+      locale: effectiveLocale,
+      numbers: numbers ?? const NumberOptions(),
+      dates: dates ?? const DateOptions(),
+      bools: bools ?? const BoolOptions(),
+      uri: uri ?? const UriOptions(),
+      registry: registry ?? const TypeRegistry.empty(),
+      onException: clearOnException ? null : onException,
+      overrideMask: mask,
+    );
+  }
 
   /// Default locale used by number/date parsing when no explicit locale is
   /// supplied at call sites or per-option.
@@ -57,6 +150,8 @@ class ConvertConfig {
 
   /// Optional hook invoked whenever a [ConversionException] is thrown.
   final ExceptionHook? onException;
+
+  final int _overrideMask;
 
   /// Returns a copy of this config with the provided fields replaced.
   ConvertConfig copyWith({
@@ -109,26 +204,42 @@ class ConvertConfig {
   }
 
   ConvertConfig _merge(ConvertConfig overrides) {
-    final onExceptionHook = overrides.onException ?? onException;
+    final onExceptionHook =
+        _hasOverride(overrides._overrideMask, _overrideOnException)
+            ? overrides.onException
+            : overrides.onException ?? onException;
 
-    final mergedNumbers = identical(overrides.numbers, _kDefaultNumberOptions)
-        ? numbers
-        : numbers.merge(overrides.numbers);
-    final mergedDates = identical(overrides.dates, _kDefaultDateOptions)
-        ? dates
-        : dates.merge(overrides.dates);
-    final mergedBools = identical(overrides.bools, _kDefaultBoolOptions)
-        ? bools
-        : bools.merge(overrides.bools);
-    final mergedUri = identical(overrides.uri, _kDefaultUriOptions)
-        ? uri
-        : uri.merge(overrides.uri);
-    final mergedRegistry = identical(overrides.registry, _kEmptyRegistry)
-        ? registry
-        : registry.merge(overrides.registry);
+    final shouldMergeNumbers =
+        _hasOverride(overrides._overrideMask, _overrideNumbers) ||
+            !_isDefaultNumberOptions(overrides.numbers);
+    final mergedNumbers =
+        shouldMergeNumbers ? numbers.merge(overrides.numbers) : numbers;
+
+    final shouldMergeDates =
+        _hasOverride(overrides._overrideMask, _overrideDates) ||
+            !_isDefaultDateOptions(overrides.dates);
+    final mergedDates = shouldMergeDates ? dates.merge(overrides.dates) : dates;
+
+    final shouldMergeBools =
+        _hasOverride(overrides._overrideMask, _overrideBools) ||
+            !_isDefaultBoolOptions(overrides.bools);
+    final mergedBools = shouldMergeBools ? bools.merge(overrides.bools) : bools;
+
+    final shouldMergeUri =
+        _hasOverride(overrides._overrideMask, _overrideUri) ||
+            !_isDefaultUriOptions(overrides.uri);
+    final mergedUri = shouldMergeUri ? uri.merge(overrides.uri) : uri;
+
+    final shouldMergeRegistry =
+        _hasOverride(overrides._overrideMask, _overrideRegistry) ||
+            !_isDefaultRegistry(overrides.registry);
+    final mergedRegistry =
+        shouldMergeRegistry ? registry.merge(overrides.registry) : registry;
 
     return ConvertConfig(
-      locale: overrides.locale ?? locale,
+      locale: _hasOverride(overrides._overrideMask, _overrideLocale)
+          ? overrides.locale
+          : overrides.locale ?? locale,
       numbers: mergedNumbers,
       dates: mergedDates,
       bools: mergedBools,

@@ -1,3 +1,12 @@
+## 1.0.0
+
+- Stable release with preserved stack traces in `ConversionException` (Sentry-friendly).
+- Strict vs try conversions clarified; `tryToType<T>` now returns `null` for unsupported types.
+- `ConversionException.toString()` is concise; `fullReport()` is JSON-safe.
+- Scoped overrides now require explicit intent via `ConvertConfig.overrides(...)`.
+- Added DateFormat/NumberFormat caching and reduced allocations for numeric conversions.
+- Docs refreshed with error reporting, migration notes, and low-token usage examples.
+
 ## 1.0.0-dev.4
 
 - Added full configuration controls on the `Convert` facade (`config`, `configure`, `updateConfig`, `runScopedConfig`) so apps can inspect, replace, or temporarily override defaults per zone.

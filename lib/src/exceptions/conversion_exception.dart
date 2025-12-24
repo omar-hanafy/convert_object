@@ -35,53 +35,9 @@ class ConversionException implements Exception {
   /// String representation of [error]'s runtime type.
   String get errorType => error?.runtimeType.toString() ?? 'null';
 
-  bool _isHeavyValue(dynamic value) {
-    if (value == null) return false;
-    if (value is Map && value.length > 10) return true;
-    if (value is List && value.length > 10) return true;
-    if (value is Set && value.length > 10) return true;
-    if (value is String && value.length > 500) return true;
-    return false;
-  }
-
-  Map<String, dynamic> _filteredContext() {
-    final filtered = <String, dynamic>{};
-    context.forEach((key, value) {
-      if (value == null) return;
-      if (key == 'object' || _isHeavyValue(value)) {
-        if (value is Map) {
-          filtered[key] = '<Map with ${value.length} entries>';
-        } else if (value is List) {
-          filtered[key] = '<List with ${value.length} items>';
-        } else if (value is Set) {
-          filtered[key] = '<Set with ${value.length} items>';
-        } else if (value is String && value.length > 500) {
-          filtered[key] = '<String with ${value.length} characters>';
-        } else {
-          filtered[key] = '<${value.runtimeType}>';
-        }
-      } else if (value is Function) {
-        filtered[key] = '<Function: ${value.runtimeType}>';
-      } else {
-        filtered[key] = value;
-      }
-    });
-
-    try {
-      if (_isHeavyValue(error)) {
-        filtered['error'] = '<${error.runtimeType}>';
-      }
-    } catch (_) {}
-
-    return filtered;
-  }
-
   /// Generates an indented JSON report of the full conversion context.
   String fullReport() {
-    final encodable = context.map((k, v) {
-      if (v is Function) return MapEntry(k, 'Function: ${v.runtimeType}');
-      return MapEntry(k, v);
-    });
+    final encodable = jsonSafe(context);
     final json = const JsonEncoder.withIndent('  ').convert(encodable);
     return 'ConversionException (Full Report) {\n'
         '  error: $error,\n'
@@ -94,13 +50,19 @@ class ConversionException implements Exception {
   /// Returns a concise summary of the conversion failure.
   @override
   String toString() {
-    final filtered = _filteredContext();
-    final json = filtered.encodeWithIndent;
-    return 'ConversionException {\n'
-        '  error: $error,\n'
-        '  errorType: $errorType,\n'
-        '  context:\n$json,\n'
-        '  stackTrace: $stackTrace\n'
-        '}';
+    final method = context['method'];
+    final targetType = context['targetType'];
+    final objectType = context['objectType'];
+    final mapKey = context['mapKey'];
+    final listIndex = context['listIndex'];
+    final details = <String>[
+      if (method != null) 'method=$method',
+      if (targetType != null) 'targetType=$targetType',
+      if (objectType != null) 'objectType=$objectType',
+      if (mapKey != null) 'mapKey=$mapKey',
+      if (listIndex != null) 'listIndex=$listIndex',
+    ];
+    final suffix = details.isEmpty ? '' : ' (${details.join(', ')})';
+    return 'ConversionException($errorType): $error$suffix';
   }
 }

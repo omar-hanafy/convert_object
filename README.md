@@ -21,14 +21,17 @@
   * [Top‑level functions (`toInt`, `tryToDateTime`, …)](#top-level-functions)
   * [Global configuration (`ConvertConfig`)](#global-configuration-convertconfig)
   * [Map/Iterable/Object extensions](#mapiterableobject-extensions)
+  * [Strict vs try vs default](#strict-vs-try-vs-default)
+  * [Low-token usage patterns](#low-token-usage-patterns)
   * [Enum helpers: `EnumParsers`](#enum-helpers-enumparsers)
   * [Results: `ConversionResult<T>`](#results-conversionresultt)
 * [Deep‑dive: Date & time parsing](#deep-dive-date--time-parsing)
 * [Numbers & booleans](#numbers--booleans)
 * [URIs (http/mail/phone)](#uris-httpmailphone)
 * [JSON + pretty utilities](#json--pretty-utilities)
-* [Error handling & debugging](#error-handling--debugging)
+* [Error reporting](#error-reporting)
 * [Advanced usage & recipes](#advanced-usage--recipes)
+* [Migration beta to stable](#migration-beta-to-stable)
 * [Migration from `dart_helper_utils`](#migration-from-dart_helper_utils)
 * [Performance notes](#performance-notes)
 * [FAQ](#faq)
@@ -179,8 +182,11 @@ T             Convert.toType<T>(obj);   // supports bool,int,double,num,BigInt,S
 T?            Convert.tryToType<T>(obj);
 ```
 
-> All `to*` methods **throw** a `ConversionException` on failure
-> All `tryTo*` methods **never throw**; they return `null` (or a provided `defaultValue`)
+> Strict `to*` methods **throw** `ConversionException` on failure unless a
+> `defaultValue` is provided (then the default is returned).
+> `tryTo*` methods **never throw**; they return `null` or the provided
+> `defaultValue`.
+> `toBool` always returns a `bool` and defaults to `false` when parsing fails.
 
 ---
 
@@ -280,6 +286,19 @@ final utcDate = Convert.runScopedConfig(
 );
 ```
 
+If you want to override with default-valued options (or explicitly clear a
+field), use `ConvertConfig.overrides`:
+
+```dart
+Convert.runScopedConfig(
+  ConvertConfig.overrides(
+    numbers: const NumberOptions(), // explicit override
+    clearLocale: true,
+  ),
+  () => Convert.toNum('1,234'),
+);
+```
+
 The configuration primitives are exposed via `ConvertConfig`, but convenience helpers exist on the facade:
 
 ```dart
@@ -352,6 +371,38 @@ someObj.convert.toBool();
 ```dart
 final x = '  hello '.let((s) => s.trim());          // "hello"
 final y = (null as String?).letOr((s) => s.length, defaultValue: 0); // 0
+```
+
+---
+
+### Strict vs try vs default
+
+Use strict conversions when failure is exceptional, try conversions when failure
+is expected, and defaults when you want a fallback without branching.
+
+* Strict `to*`: throws `ConversionException` when conversion fails and no
+  `defaultValue` is provided.
+* Defaulted strict `to*`: returns `defaultValue` instead of throwing (including
+  converter errors).
+* Try `tryTo*`: never throws; returns `null` or `defaultValue`.
+* `toBool` always returns a bool; when parsing fails it returns `defaultValue`
+  or `false`. `tryToBool` returns `null` on failure.
+
+---
+
+### Low-token usage patterns
+
+Prefer extensions for short, readable conversion pipelines:
+
+```dart
+final id = json.getInt('id');
+final ok = json.getBool('ok'); // defaults to false
+final price = json.getDouble('price');
+final created = json.getDateTime('created_at');
+
+final count = payload['count'].convert.toIntOr(0);
+final maybe = payload['count'].convert.tryToInt();
+final tag = list.getString(0);
 ```
 
 ---
@@ -443,21 +494,24 @@ Convert.toInt('1,234');                           // 1234
 Convert.toNum('1.234,56', format: '#,##0.##', locale: 'de_DE'); // 1234.56
 ```
 
-### Booleans (`asBool`)
+### Booleans (`toBool`, `tryToBool`, `asBool`)
 
-Predictable, explicit rules (case‑insensitive):
+Predictable, explicit rules (case-insensitive). `toBool` always returns a
+bool; if parsing fails it returns `defaultValue` or `false`. `tryToBool`
+returns `null` on failure.
 
-* `null → false`
-* `bool → value`
-* `num → value > 0`
+* `null -> false`
+* `bool -> value`
+* `num -> value > 0`
 * `String` truthy: `'true','1','yes','y','on','ok','t'`
 * `String` falsy : `'false','0','no','n','off','f'`
-* `String` numeric → parsed then `> 0`
-* anything else → `false`
+* `String` numeric -> parsed then `> 0`
+* anything else -> `false`
 
 ```dart
-final ok = 'OK'.convert.toBool();   // true
+final ok = 'OK'.convert.toBool();     // true
 final nope = 'nope'.convert.toBool(); // false
+final maybe = 'oops'.convert.tryToBool(); // null
 ```
 
 ---
@@ -518,20 +572,49 @@ final safe = jsonSafe(
 
 ---
 
-## Error handling & debugging
+## Error reporting
 
-All throwing conversions use a single exception type:
+All throwing conversions use a single exception type and preserve the original
+stack trace.
 
 ```dart
 try {
   final n = Convert.toInt('oops');
-} on ConversionException catch (e) {
-  print(e);            // filtered context (safe + concise)
-  // print(e.fullReport()); // full JSON context + stack (verbose)
+} on ConversionException catch (e, s) {
+  print(e);              // concise summary
+  // print(e.fullReport()); // full JSON context + stack trace
+  // e.stackTrace is the original trace (same as s).
 }
 ```
 
-`ConversionException` records **method**, **objectType**, **targetType**, map/list navigation context (`mapKey`, `listIndex`), formatting/locale options, and any caller‑supplied debug info. Heavy values are summarized to keep logs readable.
+`ConversionException` records method, objectType, targetType, map/list context
+(`mapKey`, `listIndex`), formatting/locale options, and any caller-supplied
+debug info.
+
+Use `onException` for logging/telemetry (fires once per thrown exception; hook
+errors are swallowed):
+
+```dart
+Convert.configure(Convert.config.copyWith(
+  onException: (e) {
+    // Send to logs or telemetry.
+    // Use e.stackTrace for the original trace.
+  },
+));
+```
+
+Scoped override:
+
+```dart
+Convert.runScopedConfig(
+  ConvertConfig.overrides(
+    onException: (e) {
+      // Scoped logging here.
+    },
+  ),
+  () => Convert.toInt('oops'),
+);
+```
 
 > Prefer the `tryTo*` family or pass a `defaultValue` when failures are expected.
 
@@ -597,6 +680,26 @@ final role = Convert.toEnum<Role>(
 
 ---
 
+## Migration beta to stable
+
+If you are upgrading from the beta (`1.0.0-dev.x`), check these behavioral
+changes:
+
+* Stack traces for `ConversionException` are preserved on throw (error
+  reporters point to the original failure site).
+* `ConversionException.toString()` is concise; use `fullReport()` for verbose
+  JSON context + stack trace.
+* `tryToType<T>()` now returns `null` for unsupported types instead of
+  throwing.
+* `Converter.tryTo` / `toOr` only catch `ConversionException`; other errors
+  now surface.
+* `runScopedConfig` no longer treats default-valued option objects as
+  overrides. Use `ConvertConfig.overrides(...)` to explicitly override defaults
+  or clear values.
+* Core converters no longer log; use `onException` for logging/telemetry.
+
+---
+
 ## Migration from `dart_helper_utils`
 
 This package provides a **backwards‑compatible** static facade named `Convert` with the original method names and signatures, while offering a complete, modernized implementation.
@@ -612,19 +715,24 @@ Notable notes:
 
 ## Performance notes
 
-* Passing `format`/`locale` for numbers or dates creates an `intl` formatter on call. In tight loops, consider:
-
-  * Normalizing inputs (e.g., pre‑trim, pre‑clean) and using non‑formatted `toNum/toInt/toDouble` where possible.
-  * Supplying an **elementConverter** for collections to avoid repeated generic routing.
-* `try*` methods are exception‑free and cheaper when failures are expected.
-* `toList<T>` and friends can convert single values by wrapping them (`T` or `List<T>`); use element converters for maximal control.
+* `format`/`locale` formatters are cached with a small LRU. Many unique patterns
+  or locales still pay creation cost.
+* Normalizing inputs (e.g., pre-trim, pre-clean) and using non-formatted
+  `toNum/toInt/toDouble` where possible is fastest.
+* Supplying an **elementConverter** for collections avoids repeated generic
+  routing.
+* `try*` methods are exception-free and cheaper when failures are expected.
+* `toList<T>` and friends can convert single values by wrapping them (`T` or
+  `List<T>`); use element converters for maximal control.
 
 ---
 
 ## FAQ
 
 **Q: What happens if a conversion fails?**
-A: `to*` methods throw `ConversionException` with context; `tryTo*` return `null` (or your `defaultValue`).
+A: Strict `to*` methods throw `ConversionException` unless you pass a
+`defaultValue` (then the default is returned). `tryTo*` methods return `null`
+or `defaultValue`. `toBool` always returns a bool and defaults to `false`.
 
 **Q: How are ambiguous dates like `02/03/2024` handled?**
 A: By `locale` (`en_US` → `MM/dd`, most others → `dd/MM`). For deterministic behavior, pass `format`.
@@ -1221,8 +1329,8 @@ class ConversionResult<T> {
 try {
   final n = Convert.toInt('oops');
 } on ConversionException catch (e) {
-  e.toString();     // concise, filtered context
-  e.fullReport();   // verbose JSON context + stack trace (for logs)
+  e.toString();     // concise one-line summary
+  e.fullReport();   // verbose JSON context + stack trace (safe for logs)
 }
 ```
 
@@ -1231,7 +1339,8 @@ try {
 ### Behavior highlights (quick)
 
 ```dart
-// Booleans: truthy('true','1','yes','y','on','ok','t'), falsy('false','0','no','n','off','f')
+// Booleans: Convert.toBool always returns bool (false default);
+//           truthy('true','1','yes','y','on','ok','t'), falsy('false','0','no','n','off','f')
 // Numbers: accepts "1234.56", "1,234", "(2,500)" → -2500, underscores/spaces ignored
 // Dates: auto-detect supports ISO/RFC3339, HTTP-date (GMT), Unix epoch, slashed by locale,
 //        compact yyyyMMdd[HHmm[ss]], long names via intl, time-only → today

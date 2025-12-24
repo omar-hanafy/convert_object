@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:intl/intl.dart';
 
 // Reused matchers and formatters to avoid repeated allocations on hot paths.
@@ -7,6 +9,9 @@ final RegExp _ordinalsRe =
     RegExp(r'\b(\d+)(st|nd|rd|th)\b', caseSensitive: false);
 final DateFormat _httpDateFmt =
     DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", 'en_US');
+const int _kMaxDateFormatCacheSize = 32;
+final LinkedHashMap<String, DateFormat> _dateFormatCache =
+    LinkedHashMap<String, DateFormat>();
 
 /// Extension methods for parsing `String` values into [DateTime] instances.
 extension DateParsingTextX on String {
@@ -328,19 +333,33 @@ DateTime? _tryParseCompactDate(
 }
 
 DateFormat _createDateFormat(String pattern, String? locale) {
+  final key = '$pattern|${locale ?? ''}';
+  final cached = _dateFormatCache.remove(key);
+  if (cached != null) {
+    _dateFormatCache[key] = cached;
+    return cached;
+  }
+
   final attempts = <String?>[
     locale,
     if (locale != null && locale.contains('_')) locale.split('_').first,
     null,
   ];
+  DateFormat? created;
   for (final candidate in attempts) {
     try {
-      return candidate == null
+      created = candidate == null
           ? DateFormat(pattern)
           : DateFormat(pattern, candidate);
+      break;
     } catch (_) {
       continue;
     }
   }
-  return DateFormat(pattern);
+  created ??= DateFormat(pattern);
+  _dateFormatCache[key] = created;
+  if (_dateFormatCache.length > _kMaxDateFormatCacheSize) {
+    _dateFormatCache.remove(_dateFormatCache.keys.first);
+  }
+  return created;
 }

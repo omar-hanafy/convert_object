@@ -24,7 +24,9 @@ class ConversionResult<T> {
 
   /// Returns the converted value or throws the stored [ConversionException].
   T get value {
-    if (_error != null) throw _error!;
+    if (_error != null) {
+      Error.throwWithStackTrace(_error!, _error!.stackTrace);
+    }
     return _value as T;
   }
 

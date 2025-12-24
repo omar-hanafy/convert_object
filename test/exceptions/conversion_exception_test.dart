@@ -3,6 +3,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('ConversionException', () {
+    const marker = 'ReportMarker';
+
     test('should expose an unmodifiable context map', () {
       // Arrange
       final ex = ConversionException(
@@ -31,25 +33,16 @@ void main() {
       expect(type, equals('FormatException'));
     });
 
-    test('toString() should filter heavy context values and function values',
-        () {
+    test('toString() should be concise and include key context fields', () {
       // Arrange
-      final heavyMap = <int, int>{
-        for (var i = 0; i < 11; i++) i: i,
-      };
-      final heavyList = List<int>.generate(11, (i) => i);
-      final heavySet = heavyList.toSet();
-      final heavyString = List<String>.filled(501, 'x').join();
-
       final ex = ConversionException(
-        error: 'boom',
+        error: const FormatException('bad'),
         context: <String, dynamic>{
-          'method': 'test',
-          'object': heavyMap, // key 'object' is always filtered
-          'bigList': heavyList,
-          'bigSet': heavySet,
-          'bigString': heavyString,
-          'fn': () => 1,
+          'method': 'toInt',
+          'objectType': 'String',
+          'targetType': 'int',
+          'mapKey': 'id',
+          'listIndex': 0,
         },
       );
 
@@ -57,11 +50,11 @@ void main() {
       final text = ex.toString();
 
       // Assert
-      expect(text, contains('<Map with 11 entries>'));
-      expect(text, contains('<List with 11 items>'));
-      expect(text, contains('<Set with 11 items>'));
-      expect(text, contains('<String with 501 characters>'));
-      expect(text, contains('<Function:'));
+      expect(text, contains('ConversionException(FormatException)'));
+      expect(text, contains('method=toInt'));
+      expect(text, contains('targetType=int'));
+      expect(text, isNot(contains('stackTrace')));
+      expect(text, isNot(contains('\n')));
     });
 
     test('fullReport() should include the full (unfiltered) context as JSON',
@@ -85,6 +78,26 @@ void main() {
       expect(report, contains('"a": 1'));
     });
 
+    test('fullReport() should be JSON-safe for non-JSON values', () {
+      // Arrange
+      final ex = ConversionException(
+        error: StateError(marker),
+        context: <String, dynamic>{
+          'method': 'test',
+          'when': DateTime.utc(2025, 1, 1, 0, 0, 0),
+          'uri': Uri.parse('https://example.com'),
+          'custom': const _CustomThing(marker),
+        },
+      );
+
+      // Act + Assert
+      expect(() => ex.fullReport(), returnsNormally);
+      final report = ex.fullReport();
+      expect(report, contains('ConversionException (Full Report)'));
+      expect(report, contains('https://example.com'));
+      expect(report, contains(marker));
+    });
+
     test('should store and expose the provided stack trace', () {
       // Arrange
       final st = StackTrace.fromString('STACK_TRACE_TEST');
@@ -101,4 +114,13 @@ void main() {
       expect(stored, contains('STACK_TRACE_TEST'));
     });
   });
+}
+
+class _CustomThing {
+  const _CustomThing(this.label);
+
+  final String label;
+
+  @override
+  String toString() => 'CustomThing($label)';
 }
