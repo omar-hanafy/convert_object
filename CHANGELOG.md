@@ -1,3 +1,7 @@
+## 1.0.0-dev.8
+
+- Release test for PAT-authenticated tag push triggering publish.
+
 ## 1.0.0-dev.7
 
 - Release test for publish-on-release automation.
