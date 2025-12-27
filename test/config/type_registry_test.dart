@@ -101,26 +101,30 @@ void main() {
       final config = makeTestConfig(registry: registry);
 
       // Act
-      final userId =
-          withGlobalConfig(config, () => Convert.toType<UserId>('42'));
+      final userId = withGlobalConfig(
+        config,
+        () => Convert.toType<UserId>('42'),
+      );
 
       // Assert
       expect(userId, equals(const UserId(42)));
     });
 
-    test('should prefer TypeRegistry over built-in routing when registered',
-        () {
-      // Arrange
-      final registry = const TypeRegistry.empty().register<int>((_) => 999);
-      final config = makeTestConfig(registry: registry);
+    test(
+      'should prefer TypeRegistry over built-in routing when registered',
+      () {
+        // Arrange
+        final registry = const TypeRegistry.empty().register<int>((_) => 999);
+        final config = makeTestConfig(registry: registry);
 
-      // Act
-      final value = withGlobalConfig(config, () => Convert.toType<int>('5'));
+        // Act
+        final value = withGlobalConfig(config, () => Convert.toType<int>('5'));
 
-      // Assert
-      expect(value, isA<int>());
-      expect(value, equals(999));
-    });
+        // Assert
+        expect(value, isA<int>());
+        expect(value, equals(999));
+      },
+    );
 
     test('should allow scoped registry to override global registry', () {
       // Arrange

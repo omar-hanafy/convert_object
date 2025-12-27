@@ -54,18 +54,19 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is a scalar not iterable and not T',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should throw ConversionException when input is a scalar not iterable and not T',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      // Assert
-      expect(
-        () => Convert.toSet<int>(input),
-        throwsConversionException(method: 'toSet<int>'),
-      );
-    });
+        // Act
+        // Assert
+        expect(
+          () => Convert.toSet<int>(input),
+          throwsConversionException(method: 'toSet<int>'),
+        );
+      },
+    );
 
     test('should apply elementConverter to every element', () {
       // Arrange
@@ -81,17 +82,19 @@ void main() {
       expect(result, equals(<String>{'s1', 's2'}));
     });
 
-    test('should decode a JSON list string into a set and convert elements',
-        () {
-      // Arrange
-      const input = '[1,2,2,3]';
+    test(
+      'should decode a JSON list string into a set and convert elements',
+      () {
+        // Arrange
+        const input = '[1,2,2,3]';
 
-      // Act
-      final result = Convert.toSet<int>(input);
+        // Act
+        final result = Convert.toSet<int>(input);
 
-      // Assert
-      expect(result, equals(<int>{1, 2, 3}));
-    });
+        // Assert
+        expect(result, equals(<int>{1, 2, 3}));
+      },
+    );
 
     test('should convert from map.values (Iterable) into a Set<T>', () {
       // Arrange
@@ -105,33 +108,35 @@ void main() {
     });
 
     test(
-        'should return defaultValue when conversion fails and defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'not-a-set';
-      final fallback = <int>{9};
+      'should return defaultValue when conversion fails and defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'not-a-set';
+        final fallback = <int>{9};
 
-      // Act
-      final result = Convert.toSet<int>(input, defaultValue: fallback);
+        // Act
+        final result = Convert.toSet<int>(input, defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
   });
 
   group('Convert.tryToSet', () {
     test(
-        'should return null when conversion fails and no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should return null when conversion fails and no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      final result = Convert.tryToSet<int>(input);
+        // Act
+        final result = Convert.tryToSet<int>(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
     test('should return a one-element set when input is already of type T', () {
       // Arrange

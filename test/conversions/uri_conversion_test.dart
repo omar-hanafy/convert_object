@@ -50,17 +50,18 @@ void main() {
     });
 
     test(
-        'should return a relative URI for bare domains when coercion is disabled',
-        () {
-      // Arrange
+      'should return a relative URI for bare domains when coercion is disabled',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toUri('example.com');
+        // Act
+        final result = Convert.toUri('example.com');
 
-      // Assert
-      expect(result.scheme, isEmpty);
-      expect(result.toString(), equals('example.com'));
-    });
+        // Assert
+        expect(result.scheme, isEmpty);
+        expect(result.toString(), equals('example.com'));
+      },
+    );
 
     test('should coerce bare domains to default scheme when enabled', () {
       // Arrange
@@ -73,8 +74,10 @@ void main() {
       );
 
       // Act
-      final result =
-          withScopedConfig(overrides, () => Convert.toUri('example.com'));
+      final result = withScopedConfig(
+        overrides,
+        () => Convert.toUri('example.com'),
+      );
 
       // Assert
       expect(result.toString(), equals('https://example.com'));
@@ -82,9 +85,7 @@ void main() {
 
     test('should reject relative URIs when allowRelative is false', () {
       // Arrange
-      const overrides = ConvertConfig(
-        uri: UriOptions(allowRelative: false),
-      );
+      const overrides = ConvertConfig(uri: UriOptions(allowRelative: false));
 
       // Act + Assert
       expect(
@@ -95,19 +96,18 @@ void main() {
     });
 
     test(
-        'should reject bare domains when allowRelative is false and coercion is disabled',
-        () {
-      // Arrange
-      const overrides = ConvertConfig(
-        uri: UriOptions(allowRelative: false),
-      );
+      'should reject bare domains when allowRelative is false and coercion is disabled',
+      () {
+        // Arrange
+        const overrides = ConvertConfig(uri: UriOptions(allowRelative: false));
 
-      // Act + Assert
-      expect(
-        () => withScopedConfig(overrides, () => Convert.toUri('example.com')),
-        throwsConversionException(method: 'toUri'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => withScopedConfig(overrides, () => Convert.toUri('example.com')),
+          throwsConversionException(method: 'toUri'),
+        );
+      },
+    );
 
     test('should reject https URIs missing a host', () {
       // Arrange
@@ -120,29 +120,31 @@ void main() {
     });
 
     test(
-        'should throw ConversionException on empty input when no defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException on empty input when no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.toUri('   '),
-        throwsConversionException(method: 'toUri'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toUri('   '),
+          throwsConversionException(method: 'toUri'),
+        );
+      },
+    );
 
     test(
-        'should return defaultValue on invalid input when defaultValue is provided',
-        () {
-      // Arrange
-      final fallback = Uri.parse('https://fallback.example');
+      'should return defaultValue on invalid input when defaultValue is provided',
+      () {
+        // Arrange
+        final fallback = Uri.parse('https://fallback.example');
 
-      // Act
-      final result = Convert.toUri('   ', defaultValue: fallback);
+        // Act
+        final result = Convert.toUri('   ', defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
 
     test('should support mapKey and listIndex selection', () {
       // Arrange
@@ -171,16 +173,17 @@ void main() {
     });
 
     test(
-        'should return defaultValue on invalid input when defaultValue is provided',
-        () {
-      // Arrange
-      final fallback = Uri.parse('https://fallback.example');
+      'should return defaultValue on invalid input when defaultValue is provided',
+      () {
+        // Arrange
+        final fallback = Uri.parse('https://fallback.example');
 
-      // Act
-      final result = Convert.tryToUri('   ', defaultValue: fallback);
+        // Act
+        final result = Convert.tryToUri('   ', defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
   });
 }

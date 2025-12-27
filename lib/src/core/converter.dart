@@ -13,8 +13,8 @@ class Converter {
     this._value, {
     Object? defaultValue,
     DynamicConverter<dynamic>? customConverter,
-  })  : _defaultValue = defaultValue,
-        _customConverter = customConverter;
+  }) : _defaultValue = defaultValue,
+       _customConverter = customConverter;
   final Object? _value;
   final Object? _defaultValue;
   final DynamicConverter<dynamic>? _customConverter;
@@ -22,7 +22,7 @@ class Converter {
   Object? _transformValue(String method) {
     if (_customConverter == null) return _value;
     try {
-      return _customConverter!(_value);
+      return _customConverter(_value);
     } catch (e, s) {
       throw ConversionException(
         error: e,
@@ -42,47 +42,65 @@ class Converter {
       Converter(_value, defaultValue: value, customConverter: _customConverter);
 
   /// Returns a new [Converter] that applies [converter] before any lookup.
-  Converter withConverter(DynamicConverter<dynamic> converter) =>
-      Converter(_value,
-          defaultValue: _defaultValue, customConverter: converter);
+  Converter withConverter(DynamicConverter<dynamic> converter) => Converter(
+    _value,
+    defaultValue: _defaultValue,
+    customConverter: converter,
+  );
 
   // Navigation --------------------------------------------------------
   /// Reads a nested value from a map (or JSON string map) using [key].
   Converter fromMap(Object? key) {
     final v = _value;
     if (v is Map) {
-      return Converter(v[key],
-          defaultValue: _defaultValue, customConverter: _customConverter);
+      return Converter(
+        v[key],
+        defaultValue: _defaultValue,
+        customConverter: _customConverter,
+      );
     }
     if (v is String) {
       final decoded = v.tryDecode();
       if (decoded is Map) {
-        return Converter(decoded[key],
-            defaultValue: _defaultValue, customConverter: _customConverter);
+        return Converter(
+          decoded[key],
+          defaultValue: _defaultValue,
+          customConverter: _customConverter,
+        );
       }
     }
-    return Converter(null,
-        defaultValue: _defaultValue, customConverter: _customConverter);
+    return Converter(
+      null,
+      defaultValue: _defaultValue,
+      customConverter: _customConverter,
+    );
   }
 
   /// Reads a nested value from a list (or JSON string list) using [index].
   Converter fromList(int index) {
     final v = _value;
     if (v is List) {
-      return Converter(index >= 0 && index < v.length ? v[index] : null,
-          defaultValue: _defaultValue, customConverter: _customConverter);
+      return Converter(
+        index >= 0 && index < v.length ? v[index] : null,
+        defaultValue: _defaultValue,
+        customConverter: _customConverter,
+      );
     }
     if (v is String) {
       final decoded = v.tryDecode();
       if (decoded is List) {
         return Converter(
-            index >= 0 && index < decoded.length ? decoded[index] : null,
-            defaultValue: _defaultValue,
-            customConverter: _customConverter);
+          index >= 0 && index < decoded.length ? decoded[index] : null,
+          defaultValue: _defaultValue,
+          customConverter: _customConverter,
+        );
       }
     }
-    return Converter(null,
-        defaultValue: _defaultValue, customConverter: _customConverter);
+    return Converter(
+      null,
+      defaultValue: _defaultValue,
+      customConverter: _customConverter,
+    );
   }
 
   /// Decodes JSON string input before continuing conversions.
@@ -90,8 +108,11 @@ class Converter {
     final v = _value;
     if (v is String) {
       final dv = v.tryDecode();
-      return Converter(dv,
-          defaultValue: _defaultValue, customConverter: _customConverter);
+      return Converter(
+        dv,
+        defaultValue: _defaultValue,
+        customConverter: _customConverter,
+      );
     }
     return this;
   }
@@ -130,8 +151,10 @@ class Converter {
       ConvertObjectImpl.string(_value, defaultValue: _defaultValue as String?);
 
   /// Converts to [String] without throwing, mirroring [Convert.tryToString].
-  String? tryToString() => ConvertObjectImpl.tryToString(_value,
-      defaultValue: _defaultValue as String?);
+  String? tryToString() => ConvertObjectImpl.tryToString(
+    _value,
+    defaultValue: _defaultValue as String?,
+  );
 
   /// Converts to [String], falling back to [defaultValue] when conversion fails.
   String toStringOr(String defaultValue) => tryToString() ?? defaultValue;
@@ -159,13 +182,17 @@ class Converter {
   int toIntOr(int defaultValue) => tryToInt() ?? defaultValue;
 
   /// Converts to [double], mirroring [Convert.toDouble].
-  double toDouble() => ConvertObjectImpl.toDouble(_value,
-      defaultValue: _defaultValue as double?);
+  double toDouble() => ConvertObjectImpl.toDouble(
+    _value,
+    defaultValue: _defaultValue as double?,
+  );
 
   /// Converts to [double] without throwing, mirroring
   /// [Convert.tryToDouble].
-  double? tryToDouble() => ConvertObjectImpl.tryToDouble(_value,
-      defaultValue: _defaultValue as double?);
+  double? tryToDouble() => ConvertObjectImpl.tryToDouble(
+    _value,
+    defaultValue: _defaultValue as double?,
+  );
 
   /// Converts to [double], falling back to [defaultValue] on failure.
   double toDoubleOr(double defaultValue) => tryToDouble() ?? defaultValue;
@@ -182,25 +209,33 @@ class Converter {
   bool toBoolOr(bool defaultValue) => tryToBool() ?? defaultValue;
 
   /// Converts to [BigInt], mirroring [Convert.toBigInt].
-  BigInt toBigInt() => ConvertObjectImpl.toBigInt(_value,
-      defaultValue: _defaultValue as BigInt?);
+  BigInt toBigInt() => ConvertObjectImpl.toBigInt(
+    _value,
+    defaultValue: _defaultValue as BigInt?,
+  );
 
   /// Converts to [BigInt] without throwing, mirroring
   /// [Convert.tryToBigInt].
-  BigInt? tryToBigInt() => ConvertObjectImpl.tryToBigInt(_value,
-      defaultValue: _defaultValue as BigInt?);
+  BigInt? tryToBigInt() => ConvertObjectImpl.tryToBigInt(
+    _value,
+    defaultValue: _defaultValue as BigInt?,
+  );
 
   /// Converts to [BigInt], falling back to [defaultValue] on failure.
   BigInt toBigIntOr(BigInt defaultValue) => tryToBigInt() ?? defaultValue;
 
   /// Converts to [DateTime], mirroring [Convert.toDateTime].
-  DateTime toDateTime() => ConvertObjectImpl.toDateTime(_value,
-      defaultValue: _defaultValue as DateTime?);
+  DateTime toDateTime() => ConvertObjectImpl.toDateTime(
+    _value,
+    defaultValue: _defaultValue as DateTime?,
+  );
 
   /// Converts to [DateTime] without throwing, mirroring
   /// [Convert.tryToDateTime].
-  DateTime? tryToDateTime() => ConvertObjectImpl.tryToDateTime(_value,
-      defaultValue: _defaultValue as DateTime?);
+  DateTime? tryToDateTime() => ConvertObjectImpl.tryToDateTime(
+    _value,
+    defaultValue: _defaultValue as DateTime?,
+  );
 
   /// Converts to [DateTime], falling back to [defaultValue] on failure.
   DateTime toDateTimeOr(DateTime defaultValue) =>
@@ -225,8 +260,10 @@ class Converter {
   /// Converts to [List] without throwing, returning `null` when conversion
   /// fails.
   List<T>? tryToList<T>({DynamicConverter<T>? elementConverter}) =>
-      ConvertObjectImpl.tryToList<T>(_value,
-          elementConverter: elementConverter);
+      ConvertObjectImpl.tryToList<T>(
+        _value,
+        elementConverter: elementConverter,
+      );
 
   /// Converts to [Set], optionally transforming each item.
   Set<T> toSet<T>({DynamicConverter<T>? elementConverter}) =>
@@ -237,16 +274,22 @@ class Converter {
       ConvertObjectImpl.tryToSet<T>(_value, elementConverter: elementConverter);
 
   /// Converts to [Map], allowing converters for keys and values.
-  Map<K, V> toMap<K, V>(
-          {DynamicConverter<K>? keyConverter,
-          DynamicConverter<V>? valueConverter}) =>
-      ConvertObjectImpl.toMap<K, V>(_value,
-          keyConverter: keyConverter, valueConverter: valueConverter);
+  Map<K, V> toMap<K, V>({
+    DynamicConverter<K>? keyConverter,
+    DynamicConverter<V>? valueConverter,
+  }) => ConvertObjectImpl.toMap<K, V>(
+    _value,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
+  );
 
   /// Converts to [Map] without throwing, returning `null` on failure.
-  Map<K, V>? tryToMap<K, V>(
-          {DynamicConverter<K>? keyConverter,
-          DynamicConverter<V>? valueConverter}) =>
-      ConvertObjectImpl.tryToMap<K, V>(_value,
-          keyConverter: keyConverter, valueConverter: valueConverter);
+  Map<K, V>? tryToMap<K, V>({
+    DynamicConverter<K>? keyConverter,
+    DynamicConverter<V>? valueConverter,
+  }) => ConvertObjectImpl.tryToMap<K, V>(
+    _value,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
+  );
 }

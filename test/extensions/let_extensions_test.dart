@@ -4,17 +4,18 @@ import 'package:test/test.dart';
 void main() {
   group('LetExtension', () {
     test(
-        'let should execute the block and return its result for non-null values',
-        () {
-      // Arrange
-      const value = 'hello';
+      'let should execute the block and return its result for non-null values',
+      () {
+        // Arrange
+        const value = 'hello';
 
-      // Act
-      final result = value.let((it) => it.length);
+        // Act
+        final result = value.let((it) => it.length);
 
-      // Assert
-      expect(result, equals(5));
-    });
+        // Assert
+        expect(result, equals(5));
+      },
+    );
   });
 
   group('LetExtensionNullable', () {

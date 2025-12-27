@@ -56,29 +56,31 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is malformed and no defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException when input is malformed and no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.toBigInt('abc'),
-        throwsConversionException(method: 'toBigInt'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toBigInt('abc'),
+          throwsConversionException(method: 'toBigInt'),
+        );
+      },
+    );
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
-      final fallback = BigInt.from(7);
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
+        final fallback = BigInt.from(7);
 
-      // Act
-      final result = Convert.toBigInt('abc', defaultValue: fallback);
+        // Act
+        final result = Convert.toBigInt('abc', defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
   });
 
   group('Convert.tryToBigInt', () {
@@ -93,29 +95,31 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
-      final fallback = BigInt.from(7);
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
+        final fallback = BigInt.from(7);
 
-      // Act
-      final result = Convert.tryToBigInt('abc', defaultValue: fallback);
+        // Act
+        final result = Convert.tryToBigInt('abc', defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
 
     test(
-        'should return defaultValue when input is null and defaultValue is provided',
-        () {
-      // Arrange
-      final fallback = BigInt.from(7);
+      'should return defaultValue when input is null and defaultValue is provided',
+      () {
+        // Arrange
+        final fallback = BigInt.from(7);
 
-      // Act
-      final result = Convert.tryToBigInt(null, defaultValue: fallback);
+        // Act
+        final result = Convert.tryToBigInt(null, defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
   });
 }

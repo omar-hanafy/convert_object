@@ -58,62 +58,66 @@ void main() {
 
   group('Convert.runScopedConfig', () {
     test(
-        'should apply scoped overrides only inside the body and not leak globally',
-        () {
-      // Arrange
-      final globalBefore = Convert.config;
-      final overrides = makeTestConfig(locale: 'ar_EG');
+      'should apply scoped overrides only inside the body and not leak globally',
+      () {
+        // Arrange
+        final globalBefore = Convert.config;
+        final overrides = makeTestConfig(locale: 'ar_EG');
 
-      // Act
-      final insideLocale = Convert.runScopedConfig(overrides, () {
-        return Convert.config.locale;
-      });
+        // Act
+        final insideLocale = Convert.runScopedConfig(overrides, () {
+          return Convert.config.locale;
+        });
 
-      // Assert
-      expect(insideLocale, equals('ar_EG'));
-      expect(Convert.config.locale, equals(globalBefore.locale));
-      expect(identical(Convert.config, globalBefore), isTrue);
-    });
+        // Assert
+        expect(insideLocale, equals('ar_EG'));
+        expect(Convert.config.locale, equals(globalBefore.locale));
+        expect(identical(Convert.config, globalBefore), isTrue);
+      },
+    );
 
     test(
-        'should expose the zone-effective config via Convert.config inside scope',
-        () {
-      // Arrange
-      final global = Convert.config;
-      final overrides = makeTestConfig(locale: 'it_IT');
+      'should expose the zone-effective config via Convert.config inside scope',
+      () {
+        // Arrange
+        final global = Convert.config;
+        final overrides = makeTestConfig(locale: 'it_IT');
 
-      // Act
-      Convert.runScopedConfig(overrides, () {
-        // Assert (inside scope)
-        expect(Convert.config.locale, equals('it_IT'));
-        expect(identical(Convert.config, global), isFalse);
-      });
-
-      // Assert (after scope)
-      expect(Convert.config.locale, equals(global.locale));
-      expect(identical(Convert.config, global), isTrue);
-    });
-
-    test('should support nested scopes with inner overrides taking precedence',
-        () {
-      // Arrange
-      final outer = makeTestConfig(locale: 'de_DE');
-      final inner = makeTestConfig(locale: 'fr_FR');
-
-      // Act
-      final observed = <String?>[];
-      Convert.runScopedConfig(outer, () {
-        observed.add(Convert.config.locale); // outer
-        Convert.runScopedConfig(inner, () {
-          observed.add(Convert.config.locale); // inner
+        // Act
+        Convert.runScopedConfig(overrides, () {
+          // Assert (inside scope)
+          expect(Convert.config.locale, equals('it_IT'));
+          expect(identical(Convert.config, global), isFalse);
         });
-        observed.add(Convert.config.locale); // back to outer
-      });
 
-      // Assert
-      expect(observed, equals(<String?>['de_DE', 'fr_FR', 'de_DE']));
-      expect(Convert.config.locale, equals('en_US'));
-    });
+        // Assert (after scope)
+        expect(Convert.config.locale, equals(global.locale));
+        expect(identical(Convert.config, global), isTrue);
+      },
+    );
+
+    test(
+      'should support nested scopes with inner overrides taking precedence',
+      () {
+        // Arrange
+        final outer = makeTestConfig(locale: 'de_DE');
+        final inner = makeTestConfig(locale: 'fr_FR');
+
+        // Act
+        final observed = <String?>[];
+        Convert.runScopedConfig(outer, () {
+          observed.add(Convert.config.locale); // outer
+          Convert.runScopedConfig(inner, () {
+            observed.add(Convert.config.locale); // inner
+          });
+          observed.add(Convert.config.locale); // back to outer
+        });
+
+        // Assert
+        expect(observed, equals(<String?>['de_DE', 'fr_FR', 'de_DE']));
+        expect(Convert.config.locale, equals('en_US'));
+      },
+    );
 
     test('should return the body result unchanged', () {
       // Arrange

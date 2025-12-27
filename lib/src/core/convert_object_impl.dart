@@ -20,8 +20,9 @@ extension _NullableStringX on String? {
 /// The methods mirror the public facade but expose additional hooks used in
 /// tests and error reporting.
 abstract class ConvertObjectImpl {
-  static final Expando<bool> _hooked =
-      Expando<bool>('convert_object_on_exception_called');
+  static final Expando<bool> _hooked = Expando<bool>(
+    'convert_object_on_exception_called',
+  );
 
   static Never _fail(ConversionException ex) {
     final hook = ConvertConfig.effective.onException;
@@ -245,7 +246,8 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               final text = '$o';
               if (effFormat != null && tryFormattedFirst) {
@@ -255,8 +257,10 @@ abstract class ConvertObjectImpl {
               try {
                 final plain = text.toNum();
                 if (effFormat != null && !tryFormattedFirst) {
-                  final formatted =
-                      text.tryToNumFormatted(effFormat, effLocale);
+                  final formatted = text.tryToNumFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   return formatted ?? plain;
                 }
                 return plain;
@@ -331,19 +335,24 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 final text = '$o';
                 if (effFormat != null && tryFormattedFirst) {
-                  final formatted =
-                      text.tryToNumFormatted(effFormat, effLocale);
+                  final formatted = text.tryToNumFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   if (formatted != null) return formatted;
                 }
                 final plain = text.tryToNum();
                 if (plain != null) {
                   if (effFormat != null && !tryFormattedFirst) {
-                    final formatted =
-                        text.tryToNumFormatted(effFormat, effLocale);
+                    final formatted = text.tryToNumFormatted(
+                      effFormat,
+                      effLocale,
+                    );
                     return formatted ?? plain;
                   }
                   return plain;
@@ -380,7 +389,8 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               if (o is num) {
                 return o.toInt();
@@ -393,8 +403,10 @@ abstract class ConvertObjectImpl {
               try {
                 final plain = text.toInt();
                 if (effFormat != null && !tryFormattedFirst) {
-                  final formatted =
-                      text.tryToIntFormatted(effFormat, effLocale);
+                  final formatted = text.tryToIntFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   return formatted ?? plain;
                 }
                 return plain;
@@ -469,22 +481,27 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 if (o is num) {
                   return o.toInt();
                 }
                 final text = '$o';
                 if (effFormat != null && tryFormattedFirst) {
-                  final formatted =
-                      text.tryToIntFormatted(effFormat, effLocale);
+                  final formatted = text.tryToIntFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   if (formatted != null) return formatted;
                 }
                 final plain = text.tryToInt();
                 if (plain != null) {
                   if (effFormat != null && !tryFormattedFirst) {
-                    final formatted =
-                        text.tryToIntFormatted(effFormat, effLocale);
+                    final formatted = text.tryToIntFormatted(
+                      effFormat,
+                      effLocale,
+                    );
                     return formatted ?? plain;
                   }
                   return plain;
@@ -514,7 +531,8 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               if (o is BigInt) return o;
               if (o is num) return BigInt.from(o);
@@ -573,7 +591,8 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 if (o is BigInt) return o;
                 if (o is num) return BigInt.from(o);
@@ -606,22 +625,27 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               if (o is num) {
                 return o.toDouble();
               }
               final text = '$o';
               if (effFormat != null && tryFormattedFirst) {
-                final formatted =
-                    text.tryToDoubleFormatted(effFormat, effLocale);
+                final formatted = text.tryToDoubleFormatted(
+                  effFormat,
+                  effLocale,
+                );
                 if (formatted != null) return formatted;
               }
               try {
                 final plain = text.toDouble();
                 if (effFormat != null && !tryFormattedFirst) {
-                  final formatted =
-                      text.tryToDoubleFormatted(effFormat, effLocale);
+                  final formatted = text.tryToDoubleFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   return formatted ?? plain;
                 }
                 return plain;
@@ -696,22 +720,27 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 if (o is num) {
                   return o.toDouble();
                 }
                 final text = '$o';
                 if (effFormat != null && tryFormattedFirst) {
-                  final formatted =
-                      text.tryToDoubleFormatted(effFormat, effLocale);
+                  final formatted = text.tryToDoubleFormatted(
+                    effFormat,
+                    effLocale,
+                  );
                   if (formatted != null) return formatted;
                 }
                 final plain = text.tryToDouble();
                 if (plain != null) {
                   if (effFormat != null && !tryFormattedFirst) {
-                    final formatted =
-                        text.tryToDoubleFormatted(effFormat, effLocale);
+                    final formatted = text.tryToDoubleFormatted(
+                      effFormat,
+                      effLocale,
+                    );
                     return formatted ?? plain;
                   }
                   return plain;
@@ -792,15 +821,18 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               if (o is num) {
                 // treat as ms or s since epoch
                 final v = o.toInt();
                 final dt = v.abs() >= 100000000000
                     ? DateTime.fromMillisecondsSinceEpoch(v, isUtc: effUtc)
-                    : DateTime.fromMillisecondsSinceEpoch(v * 1000,
-                        isUtc: effUtc);
+                    : DateTime.fromMillisecondsSinceEpoch(
+                        v * 1000,
+                        isUtc: effUtc,
+                      );
                 return effUtc ? dt.toUtc() : dt.toLocal();
               }
               if (effFormat != null) {
@@ -901,7 +933,8 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 if (o is num) {
                   final v = o.toInt();
@@ -915,15 +948,19 @@ abstract class ConvertObjectImpl {
                 }
                 final text = '$o';
                 if (effFormat != null) {
-                  return text.tryToDateFormatted(effFormat, effLocale,
-                      utc: effUtc);
+                  return text.tryToDateFormatted(
+                    effFormat,
+                    effLocale,
+                    utc: effUtc,
+                  );
                 }
                 if (effAutoDetect) {
                   for (final pattern in extraPatterns) {
                     try {
                       final df = DateFormat(pattern, effLocale);
-                      final parsed =
-                          effUtc ? df.parseUtc(text) : df.parse(text);
+                      final parsed = effUtc
+                          ? df.parseUtc(text)
+                          : df.parse(text);
                       return effUtc ? parsed.toUtc() : parsed;
                     } catch (_) {
                       continue;
@@ -958,7 +995,8 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: converter ??
+        converter:
+            converter ??
             ((o) {
               final s = o.toString();
               if (s.isValidPhoneNumber) return s.toPhoneUri;
@@ -1019,7 +1057,8 @@ abstract class ConvertObjectImpl {
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: converter ??
+          converter:
+              converter ??
               ((o) {
                 final s = o.toString();
                 if (s.isValidPhoneNumber) return s.toPhoneUri;
@@ -1161,8 +1200,9 @@ abstract class ConvertObjectImpl {
           mapKey: mapKey,
           listIndex: listIndex,
           defaultValue: defaultValue,
-          converter:
-              keyConverter != null || valueConverter != null ? 'custom' : null,
+          converter: keyConverter != null || valueConverter != null
+              ? 'custom'
+              : null,
           targetType: Map<K, V>,
           debugInfo: debugInfo,
         ),
@@ -1179,8 +1219,9 @@ abstract class ConvertObjectImpl {
           mapKey: mapKey,
           listIndex: listIndex,
           defaultValue: defaultValue,
-          converter:
-              keyConverter != null || valueConverter != null ? 'custom' : null,
+          converter: keyConverter != null || valueConverter != null
+              ? 'custom'
+              : null,
           targetType: Map<K, V>,
           debugInfo: debugInfo,
         ),
@@ -1263,10 +1304,7 @@ abstract class ConvertObjectImpl {
                   defaultValue: defaultValue,
                   converter: elementConverter,
                   targetType: Set<T>,
-                  debugInfo: {
-                    ...?debugInfo,
-                    'elementIndex': index,
-                  },
+                  debugInfo: {...?debugInfo, 'elementIndex': index},
                 ),
                 stackTrace: trace,
               );
@@ -1394,10 +1432,7 @@ abstract class ConvertObjectImpl {
                     defaultValue: defaultValue,
                     converter: elementConverter,
                     targetType: List<T>,
-                    debugInfo: {
-                      ...?debugInfo,
-                      'elementIndex': index,
-                    },
+                    debugInfo: {...?debugInfo, 'elementIndex': index},
                   ),
                   stackTrace: trace,
                 );

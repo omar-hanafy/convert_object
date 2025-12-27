@@ -28,61 +28,66 @@ void main() {
       expect(result, isNull);
     });
 
-    test('should read a value from a Map and convert it via fluent chaining',
-        () {
-      // Arrange
-      final map = kNestedMap;
+    test(
+      'should read a value from a Map and convert it via fluent chaining',
+      () {
+        // Arrange
+        final map = kNestedMap;
 
-      // Act
-      final result = map.convert.fromMap('id').toInt();
+        // Act
+        final result = map.convert.fromMap('id').toInt();
 
-      // Assert
-      expect(result, isA<int>());
-      expect(result, equals(42));
-    });
+        // Assert
+        expect(result, isA<int>());
+        expect(result, equals(42));
+      },
+    );
 
     test(
-        'should read nested values from a JSON-string map using fromMap chaining',
-        () {
-      // Arrange
-      const json = kNestedMapJson;
+      'should read nested values from a JSON-string map using fromMap chaining',
+      () {
+        // Arrange
+        const json = kNestedMapJson;
 
-      // Act
-      final result = json.convert.fromMap('meta').fromMap('age').toInt();
+        // Act
+        final result = json.convert.fromMap('meta').fromMap('age').toInt();
 
-      // Assert
-      expect(result, equals(30));
-    });
-
-    test(
-        'should decode JSON using .decoded and then navigate like a normal Map',
-        () {
-      // Arrange
-      const json = kNestedMapJson;
-
-      // Act
-      final lat = json.convert.decoded
-          .fromMap('meta')
-          .fromMap('coords')
-          .fromMap('lat')
-          .toDouble();
-
-      // Assert
-      expect(lat, isA<double>());
-      expect(lat, equals(30.0444));
-    });
+        // Assert
+        expect(result, equals(30));
+      },
+    );
 
     test(
-        'should read from a JSON-string list using fromList and convert the value',
-        () {
-      // Arrange
-      const jsonList = kJsonList;
+      'should decode JSON using .decoded and then navigate like a normal Map',
+      () {
+        // Arrange
+        const json = kNestedMapJson;
 
-      // Act
-      final result = jsonList.convert.fromList(3).toInt();
+        // Act
+        final lat = json.convert.decoded
+            .fromMap('meta')
+            .fromMap('coords')
+            .fromMap('lat')
+            .toDouble();
 
-      // Assert
-      expect(result, equals(4));
-    });
+        // Assert
+        expect(lat, isA<double>());
+        expect(lat, equals(30.0444));
+      },
+    );
+
+    test(
+      'should read from a JSON-string list using fromList and convert the value',
+      () {
+        // Arrange
+        const jsonList = kJsonList;
+
+        // Act
+        final result = jsonList.convert.fromList(3).toInt();
+
+        // Assert
+        expect(result, equals(4));
+      },
+    );
   });
 }

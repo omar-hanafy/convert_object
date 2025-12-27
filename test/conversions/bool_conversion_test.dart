@@ -50,16 +50,17 @@ void main() {
     });
 
     test(
-        'should return defaultValue when parsing fails and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when parsing fails and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toBool('maybe', defaultValue: true);
+        // Act
+        final result = Convert.toBool('maybe', defaultValue: true);
 
-      // Assert
-      expect(result, isTrue);
-    });
+        // Assert
+        expect(result, isTrue);
+      },
+    );
 
     test('should support mapKey and listIndex selection', () {
       // Arrange
@@ -76,25 +77,27 @@ void main() {
       expect(b, isFalse);
     });
 
-    test('should honor BoolOptions.numericPositiveIsTrue when set to false',
-        () {
-      // Arrange
-      const overrides = ConvertConfig(
-        bools: BoolOptions(numericPositiveIsTrue: false),
-      );
+    test(
+      'should honor BoolOptions.numericPositiveIsTrue when set to false',
+      () {
+        // Arrange
+        const overrides = ConvertConfig(
+          bools: BoolOptions(numericPositiveIsTrue: false),
+        );
 
-      // Act
-      final r1 = withScopedConfig(overrides, () => Convert.toBool(-1));
-      final r2 = withScopedConfig(overrides, () => Convert.toBool('-1'));
-      final r3 = withScopedConfig(overrides, () => Convert.toBool(0));
-      final r4 = withScopedConfig(overrides, () => Convert.toBool('0'));
+        // Act
+        final r1 = withScopedConfig(overrides, () => Convert.toBool(-1));
+        final r2 = withScopedConfig(overrides, () => Convert.toBool('-1'));
+        final r3 = withScopedConfig(overrides, () => Convert.toBool(0));
+        final r4 = withScopedConfig(overrides, () => Convert.toBool('0'));
 
-      // Assert
-      expect(r1, isTrue, reason: '-1 should be true when != 0');
-      expect(r2, isTrue, reason: '"-1" should be true when != 0');
-      expect(r3, isFalse);
-      expect(r4, isFalse);
-    });
+        // Assert
+        expect(r1, isTrue, reason: '-1 should be true when != 0');
+        expect(r2, isTrue, reason: '"-1" should be true when != 0');
+        expect(r3, isFalse);
+        expect(r4, isFalse);
+      },
+    );
 
     test('should honor custom truthy/falsy tokens from config', () {
       // Arrange
@@ -130,15 +133,16 @@ void main() {
     });
 
     test(
-        'should return defaultValue when parsing fails and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when parsing fails and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToBool('maybe', defaultValue: true);
+        // Act
+        final result = Convert.tryToBool('maybe', defaultValue: true);
 
-      // Assert
-      expect(result, isTrue);
-    });
+        // Assert
+        expect(result, isTrue);
+      },
+    );
   });
 }

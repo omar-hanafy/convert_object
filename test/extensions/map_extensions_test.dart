@@ -32,30 +32,35 @@ void main() {
     });
 
     test(
-        'getString should fallback to alternativeKeys when primary key is missing',
-        () {
-      // Arrange
-      final map = kNestedMap;
+      'getString should fallback to alternativeKeys when primary key is missing',
+      () {
+        // Arrange
+        final map = kNestedMap;
 
-      // Act
-      final result = map.getString('missing', alternativeKeys: const ['name']);
+        // Act
+        final result = map.getString(
+          'missing',
+          alternativeKeys: const ['name'],
+        );
 
-      // Assert
-      expect(result, equals('Omar'));
-    });
+        // Assert
+        expect(result, equals('Omar'));
+      },
+    );
 
     test(
-        'getString should fallback to alternativeKeys when primary value is null',
-        () {
-      // Arrange
-      final map = <String, dynamic>{'a': null, 'b': 'x'};
+      'getString should fallback to alternativeKeys when primary value is null',
+      () {
+        // Arrange
+        final map = <String, dynamic>{'a': null, 'b': 'x'};
 
-      // Act
-      final result = map.getString('a', alternativeKeys: const ['b']);
+        // Act
+        final result = map.getString('a', alternativeKeys: const ['b']);
 
-      // Assert
-      expect(result, equals('x'));
-    });
+        // Assert
+        expect(result, equals('x'));
+      },
+    );
 
     test('getInt should include altKeys in error context', () {
       // Arrange
@@ -92,8 +97,11 @@ void main() {
       final map = kNestedMap;
 
       // Act
-      final result =
-          map.getDouble('items', innerListIndex: 1, innerKey: 'price');
+      final result = map.getDouble(
+        'items',
+        innerListIndex: 1,
+        innerKey: 'price',
+      );
 
       // Assert
       expect(result, equals(5.5));
@@ -110,18 +118,20 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('getDateTime should parse ISO-8601 Z strings into the same instant',
-        () {
-      // Arrange
-      final map = kNestedMap;
+    test(
+      'getDateTime should parse ISO-8601 Z strings into the same instant',
+      () {
+        // Arrange
+        final map = kNestedMap;
 
-      // Act
-      final dt = map.getDateTime('meta', innerKey: 'created');
+        // Act
+        final dt = map.getDateTime('meta', innerKey: 'created');
 
-      // Assert
-      expect(dt, sameInstantAs(kKnownUtcInstant));
-      expect(dt.isUtc, isTrue);
-    });
+        // Assert
+        expect(dt, sameInstantAs(kKnownUtcInstant));
+        expect(dt.isUtc, isTrue);
+      },
+    );
 
     test('getList should read and convert a nested list', () {
       // Arrange
@@ -152,8 +162,10 @@ void main() {
       final map = <String, dynamic>{'color': 'red'};
 
       // Act
-      final result =
-          map.getEnum<TestColor>('color', parser: kTestColors.parser);
+      final result = map.getEnum<TestColor>(
+        'color',
+        parser: kTestColors.parser,
+      );
 
       // Assert
       expect(result, equals(TestColor.red));
@@ -193,33 +205,37 @@ void main() {
       expect(result, equals(TestColor.blue));
     });
 
-    test('keysList/valuesList should return materialized lists of keys/values',
-        () {
-      // Arrange
-      final map = <String, int>{'a': 1, 'b': 2};
+    test(
+      'keysList/valuesList should return materialized lists of keys/values',
+      () {
+        // Arrange
+        final map = <String, int>{'a': 1, 'b': 2};
 
-      // Act
-      final keys = map.keysList;
-      final values = map.valuesList;
+        // Act
+        final keys = map.keysList;
+        final values = map.valuesList;
 
-      // Assert
-      expect(keys, equals(<String>['a', 'b']));
-      expect(values, equals(<int>[1, 2]));
-    });
+        // Assert
+        expect(keys, equals(<String>['a', 'b']));
+        expect(values, equals(<int>[1, 2]));
+      },
+    );
 
-    test('keysSet/valuesSet should return materialized sets of keys/values',
-        () {
-      // Arrange
-      final map = <String, int>{'a': 1, 'b': 2};
+    test(
+      'keysSet/valuesSet should return materialized sets of keys/values',
+      () {
+        // Arrange
+        final map = <String, int>{'a': 1, 'b': 2};
 
-      // Act
-      final keys = map.keysSet;
-      final values = map.valuesSet;
+        // Act
+        final keys = map.keysSet;
+        final values = map.valuesSet;
 
-      // Assert
-      expect(keys, equals(<String>{'a', 'b'}));
-      expect(values, equals(<int>{1, 2}));
-    });
+        // Assert
+        expect(keys, equals(<String>{'a', 'b'}));
+        expect(values, equals(<int>{1, 2}));
+      },
+    );
 
     test('parse should parse a nested map using a provided converter', () {
       // Arrange
@@ -290,17 +306,19 @@ void main() {
       expect(result, equals(7));
     });
 
-    test('tryGetInt should fallback to alternativeKeys when primary is missing',
-        () {
-      // Arrange
-      final Map<String, dynamic> map = <String, dynamic>{'b': '5'};
+    test(
+      'tryGetInt should fallback to alternativeKeys when primary is missing',
+      () {
+        // Arrange
+        final Map<String, dynamic> map = <String, dynamic>{'b': '5'};
 
-      // Act
-      final result = map.tryGetInt('a', alternativeKeys: const ['b']);
+        // Act
+        final result = map.tryGetInt('a', alternativeKeys: const ['b']);
 
-      // Assert
-      expect(result, equals(5));
-    });
+        // Assert
+        expect(result, equals(5));
+      },
+    );
 
     test('tryGetInt should support nested selection via innerKey', () {
       // Arrange

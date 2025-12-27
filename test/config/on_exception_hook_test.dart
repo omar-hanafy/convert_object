@@ -59,54 +59,56 @@ void main() {
     });
 
     test(
-        'should not invoke hook for try APIs that return null instead of throwing',
-        () {
-      // Arrange
-      var calls = 0;
-      final config = makeTestConfig(
-        onException: (_) {
-          calls++;
-        },
-      );
+      'should not invoke hook for try APIs that return null instead of throwing',
+      () {
+        // Arrange
+        var calls = 0;
+        final config = makeTestConfig(
+          onException: (_) {
+            calls++;
+          },
+        );
 
-      // Act
-      final result = withGlobalConfig(config, () {
-        return Convert.tryToInt('abc'); // should return null, not throw
-      });
+        // Act
+        final result = withGlobalConfig(config, () {
+          return Convert.tryToInt('abc'); // should return null, not throw
+        });
 
-      // Assert
-      expect(result, isNull);
-      expect(calls, equals(0));
-    });
+        // Assert
+        expect(result, isNull);
+        expect(calls, equals(0));
+      },
+    );
 
     test(
-        'should swallow exceptions thrown by hook and still throw ConversionException',
-        () {
-      // Arrange
-      var calls = 0;
-      final config = makeTestConfig(
-        onException: (_) {
-          calls++;
-          throw StateError('hook failed');
-        },
-      );
+      'should swallow exceptions thrown by hook and still throw ConversionException',
+      () {
+        // Arrange
+        var calls = 0;
+        final config = makeTestConfig(
+          onException: (_) {
+            calls++;
+            throw StateError('hook failed');
+          },
+        );
 
-      // Act
-      ConversionException? thrown;
-      try {
-        withGlobalConfig(config, () {
-          Convert.toInt('abc');
-        });
-        fail('Expected Convert.toInt to throw');
-      } catch (e) {
-        thrown = e as ConversionException;
-      }
+        // Act
+        ConversionException? thrown;
+        try {
+          withGlobalConfig(config, () {
+            Convert.toInt('abc');
+          });
+          fail('Expected Convert.toInt to throw');
+        } catch (e) {
+          thrown = e as ConversionException;
+        }
 
-      // Assert
-      expect(calls, equals(1));
-      expect(thrown, isNotNull);
-      expect(thrown.context['method'], equals('toInt'));
-    });
+        // Assert
+        expect(calls, equals(1));
+        expect(thrown, isNotNull);
+        expect(thrown.context['method'], equals('toInt'));
+      },
+    );
 
     test('should invoke hook once per thrown ConversionException', () {
       // Arrange

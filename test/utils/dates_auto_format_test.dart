@@ -94,21 +94,23 @@ void main() {
         expect(result.day, equals(1));
       });
 
-      test('should allow passing an explicit locale to control interpretation',
-          () {
-        // Arrange
-        const input = '01/02/2025';
+      test(
+        'should allow passing an explicit locale to control interpretation',
+        () {
+          // Arrange
+          const input = '01/02/2025';
 
-        // Act
-        final us = input.toDateAutoFormat(locale: 'en_US');
-        final gb = input.toDateAutoFormat(locale: 'en_GB');
+          // Act
+          final us = input.toDateAutoFormat(locale: 'en_US');
+          final gb = input.toDateAutoFormat(locale: 'en_GB');
 
-        // Assert
-        expect(us.month, equals(1));
-        expect(us.day, equals(2));
-        expect(gb.month, equals(2));
-        expect(gb.day, equals(1));
-      });
+          // Assert
+          expect(us.month, equals(1));
+          expect(us.day, equals(2));
+          expect(gb.month, equals(2));
+          expect(gb.day, equals(1));
+        },
+      );
     });
 
     group('compact numeric forms', () {
@@ -127,80 +129,86 @@ void main() {
       });
 
       test(
-          'should parse yyyyMMddHHmm (12 digits) as a calendar timestamp (local)',
-          () {
-        // Arrange
-        const input = '202501311530';
+        'should parse yyyyMMddHHmm (12 digits) as a calendar timestamp (local)',
+        () {
+          // Arrange
+          const input = '202501311530';
 
-        // Act
-        final result = input.toDateAutoFormat(utc: false);
+          // Act
+          final result = input.toDateAutoFormat(utc: false);
 
-        // Assert
-        expect(result.isUtc, isFalse);
-        expect(result.year, equals(2025));
-        expect(result.month, equals(1));
-        expect(result.day, equals(31));
-        expect(result.hour, equals(15));
-        expect(result.minute, equals(30));
-      });
+          // Assert
+          expect(result.isUtc, isFalse);
+          expect(result.year, equals(2025));
+          expect(result.month, equals(1));
+          expect(result.day, equals(31));
+          expect(result.hour, equals(15));
+          expect(result.minute, equals(30));
+        },
+      );
 
       test(
-          'should parse yyyyMMddHHmmss (14 digits) as a calendar timestamp (local)',
-          () {
-        // Arrange
-        const input = '20250131153045';
+        'should parse yyyyMMddHHmmss (14 digits) as a calendar timestamp (local)',
+        () {
+          // Arrange
+          const input = '20250131153045';
 
-        // Act
-        final result = input.toDateAutoFormat(utc: false);
+          // Act
+          final result = input.toDateAutoFormat(utc: false);
 
-        // Assert
-        expect(result.isUtc, isFalse);
-        expect(result.year, equals(2025));
-        expect(result.month, equals(1));
-        expect(result.day, equals(31));
-        expect(result.hour, equals(15));
-        expect(result.minute, equals(30));
-        expect(result.second, equals(45));
-      });
+          // Assert
+          expect(result.isUtc, isFalse);
+          expect(result.year, equals(2025));
+          expect(result.month, equals(1));
+          expect(result.day, equals(31));
+          expect(result.hour, equals(15));
+          expect(result.minute, equals(30));
+          expect(result.second, equals(45));
+        },
+      );
 
-      test('should parse compact variants containing underscores or spaces',
-          () {
-        // Arrange
-        const input = '2025_01_31';
+      test(
+        'should parse compact variants containing underscores or spaces',
+        () {
+          // Arrange
+          const input = '2025_01_31';
 
-        // Act
-        final result = input.toDateAutoFormat(utc: false);
+          // Act
+          final result = input.toDateAutoFormat(utc: false);
 
-        // Assert
-        expect(result.year, equals(2025));
-        expect(result.month, equals(1));
-        expect(result.day, equals(31));
-      });
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(1));
+          expect(result.day, equals(31));
+        },
+      );
     });
 
     group('long name formats and ordinals', () {
       test(
-          'should parse month-name dates and remove ordinals when supported by intl data',
-          () {
-        // Arrange
-        // Ordinal should be normalized: "2nd" -> "2"
-        const input = 'January 2nd, 2025';
+        'should parse month-name dates and remove ordinals when supported by intl data',
+        () {
+          // Arrange
+          // Ordinal should be normalized: "2nd" -> "2"
+          const input = 'January 2nd, 2025';
 
-        // Act
-        DateTime result;
-        try {
-          result = input.toDateAutoFormat(utc: false);
-        } catch (e) {
-          markTestSkipped(
-              'Intl date symbols for month names may be unavailable: $e');
-          return;
-        }
+          // Act
+          DateTime result;
+          try {
+            result = input.toDateAutoFormat(utc: false);
+          } catch (e) {
+            markTestSkipped(
+              'Intl date symbols for month names may be unavailable: $e',
+            );
+            return;
+          }
 
-        // Assert
-        expect(result.year, equals(2025));
-        expect(result.month, equals(1));
-        expect(result.day, equals(2));
-      });
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(1));
+          expect(result.day, equals(2));
+        },
+      );
     });
 
     group('time-only inputs', () {
@@ -229,23 +237,27 @@ void main() {
     });
 
     group('utc parameter behavior', () {
-      test('should return a UTC DateTime for epoch inputs when utc is true',
-          () {
-        // Arrange
-        const input = '1700000000';
-        final expected =
-            DateTime.fromMillisecondsSinceEpoch(1700000000 * 1000, isUtc: true);
+      test(
+        'should return a UTC DateTime for epoch inputs when utc is true',
+        () {
+          // Arrange
+          const input = '1700000000';
+          final expected = DateTime.fromMillisecondsSinceEpoch(
+            1700000000 * 1000,
+            isUtc: true,
+          );
 
-        // Act
-        final utcResult = input.toDateAutoFormat(utc: true);
-        final localResult = input.toDateAutoFormat(utc: false);
+          // Act
+          final utcResult = input.toDateAutoFormat(utc: true);
+          final localResult = input.toDateAutoFormat(utc: false);
 
-        // Assert
-        expect(utcResult, isUtcDateTime);
-        expect(utcResult, sameInstantAs(expected));
-        expect(localResult.isUtc, isFalse);
-        expect(localResult.toUtc(), sameInstantAs(expected));
-      });
+          // Assert
+          expect(utcResult, isUtcDateTime);
+          expect(utcResult, sameInstantAs(expected));
+          expect(localResult.isUtc, isFalse);
+          expect(localResult.toUtc(), sameInstantAs(expected));
+        },
+      );
     });
 
     group('tryToDateAutoFormat', () {

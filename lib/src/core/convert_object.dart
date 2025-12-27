@@ -16,8 +16,8 @@ abstract class Convert {
 
   /// Updates the global configuration using [updater].
   static void updateConfig(
-          ConvertConfig Function(ConvertConfig current) updater) =>
-      ConvertConfig.update(updater);
+    ConvertConfig Function(ConvertConfig current) updater,
+  ) => ConvertConfig.update(updater);
 
   /// Runs [body] with [overrides] applied on top of the current effective config.
   static T runScopedConfig<T>(ConvertConfig overrides, T Function() body) =>
@@ -31,14 +31,13 @@ abstract class Convert {
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
-  }) =>
-      ConvertObjectImpl.string(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.string(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [String] and returns `null` or [defaultValue] on
   /// failure instead of throwing.
@@ -48,14 +47,13 @@ abstract class Convert {
     int? listIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
-  }) =>
-      ConvertObjectImpl.tryToString(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToString(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   // Numbers
   /// Converts [object] to [num], using optional formatting hints for parsing
@@ -68,16 +66,15 @@ abstract class Convert {
     String? locale,
     num? defaultValue,
     ElementConverter<num>? converter,
-  }) =>
-      ConvertObjectImpl.toNum(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toNum(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [num] returning `null` or [defaultValue] when
   /// conversion fails.
@@ -89,16 +86,15 @@ abstract class Convert {
     int? listIndex,
     num? defaultValue,
     ElementConverter<num>? converter,
-  }) =>
-      ConvertObjectImpl.tryToNum(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToNum(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [int], applying optional locale-aware formatting.
   static int toInt(
@@ -109,16 +105,15 @@ abstract class Convert {
     String? locale,
     int? defaultValue,
     ElementConverter<int>? converter,
-  }) =>
-      ConvertObjectImpl.toInt(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toInt(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [int] while suppressing errors and returning
   /// [defaultValue] or `null` if parsing cannot succeed.
@@ -130,16 +125,15 @@ abstract class Convert {
     int? listIndex,
     int? defaultValue,
     ElementConverter<int>? converter,
-  }) =>
-      ConvertObjectImpl.tryToInt(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToInt(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [double], supporting formatted numeric strings.
   static double toDouble(
@@ -150,16 +144,15 @@ abstract class Convert {
     String? locale,
     double? defaultValue,
     ElementConverter<double>? converter,
-  }) =>
-      ConvertObjectImpl.toDouble(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toDouble(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [double] returning [defaultValue] or `null` on
   /// parsing failure.
@@ -171,16 +164,15 @@ abstract class Convert {
     String? locale,
     double? defaultValue,
     ElementConverter<double>? converter,
-  }) =>
-      ConvertObjectImpl.tryToDouble(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToDouble(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [BigInt], optionally falling back to
   /// [defaultValue].
@@ -190,14 +182,13 @@ abstract class Convert {
     int? listIndex,
     BigInt? defaultValue,
     ElementConverter<BigInt>? converter,
-  }) =>
-      ConvertObjectImpl.toBigInt(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toBigInt(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [BigInt] suppressing errors; returns `null` when
   /// conversion is not possible.
@@ -207,14 +198,13 @@ abstract class Convert {
     int? listIndex,
     BigInt? defaultValue,
     ElementConverter<BigInt>? converter,
-  }) =>
-      ConvertObjectImpl.tryToBigInt(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToBigInt(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [bool], accepting common textual truthy/falsy
   /// representations.
@@ -224,14 +214,13 @@ abstract class Convert {
     int? listIndex,
     bool? defaultValue,
     ElementConverter<bool>? converter,
-  }) =>
-      ConvertObjectImpl.toBool(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toBool(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [bool] and returns [defaultValue] or `null` when
   /// coercion fails.
@@ -241,14 +230,13 @@ abstract class Convert {
     int? listIndex,
     bool? defaultValue,
     ElementConverter<bool>? converter,
-  }) =>
-      ConvertObjectImpl.tryToBool(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToBool(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to a [DateTime], respecting [format] or automatic
   /// detection rules. Calendar-like inputs (e.g. `yyyyMMdd`, `MM/dd/yyyy`,
@@ -267,19 +255,18 @@ abstract class Convert {
     bool utc = false,
     DateTime? defaultValue,
     ElementConverter<DateTime>? converter,
-  }) =>
-      ConvertObjectImpl.toDateTime(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        autoDetectFormat: autoDetectFormat,
-        useCurrentLocale: useCurrentLocale,
-        utc: utc,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toDateTime(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Like [toDateTime] but never throws, returning [defaultValue] (if
   /// provided) or `null` when conversion fails.
@@ -294,19 +281,18 @@ abstract class Convert {
     bool utc = false,
     DateTime? defaultValue,
     ElementConverter<DateTime>? converter,
-  }) =>
-      ConvertObjectImpl.tryToDateTime(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        autoDetectFormat: autoDetectFormat,
-        useCurrentLocale: useCurrentLocale,
-        utc: utc,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToDateTime(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [Uri], allowing custom parsing via [converter].
   static Uri toUri(
@@ -315,14 +301,13 @@ abstract class Convert {
     int? listIndex,
     Uri? defaultValue,
     ElementConverter<Uri>? converter,
-  }) =>
-      ConvertObjectImpl.toUri(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.toUri(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to [Uri] returning `null` or [defaultValue] when parsing
   /// fails.
@@ -332,14 +317,13 @@ abstract class Convert {
     int? listIndex,
     Uri? defaultValue,
     ElementConverter<Uri>? converter,
-  }) =>
-      ConvertObjectImpl.tryToUri(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-      );
+  }) => ConvertObjectImpl.tryToUri(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  );
 
   /// Converts [object] to a strongly-typed [Map], optionally transforming keys
   /// and values with [keyConverter] and [valueConverter].
@@ -350,15 +334,14 @@ abstract class Convert {
     Map<K, V>? defaultValue,
     ElementConverter<K>? keyConverter,
     ElementConverter<V>? valueConverter,
-  }) =>
-      ConvertObjectImpl.toMap<K, V>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        keyConverter: keyConverter,
-        valueConverter: valueConverter,
-      );
+  }) => ConvertObjectImpl.toMap<K, V>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
+  );
 
   /// Converts [object] to [Map] while returning `null` or [defaultValue] when
   /// conversion fails.
@@ -369,15 +352,14 @@ abstract class Convert {
     Map<K, V>? defaultValue,
     ElementConverter<K>? keyConverter,
     ElementConverter<V>? valueConverter,
-  }) =>
-      ConvertObjectImpl.tryToMap<K, V>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        keyConverter: keyConverter,
-        valueConverter: valueConverter,
-      );
+  }) => ConvertObjectImpl.tryToMap<K, V>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
+  );
 
   /// Converts [object] to [Set], applying [elementConverter] to every entry.
   static Set<T> toSet<T>(
@@ -386,14 +368,13 @@ abstract class Convert {
     int? listIndex,
     Set<T>? defaultValue,
     ElementConverter<T>? elementConverter,
-  }) =>
-      ConvertObjectImpl.toSet<T>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        elementConverter: elementConverter,
-      );
+  }) => ConvertObjectImpl.toSet<T>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    elementConverter: elementConverter,
+  );
 
   /// Converts [object] to [Set] returning `null` or [defaultValue] when
   /// coercion is not possible.
@@ -403,14 +384,13 @@ abstract class Convert {
     int? listIndex,
     Set<T>? defaultValue,
     ElementConverter<T>? elementConverter,
-  }) =>
-      ConvertObjectImpl.tryToSet<T>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        elementConverter: elementConverter,
-      );
+  }) => ConvertObjectImpl.tryToSet<T>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    elementConverter: elementConverter,
+  );
 
   /// Converts [object] to [List], optionally mapping each element through
   /// [elementConverter].
@@ -420,14 +400,13 @@ abstract class Convert {
     int? listIndex,
     List<T>? defaultValue,
     ElementConverter<T>? elementConverter,
-  }) =>
-      ConvertObjectImpl.toList<T>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        elementConverter: elementConverter,
-      );
+  }) => ConvertObjectImpl.toList<T>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    elementConverter: elementConverter,
+  );
 
   /// Converts [object] to [List] returning [defaultValue] or `null` when
   /// conversion fails.
@@ -437,14 +416,13 @@ abstract class Convert {
     int? listIndex,
     List<T>? defaultValue,
     ElementConverter<T>? elementConverter,
-  }) =>
-      ConvertObjectImpl.tryToList<T>(
-        object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        elementConverter: elementConverter,
-      );
+  }) => ConvertObjectImpl.tryToList<T>(
+    object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    elementConverter: elementConverter,
+  );
 
   /// Converts [object] to an enum using the supplied [parser].
   static T toEnum<T extends Enum>(
@@ -454,15 +432,14 @@ abstract class Convert {
     int? listIndex,
     T? defaultValue,
     Map<String, dynamic>? debugInfo,
-  }) =>
-      ConvertObjectImpl.toEnum<T>(
-        object,
-        parser: parser,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        debugInfo: debugInfo,
-      );
+  }) => ConvertObjectImpl.toEnum<T>(
+    object,
+    parser: parser,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    debugInfo: debugInfo,
+  );
 
   /// Converts [object] to an enum using [parser] and returns `null` or
   /// [defaultValue] when parsing fails.
@@ -473,15 +450,14 @@ abstract class Convert {
     int? listIndex,
     T? defaultValue,
     Map<String, dynamic>? debugInfo,
-  }) =>
-      ConvertObjectImpl.tryToEnum<T>(
-        object,
-        parser: parser,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        defaultValue: defaultValue,
-        debugInfo: debugInfo,
-      );
+  }) => ConvertObjectImpl.tryToEnum<T>(
+    object,
+    parser: parser,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    debugInfo: debugInfo,
+  );
 
   // Top-level generic
 
@@ -511,20 +487,19 @@ abstract class Convert {
     dynamic converter,
     Type? targetType,
     Map<String, dynamic>? debugInfo,
-  }) =>
-      ConvertObjectImpl.buildContext(
-        method: method,
-        object: object,
-        mapKey: mapKey,
-        listIndex: listIndex,
-        format: format,
-        locale: locale,
-        autoDetectFormat: autoDetectFormat,
-        useCurrentLocale: useCurrentLocale,
-        utc: utc,
-        defaultValue: defaultValue,
-        converter: converter,
-        targetType: targetType,
-        debugInfo: debugInfo,
-      );
+  }) => ConvertObjectImpl.buildContext(
+    method: method,
+    object: object,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+    targetType: targetType,
+    debugInfo: debugInfo,
+  );
 }

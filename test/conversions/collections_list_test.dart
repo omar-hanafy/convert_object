@@ -141,45 +141,49 @@ void main() {
     });
 
     test(
-        'should return defaultValue when conversion fails and defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'not-a-list';
-      final fallback = <int>[9];
+      'should return defaultValue when conversion fails and defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'not-a-list';
+        final fallback = <int>[9];
 
-      // Act
-      final result = Convert.toList<int>(input, defaultValue: fallback);
+        // Act
+        final result = Convert.toList<int>(input, defaultValue: fallback);
 
-      // Assert
-      expect(result, equals(fallback));
-    });
+        // Assert
+        expect(result, equals(fallback));
+      },
+    );
   });
 
   group('Convert.tryToList', () {
     test(
-        'should return null when input is a non-iterable scalar not assignable to T',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should return null when input is a non-iterable scalar not assignable to T',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      final result = Convert.tryToList<int>(input);
+        // Act
+        final result = Convert.tryToList<int>(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
-    test('should return a one-element list when input is already of type T',
-        () {
-      // Arrange
-      const input = 5;
+    test(
+      'should return a one-element list when input is already of type T',
+      () {
+        // Arrange
+        const input = 5;
 
-      // Act
-      final result = Convert.tryToList<int>(input);
+        // Act
+        final result = Convert.tryToList<int>(input);
 
-      // Assert
-      expect(result, equals(<int>[5]));
-    });
+        // Assert
+        expect(result, equals(<int>[5]));
+      },
+    );
 
     test('should return defaultValue when conversion fails', () {
       // Arrange

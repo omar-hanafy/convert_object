@@ -58,7 +58,6 @@ bool _isDefaultRegistry(TypeRegistry registry) => registry._parsers.isEmpty;
 
 /// Global and scoped configuration used by the `convert_object` APIs.
 @immutable
-
 ///
 /// A single global instance is used by default. You can:
 ///  * replace it via [configure],
@@ -162,16 +161,15 @@ class ConvertConfig {
     UriOptions? uri,
     TypeRegistry? registry,
     ExceptionHook? onException,
-  }) =>
-      ConvertConfig(
-        locale: locale ?? this.locale,
-        numbers: numbers ?? this.numbers,
-        dates: dates ?? this.dates,
-        bools: bools ?? this.bools,
-        uri: uri ?? this.uri,
-        registry: registry ?? this.registry,
-        onException: onException ?? this.onException,
-      );
+  }) => ConvertConfig(
+    locale: locale ?? this.locale,
+    numbers: numbers ?? this.numbers,
+    dates: dates ?? this.dates,
+    bools: bools ?? this.bools,
+    uri: uri ?? this.uri,
+    registry: registry ?? this.registry,
+    onException: onException ?? this.onException,
+  );
 
   static ConvertConfig _global = const ConvertConfig();
   static final Object _zoneKey = Object();
@@ -206,35 +204,37 @@ class ConvertConfig {
   ConvertConfig _merge(ConvertConfig overrides) {
     final onExceptionHook =
         _hasOverride(overrides._overrideMask, _overrideOnException)
-            ? overrides.onException
-            : overrides.onException ?? onException;
+        ? overrides.onException
+        : overrides.onException ?? onException;
 
     final shouldMergeNumbers =
         _hasOverride(overrides._overrideMask, _overrideNumbers) ||
-            !_isDefaultNumberOptions(overrides.numbers);
-    final mergedNumbers =
-        shouldMergeNumbers ? numbers.merge(overrides.numbers) : numbers;
+        !_isDefaultNumberOptions(overrides.numbers);
+    final mergedNumbers = shouldMergeNumbers
+        ? numbers.merge(overrides.numbers)
+        : numbers;
 
     final shouldMergeDates =
         _hasOverride(overrides._overrideMask, _overrideDates) ||
-            !_isDefaultDateOptions(overrides.dates);
+        !_isDefaultDateOptions(overrides.dates);
     final mergedDates = shouldMergeDates ? dates.merge(overrides.dates) : dates;
 
     final shouldMergeBools =
         _hasOverride(overrides._overrideMask, _overrideBools) ||
-            !_isDefaultBoolOptions(overrides.bools);
+        !_isDefaultBoolOptions(overrides.bools);
     final mergedBools = shouldMergeBools ? bools.merge(overrides.bools) : bools;
 
     final shouldMergeUri =
         _hasOverride(overrides._overrideMask, _overrideUri) ||
-            !_isDefaultUriOptions(overrides.uri);
+        !_isDefaultUriOptions(overrides.uri);
     final mergedUri = shouldMergeUri ? uri.merge(overrides.uri) : uri;
 
     final shouldMergeRegistry =
         _hasOverride(overrides._overrideMask, _overrideRegistry) ||
-            !_isDefaultRegistry(overrides.registry);
-    final mergedRegistry =
-        shouldMergeRegistry ? registry.merge(overrides.registry) : registry;
+        !_isDefaultRegistry(overrides.registry);
+    final mergedRegistry = shouldMergeRegistry
+        ? registry.merge(overrides.registry)
+        : registry;
 
     return ConvertConfig(
       locale: _hasOverride(overrides._overrideMask, _overrideLocale)
@@ -271,22 +271,21 @@ class NumberOptions {
 
   /// Returns a new [NumberOptions] that prefers [other]'s non-null settings.
   NumberOptions merge(NumberOptions other) => NumberOptions(
-        defaultFormat: other.defaultFormat ?? defaultFormat,
-        defaultLocale: other.defaultLocale ?? defaultLocale,
-        tryFormattedFirst: other.tryFormattedFirst,
-      );
+    defaultFormat: other.defaultFormat ?? defaultFormat,
+    defaultLocale: other.defaultLocale ?? defaultLocale,
+    tryFormattedFirst: other.tryFormattedFirst,
+  );
 
   /// Returns a copy with selected fields replaced.
   NumberOptions copyWith({
     String? defaultFormat,
     String? defaultLocale,
     bool? tryFormattedFirst,
-  }) =>
-      NumberOptions(
-        defaultFormat: defaultFormat ?? this.defaultFormat,
-        defaultLocale: defaultLocale ?? this.defaultLocale,
-        tryFormattedFirst: tryFormattedFirst ?? this.tryFormattedFirst,
-      );
+  }) => NumberOptions(
+    defaultFormat: defaultFormat ?? this.defaultFormat,
+    defaultLocale: defaultLocale ?? this.defaultLocale,
+    tryFormattedFirst: tryFormattedFirst ?? this.tryFormattedFirst,
+  );
 }
 
 /// Options that control date/time parsing.
@@ -322,15 +321,15 @@ class DateOptions {
 
   /// Returns a new [DateOptions] that prefers [other]'s non-null settings.
   DateOptions merge(DateOptions other) => DateOptions(
-        defaultFormat: other.defaultFormat ?? defaultFormat,
-        locale: other.locale ?? locale,
-        utc: other.utc,
-        autoDetectFormat: other.autoDetectFormat,
-        useCurrentLocale: other.useCurrentLocale,
-        extraAutoDetectPatterns: other.extraAutoDetectPatterns.isNotEmpty
-            ? other.extraAutoDetectPatterns
-            : extraAutoDetectPatterns,
-      );
+    defaultFormat: other.defaultFormat ?? defaultFormat,
+    locale: other.locale ?? locale,
+    utc: other.utc,
+    autoDetectFormat: other.autoDetectFormat,
+    useCurrentLocale: other.useCurrentLocale,
+    extraAutoDetectPatterns: other.extraAutoDetectPatterns.isNotEmpty
+        ? other.extraAutoDetectPatterns
+        : extraAutoDetectPatterns,
+  );
 
   /// Returns a copy with selected fields replaced.
   DateOptions copyWith({
@@ -340,16 +339,15 @@ class DateOptions {
     bool? autoDetectFormat,
     bool? useCurrentLocale,
     List<String>? extraAutoDetectPatterns,
-  }) =>
-      DateOptions(
-        defaultFormat: defaultFormat ?? this.defaultFormat,
-        locale: locale ?? this.locale,
-        utc: utc ?? this.utc,
-        autoDetectFormat: autoDetectFormat ?? this.autoDetectFormat,
-        useCurrentLocale: useCurrentLocale ?? this.useCurrentLocale,
-        extraAutoDetectPatterns:
-            extraAutoDetectPatterns ?? this.extraAutoDetectPatterns,
-      );
+  }) => DateOptions(
+    defaultFormat: defaultFormat ?? this.defaultFormat,
+    locale: locale ?? this.locale,
+    utc: utc ?? this.utc,
+    autoDetectFormat: autoDetectFormat ?? this.autoDetectFormat,
+    useCurrentLocale: useCurrentLocale ?? this.useCurrentLocale,
+    extraAutoDetectPatterns:
+        extraAutoDetectPatterns ?? this.extraAutoDetectPatterns,
+  );
 }
 
 /// Options that control boolean parsing.
@@ -373,23 +371,21 @@ class BoolOptions {
 
   /// Returns a new [BoolOptions] that prefers [other]'s settings.
   BoolOptions merge(BoolOptions other) => BoolOptions(
-        truthy: other.truthy.isNotEmpty ? other.truthy : truthy,
-        falsy: other.falsy.isNotEmpty ? other.falsy : falsy,
-        numericPositiveIsTrue: other.numericPositiveIsTrue,
-      );
+    truthy: other.truthy.isNotEmpty ? other.truthy : truthy,
+    falsy: other.falsy.isNotEmpty ? other.falsy : falsy,
+    numericPositiveIsTrue: other.numericPositiveIsTrue,
+  );
 
   /// Returns a copy with selected fields replaced.
   BoolOptions copyWith({
     Set<String>? truthy,
     Set<String>? falsy,
     bool? numericPositiveIsTrue,
-  }) =>
-      BoolOptions(
-        truthy: truthy ?? this.truthy,
-        falsy: falsy ?? this.falsy,
-        numericPositiveIsTrue:
-            numericPositiveIsTrue ?? this.numericPositiveIsTrue,
-      );
+  }) => BoolOptions(
+    truthy: truthy ?? this.truthy,
+    falsy: falsy ?? this.falsy,
+    numericPositiveIsTrue: numericPositiveIsTrue ?? this.numericPositiveIsTrue,
+  );
 }
 
 /// Options that control URI parsing and coercion.
@@ -413,24 +409,23 @@ class UriOptions {
 
   /// Returns a new [UriOptions] that prefers [other]'s settings.
   UriOptions merge(UriOptions other) => UriOptions(
-        defaultScheme: other.defaultScheme ?? defaultScheme,
-        coerceBareDomainsToDefaultScheme:
-            other.coerceBareDomainsToDefaultScheme,
-        allowRelative: other.allowRelative,
-      );
+    defaultScheme: other.defaultScheme ?? defaultScheme,
+    coerceBareDomainsToDefaultScheme: other.coerceBareDomainsToDefaultScheme,
+    allowRelative: other.allowRelative,
+  );
 
   /// Returns a copy with selected fields replaced.
   UriOptions copyWith({
     String? defaultScheme,
     bool? coerceBareDomainsToDefaultScheme,
     bool? allowRelative,
-  }) =>
-      UriOptions(
-        defaultScheme: defaultScheme ?? this.defaultScheme,
-        coerceBareDomainsToDefaultScheme: coerceBareDomainsToDefaultScheme ??
-            this.coerceBareDomainsToDefaultScheme,
-        allowRelative: allowRelative ?? this.allowRelative,
-      );
+  }) => UriOptions(
+    defaultScheme: defaultScheme ?? this.defaultScheme,
+    coerceBareDomainsToDefaultScheme:
+        coerceBareDomainsToDefaultScheme ??
+        this.coerceBareDomainsToDefaultScheme,
+    allowRelative: allowRelative ?? this.allowRelative,
+  );
 }
 
 /// Registry of custom parsers used by `Convert.toType` / `Convert.tryToType`.

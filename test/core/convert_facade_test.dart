@@ -62,27 +62,25 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when object is null and no defaultValue is provided',
-        () {
-      // Arrange
-      const Object? input = null;
+      'should throw ConversionException when object is null and no defaultValue is provided',
+      () {
+        // Arrange
+        const Object? input = null;
 
-      // Act + Assert
-      expect(
-        () => Convert.string(input),
-        throwsConversionException(method: 'string'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.string(input),
+          throwsConversionException(method: 'string'),
+        );
+      },
+    );
 
     test('should use a custom converter when provided', () {
       // Arrange
       const input = 5;
 
       // Act
-      final result = Convert.string(
-        input,
-        converter: (o) => 'custom:$o',
-      );
+      final result = Convert.string(input, converter: (o) => 'custom:$o');
 
       // Assert
       expect(result, equals('custom:5'));
@@ -91,17 +89,18 @@ void main() {
 
   group('Convert.tryToString', () {
     test(
-        'should return null when input is null and no defaultValue is provided',
-        () {
-      // Arrange
-      const Object? input = null;
+      'should return null when input is null and no defaultValue is provided',
+      () {
+        // Arrange
+        const Object? input = null;
 
-      // Act
-      final result = Convert.tryToString(input);
+        // Act
+        final result = Convert.tryToString(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
     test('should return defaultValue when input is null', () {
       // Arrange
@@ -173,27 +172,25 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when conversion fails and no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should throw ConversionException when conversion fails and no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act + Assert
-      expect(
-        () => Convert.toInt(input),
-        throwsConversionException(method: 'toInt'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toInt(input),
+          throwsConversionException(method: 'toInt'),
+        );
+      },
+    );
 
     test('should use a custom converter when provided', () {
       // Arrange
       const input = 'anything';
 
       // Act
-      final result = Convert.toInt(
-        input,
-        converter: (_) => 123,
-      );
+      final result = Convert.toInt(input, converter: (_) => 123);
 
       // Assert
       expect(result, equals(123));
@@ -202,30 +199,32 @@ void main() {
 
   group('Convert.tryToInt', () {
     test(
-        'should return null when conversion fails and no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should return null when conversion fails and no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      final result = Convert.tryToInt(input);
+        // Act
+        final result = Convert.tryToInt(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
     test(
-        'should return defaultValue when conversion fails and defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should return defaultValue when conversion fails and defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      final result = Convert.tryToInt(input, defaultValue: 77);
+        // Act
+        final result = Convert.tryToInt(input, defaultValue: 77);
 
-      // Assert
-      expect(result, equals(77));
-    });
+        // Assert
+        expect(result, equals(77));
+      },
+    );
   });
 
   group('Convert.toBool', () {
@@ -242,17 +241,18 @@ void main() {
     });
 
     test(
-        'should return false for unknown tokens when no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'maybe';
+      'should return false for unknown tokens when no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'maybe';
 
-      // Act
-      final result = Convert.toBool(input);
+        // Act
+        final result = Convert.toBool(input);
 
-      // Assert
-      expect(result, isFalse);
-    });
+        // Assert
+        expect(result, isFalse);
+      },
+    );
 
     test('should return defaultValue when input is null', () {
       // Arrange
@@ -290,30 +290,32 @@ void main() {
 
   group('Convert.tryToBool', () {
     test(
-        'should return null for unknown tokens when no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'maybe';
+      'should return null for unknown tokens when no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'maybe';
 
-      // Act
-      final result = Convert.tryToBool(input);
+        // Act
+        final result = Convert.tryToBool(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
     test(
-        'should return defaultValue for unknown tokens when defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'maybe';
+      'should return defaultValue for unknown tokens when defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'maybe';
 
-      // Act
-      final result = Convert.tryToBool(input, defaultValue: true);
+        // Act
+        final result = Convert.tryToBool(input, defaultValue: true);
 
-      // Assert
-      expect(result, isTrue);
-    });
+        // Assert
+        expect(result, isTrue);
+      },
+    );
   });
 
   group('Convert.toDateTime', () {
@@ -342,16 +344,17 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is null and no defaultValue is provided',
-        () {
-      // Arrange
-      const Object? input = null;
+      'should throw ConversionException when input is null and no defaultValue is provided',
+      () {
+        // Arrange
+        const Object? input = null;
 
-      // Act + Assert
-      expect(
-        () => Convert.toDateTime(input),
-        throwsConversionException(method: 'toDateTime'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toDateTime(input),
+          throwsConversionException(method: 'toDateTime'),
+        );
+      },
+    );
   });
 }
