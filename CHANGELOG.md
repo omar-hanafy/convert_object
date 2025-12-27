@@ -1,3 +1,8 @@
+## 1.0.1
+
+- Add Roman numeral helpers and conversions.
+- Align SDK constraint to ^3.10.0 and update dev dependencies.
+
 ## 1.0.0
 
 - Stable release with preserved stack traces in `ConversionException` (Sentry-friendly).
