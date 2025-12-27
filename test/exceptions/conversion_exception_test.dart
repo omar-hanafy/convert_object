@@ -57,26 +57,28 @@ void main() {
       expect(text, isNot(contains('\n')));
     });
 
-    test('fullReport() should include the full (unfiltered) context as JSON',
-        () {
-      // Arrange
-      final ex = ConversionException(
-        error: 'boom',
-        context: <String, dynamic>{
-          'method': 'test',
-          'object': <String, dynamic>{'a': 1},
-        },
-      );
+    test(
+      'fullReport() should include the full (unfiltered) context as JSON',
+      () {
+        // Arrange
+        final ex = ConversionException(
+          error: 'boom',
+          context: <String, dynamic>{
+            'method': 'test',
+            'object': <String, dynamic>{'a': 1},
+          },
+        );
 
-      // Act
-      final report = ex.fullReport();
+        // Act
+        final report = ex.fullReport();
 
-      // Assert
-      expect(report, contains('ConversionException (Full Report)'));
-      expect(report, contains('"method": "test"'));
-      expect(report, contains('"object"'));
-      expect(report, contains('"a": 1'));
-    });
+        // Assert
+        expect(report, contains('ConversionException (Full Report)'));
+        expect(report, contains('"method": "test"'));
+        expect(report, contains('"object"'));
+        expect(report, contains('"a": 1'));
+      },
+    );
 
     test('fullReport() should be JSON-safe for non-JSON values', () {
       // Arrange

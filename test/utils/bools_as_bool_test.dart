@@ -47,11 +47,7 @@ void main() {
 
       // Act / Assert
       for (final v in values) {
-        expect(
-          v.asBool,
-          isTrue,
-          reason: 'Expected "$v" to be parsed as true',
-        );
+        expect(v.asBool, isTrue, reason: 'Expected "$v" to be parsed as true');
       }
     });
 
@@ -101,16 +97,18 @@ void main() {
       }
     });
 
-    test('should return false for non-string, non-numeric, non-bool objects',
-        () {
-      // Arrange
-      final value = <String, dynamic>{'a': 1};
+    test(
+      'should return false for non-string, non-numeric, non-bool objects',
+      () {
+        // Arrange
+        final value = <String, dynamic>{'a': 1};
 
-      // Act
-      final result = value.asBool;
+        // Act
+        final result = value.asBool;
 
-      // Assert
-      expect(result, isFalse);
-    });
+        // Assert
+        expect(result, isFalse);
+      },
+    );
   });
 }

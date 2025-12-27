@@ -86,66 +86,70 @@ void main() {
     });
 
     test(
-        'should parse locale-formatted numbers when format and locale are provided',
-        () {
-      // Arrange
-      const input = '1.234,5';
+      'should parse locale-formatted numbers when format and locale are provided',
+      () {
+        // Arrange
+        const input = '1.234,5';
 
-      // Act
-      final result = Convert.toNum(
-        input,
-        format: '#,##0.###',
-        locale: 'de_DE',
-      );
+        // Act
+        final result = Convert.toNum(
+          input,
+          format: '#,##0.###',
+          locale: 'de_DE',
+        );
 
-      // Assert
-      expect(result, isA<num>());
-      expect(result, equals(1234.5));
-    });
-
-    test(
-        'should use config defaultFormat/defaultLocale when format/locale are omitted',
-        () {
-      // Arrange
-      const input = '1.234,5';
-      final overrides = const ConvertConfig(
-        numbers: NumberOptions(
-          defaultFormat: '#,##0.###',
-          defaultLocale: 'de_DE',
-          tryFormattedFirst: true,
-        ),
-      );
-
-      // Act
-      final result = withScopedConfig(overrides, () => Convert.toNum(input));
-
-      // Assert
-      expect(result, equals(1234.5));
-    });
+        // Assert
+        expect(result, isA<num>());
+        expect(result, equals(1234.5));
+      },
+    );
 
     test(
-        'should throw ConversionException when input is malformed and no defaultValue is provided',
-        () {
-      // Arrange
+      'should use config defaultFormat/defaultLocale when format/locale are omitted',
+      () {
+        // Arrange
+        const input = '1.234,5';
+        final overrides = const ConvertConfig(
+          numbers: NumberOptions(
+            defaultFormat: '#,##0.###',
+            defaultLocale: 'de_DE',
+            tryFormattedFirst: true,
+          ),
+        );
 
-      // Act + Assert
-      expect(
-        () => Convert.toNum('abc'),
-        throwsConversionException(method: 'toNum'),
-      );
-    });
+        // Act
+        final result = withScopedConfig(overrides, () => Convert.toNum(input));
+
+        // Assert
+        expect(result, equals(1234.5));
+      },
+    );
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException when input is malformed and no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toNum('abc', defaultValue: 7);
+        // Act + Assert
+        expect(
+          () => Convert.toNum('abc'),
+          throwsConversionException(method: 'toNum'),
+        );
+      },
+    );
 
-      // Assert
-      expect(result, equals(7));
-    });
+    test(
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
+
+        // Act
+        final result = Convert.toNum('abc', defaultValue: 7);
+
+        // Assert
+        expect(result, equals(7));
+      },
+    );
   });
 
   group('Convert.tryToNum', () {
@@ -160,41 +164,43 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToNum('abc', defaultValue: 7);
+        // Act
+        final result = Convert.tryToNum('abc', defaultValue: 7);
 
-      // Assert
-      expect(result, equals(7));
-    });
+        // Assert
+        expect(result, equals(7));
+      },
+    );
   });
 
   group('Convert.toInt', () {
     test(
-        'should parse integers from strings and clean common grouping characters',
-        () {
-      // Arrange
-      final cases = <_IntCase>[
-        const _IntCase('1234', 1234),
-        const _IntCase('1,234', 1234),
-        const _IntCase('1 234', 1234),
-        const _IntCase('1_234', 1234),
-        const _IntCase('(123)', -123),
-        const _IntCase('1,234.50', 1234),
-      ];
+      'should parse integers from strings and clean common grouping characters',
+      () {
+        // Arrange
+        final cases = <_IntCase>[
+          const _IntCase('1234', 1234),
+          const _IntCase('1,234', 1234),
+          const _IntCase('1 234', 1234),
+          const _IntCase('1_234', 1234),
+          const _IntCase('(123)', -123),
+          const _IntCase('1,234.50', 1234),
+        ];
 
-      for (final c in cases) {
-        // Act
-        final result = Convert.toInt(c.input);
+        for (final c in cases) {
+          // Act
+          final result = Convert.toInt(c.input);
 
-        // Assert
-        expect(result, isA<int>());
-        expect(result, equals(c.expected));
-      }
-    });
+          // Assert
+          expect(result, isA<int>());
+          expect(result, equals(c.expected));
+        }
+      },
+    );
 
     test('should truncate numeric input values when converting to int', () {
       // Arrange
@@ -222,21 +228,22 @@ void main() {
     });
 
     test(
-        'should parse locale-formatted integers when format and locale are provided',
-        () {
-      // Arrange
-      const input = '1.234,5';
+      'should parse locale-formatted integers when format and locale are provided',
+      () {
+        // Arrange
+        const input = '1.234,5';
 
-      // Act
-      final result = Convert.toInt(
-        input,
-        format: '#,##0.###',
-        locale: 'de_DE',
-      );
+        // Act
+        final result = Convert.toInt(
+          input,
+          format: '#,##0.###',
+          locale: 'de_DE',
+        );
 
-      // Assert
-      expect(result, equals(1234));
-    });
+        // Assert
+        expect(result, equals(1234));
+      },
+    );
 
     test('should behave consistently when tryFormattedFirst is toggled', () {
       // Arrange
@@ -268,16 +275,17 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is malformed and no defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException when input is malformed and no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.toInt('abc'),
-        throwsConversionException(method: 'toInt'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toInt('abc'),
+          throwsConversionException(method: 'toInt'),
+        );
+      },
+    );
 
     test('should preserve the underlying error and stack trace', () {
       // Arrange
@@ -324,10 +332,7 @@ void main() {
 
       // Act
       try {
-        Convert.toInt(
-          'x',
-          converter: (_) => throw StateError('boom'),
-        );
+        Convert.toInt('x', converter: (_) => throw StateError('boom'));
       } catch (e) {
         thrown = e as ConversionException;
       }
@@ -339,16 +344,17 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toInt('abc', defaultValue: 7);
+        // Act
+        final result = Convert.toInt('abc', defaultValue: 7);
 
-      // Assert
-      expect(result, equals(7));
-    });
+        // Assert
+        expect(result, equals(7));
+      },
+    );
   });
 
   group('Convert.tryToInt', () {
@@ -363,38 +369,40 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToInt('abc', defaultValue: 7);
+        // Act
+        final result = Convert.tryToInt('abc', defaultValue: 7);
 
-      // Assert
-      expect(result, equals(7));
-    });
+        // Assert
+        expect(result, equals(7));
+      },
+    );
   });
 
   group('Convert.toDouble', () {
     test(
-        'should parse doubles from strings and clean common grouping characters',
-        () {
-      // Arrange
-      final cases = <_DoubleCase>[
-        const _DoubleCase('1234', 1234.0),
-        const _DoubleCase('1,234.50', 1234.5),
-        const _DoubleCase('(123)', -123.0),
-      ];
+      'should parse doubles from strings and clean common grouping characters',
+      () {
+        // Arrange
+        final cases = <_DoubleCase>[
+          const _DoubleCase('1234', 1234.0),
+          const _DoubleCase('1,234.50', 1234.5),
+          const _DoubleCase('(123)', -123.0),
+        ];
 
-      for (final c in cases) {
-        // Act
-        final result = Convert.toDouble(c.input);
+        for (final c in cases) {
+          // Act
+          final result = Convert.toDouble(c.input);
 
-        // Assert
-        expect(result, isA<double>());
-        expect(result, equals(c.expected));
-      }
-    });
+          // Assert
+          expect(result, isA<double>());
+          expect(result, equals(c.expected));
+        }
+      },
+    );
 
     test('should support mapKey and listIndex selection', () {
       // Arrange
@@ -410,21 +418,22 @@ void main() {
     });
 
     test(
-        'should parse locale-formatted doubles when format and locale are provided',
-        () {
-      // Arrange
-      const input = '1.234,5';
+      'should parse locale-formatted doubles when format and locale are provided',
+      () {
+        // Arrange
+        const input = '1.234,5';
 
-      // Act
-      final result = Convert.toDouble(
-        input,
-        format: '#,##0.###',
-        locale: 'de_DE',
-      );
+        // Act
+        final result = Convert.toDouble(
+          input,
+          format: '#,##0.###',
+          locale: 'de_DE',
+        );
 
-      // Assert
-      expect(result, equals(1234.5));
-    });
+        // Assert
+        expect(result, equals(1234.5));
+      },
+    );
 
     test('should behave consistently when tryFormattedFirst is toggled', () {
       // Arrange
@@ -456,28 +465,30 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is malformed and no defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException when input is malformed and no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.toDouble('abc'),
-        throwsConversionException(method: 'toDouble'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toDouble('abc'),
+          throwsConversionException(method: 'toDouble'),
+        );
+      },
+    );
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toDouble('abc', defaultValue: 7.5);
+        // Act
+        final result = Convert.toDouble('abc', defaultValue: 7.5);
 
-      // Assert
-      expect(result, equals(7.5));
-    });
+        // Assert
+        expect(result, equals(7.5));
+      },
+    );
   });
 
   group('Convert.tryToDouble', () {
@@ -492,15 +503,16 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToDouble('abc', defaultValue: 7.5);
+        // Act
+        final result = Convert.tryToDouble('abc', defaultValue: 7.5);
 
-      // Assert
-      expect(result, equals(7.5));
-    });
+        // Assert
+        expect(result, equals(7.5));
+      },
+    );
   });
 }

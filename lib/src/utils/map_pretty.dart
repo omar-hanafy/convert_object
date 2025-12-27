@@ -137,9 +137,7 @@ dynamic jsonSafe(
           case NonFiniteDoubleStrategy.nullValue:
             return null;
           case NonFiniteDoubleStrategy.error:
-            throw UnsupportedError(
-              'Non-finite double not allowed in JSON: $v',
-            );
+            throw UnsupportedError('Non-finite double not allowed in JSON: $v');
         }
       }
       return v; // finite number
@@ -312,8 +310,11 @@ extension JsonMapX<K, V> on Map<K, V> {
     final out = <String, dynamic>{};
     forEach((key, value) {
       if (options.dropNulls && value == null) return;
-      out[key.toString()] =
-          jsonSafe(value, options: options, toEncodable: toEncodable);
+      out[key.toString()] = jsonSafe(
+        value,
+        options: options,
+        toEncodable: toEncodable,
+      );
     });
     return options.sortKeys
         ? SplayTreeMap<String, dynamic>.from(out, (a, b) => a.compareTo(b))
@@ -327,8 +328,9 @@ extension JsonMapX<K, V> on Map<K, V> {
     Object? Function(dynamic object)? toEncodable,
   }) {
     final data = toJsonMap(options: options, toEncodable: toEncodable);
-    final encoder =
-        indent == null ? const JsonEncoder() : JsonEncoder.withIndent(indent);
+    final encoder = indent == null
+        ? const JsonEncoder()
+        : JsonEncoder.withIndent(indent);
     return encoder.convert(data);
   }
 
@@ -348,10 +350,9 @@ extension JsonIterableX<T> on Iterable<T> {
   List<dynamic> toJsonList({
     JsonOptions options = const JsonOptions(),
     Object? Function(dynamic object)? toEncodable,
-  }) =>
-      map<dynamic>(
-              (e) => jsonSafe(e, options: options, toEncodable: toEncodable))
-          .toList();
+  }) => map<dynamic>(
+    (e) => jsonSafe(e, options: options, toEncodable: toEncodable),
+  ).toList();
 
   /// Converts this iterable to a JSON string (pretty if [indent] is provided).
   String toJsonString({
@@ -360,8 +361,9 @@ extension JsonIterableX<T> on Iterable<T> {
     Object? Function(dynamic object)? toEncodable,
   }) {
     final data = toJsonList(options: options, toEncodable: toEncodable);
-    final encoder =
-        indent == null ? const JsonEncoder() : JsonEncoder.withIndent(indent);
+    final encoder = indent == null
+        ? const JsonEncoder()
+        : JsonEncoder.withIndent(indent);
     return encoder.convert(data);
   }
 
@@ -379,8 +381,7 @@ extension JsonAnyX on Object? {
   dynamic toJsonSafe({
     JsonOptions options = const JsonOptions(),
     Object? Function(dynamic object)? toEncodable,
-  }) =>
-      jsonSafe(this, options: options, toEncodable: toEncodable);
+  }) => jsonSafe(this, options: options, toEncodable: toEncodable);
 
   /// Encodes this value directly to JSON text (pretty if [indent] is provided).
   String toJsonString({
@@ -389,8 +390,9 @@ extension JsonAnyX on Object? {
     Object? Function(dynamic object)? toEncodable,
   }) {
     final safe = toJsonSafe(options: options, toEncodable: toEncodable);
-    final encoder =
-        indent == null ? const JsonEncoder() : JsonEncoder.withIndent(indent);
+    final encoder = indent == null
+        ? const JsonEncoder()
+        : JsonEncoder.withIndent(indent);
     return encoder.convert(safe);
   }
 }

@@ -9,19 +9,18 @@ class ConversionException implements Exception {
     required this.error,
     required Map<String, dynamic> context,
     StackTrace? stackTrace,
-  })  : context = Map.unmodifiable(context),
-        stackTrace = stackTrace ?? StackTrace.current;
+  }) : context = Map.unmodifiable(context),
+       stackTrace = stackTrace ?? StackTrace.current;
 
   /// Convenience factory used when the source object is `null` or unsupported.
   factory ConversionException.nullObject({
     required Map<String, dynamic> context,
     required StackTrace stackTrace,
-  }) =>
-      ConversionException(
-        error: 'object is unsupported or null',
-        context: context,
-        stackTrace: stackTrace,
-      );
+  }) => ConversionException(
+    error: 'object is unsupported or null',
+    context: context,
+    stackTrace: stackTrace,
+  );
 
   /// Original error or message that triggered the failure.
   final Object? error;

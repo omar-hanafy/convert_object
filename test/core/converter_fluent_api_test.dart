@@ -40,17 +40,18 @@ void main() {
     });
 
     test(
-        'should return a Converter(null) when the receiver is not a Map or JSON map',
-        () {
-      // Arrange
-      const source = 'not-a-map';
+      'should return a Converter(null) when the receiver is not a Map or JSON map',
+      () {
+        // Arrange
+        const source = 'not-a-map';
 
-      // Act
-      final result = const Converter(source).fromMap('x').tryToString();
+        // Act
+        final result = const Converter(source).fromMap('x').tryToString();
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
   });
 
   group('Converter.fromList', () {
@@ -137,17 +138,19 @@ void main() {
       expect(result, equals(99));
     });
 
-    test('toOr<T> should return the provided fallback when conversion throws',
-        () {
-      // Arrange
-      final c = const Converter('abc');
+    test(
+      'toOr<T> should return the provided fallback when conversion throws',
+      () {
+        // Arrange
+        final c = const Converter('abc');
 
-      // Act
-      final result = c.toOr<int>(123);
+        // Act
+        final result = c.toOr<int>(123);
 
-      // Assert
-      expect(result, equals(123));
-    });
+        // Assert
+        expect(result, equals(123));
+      },
+    );
   });
 
   group('Converter generic conversion', () {
@@ -175,31 +178,34 @@ void main() {
     });
 
     test(
-        'withConverter should transform the value before generic to<T> conversion',
-        () {
-      // Arrange
-      final c = const Converter('ignored').withConverter((_) => '6');
+      'withConverter should transform the value before generic to<T> conversion',
+      () {
+        // Arrange
+        final c = const Converter('ignored').withConverter((_) => '6');
 
-      // Act
-      final result = c.to<int>();
+        // Act
+        final result = c.to<int>();
 
-      // Assert
-      expect(result, equals(6));
-    });
+        // Assert
+        expect(result, equals(6));
+      },
+    );
 
-    test('withConverter exceptions should be wrapped in ConversionException',
-        () {
-      // Arrange
-      final c = const Converter('x').withConverter((_) {
-        throw StateError('boom');
-      });
+    test(
+      'withConverter exceptions should be wrapped in ConversionException',
+      () {
+        // Arrange
+        final c = const Converter('x').withConverter((_) {
+          throw StateError('boom');
+        });
 
-      // Act + Assert
-      expect(
-        () => c.to<int>(),
-        throwsConversionException(method: 'Converter.to<int>'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => c.to<int>(),
+          throwsConversionException(method: 'Converter.to<int>'),
+        );
+      },
+    );
 
     test('withConverter should be preserved through fromMap navigation', () {
       // Arrange

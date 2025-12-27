@@ -58,22 +58,17 @@ Matcher throwsConversionException({
 }
 
 /// Matches a [DateTime] that is UTC.
-Matcher get isUtcDateTime => predicate(
-      (v) => v is DateTime && v.isUtc,
-      'a UTC DateTime',
-    );
+Matcher get isUtcDateTime =>
+    predicate((v) => v is DateTime && v.isUtc, 'a UTC DateTime');
 
 /// Matches a [DateTime] that represents the same instant as [expected].
 /// Compares microseconds since epoch in UTC for deterministic results.
 Matcher sameInstantAs(DateTime expected) {
   final expectedMicros = expected.toUtc().microsecondsSinceEpoch;
-  return predicate(
-    (v) {
-      if (v is! DateTime) return false;
-      return v.toUtc().microsecondsSinceEpoch == expectedMicros;
-    },
-    'same instant as ${expected.toUtc().toIso8601String()}',
-  );
+  return predicate((v) {
+    if (v is! DateTime) return false;
+    return v.toUtc().microsecondsSinceEpoch == expectedMicros;
+  }, 'same instant as ${expected.toUtc().toIso8601String()}');
 }
 
 /// Matches a [DateTime] within [tolerance] of [expected], comparing UTC instants.
@@ -104,15 +99,12 @@ Matcher uriEquals(String expected) {
 
 /// Matches a Map containing all provided key/value pairs.
 Matcher mapContainsAll(Map<String, Object?> expectedEntries) {
-  return predicate(
-    (v) {
-      if (v is! Map) return false;
-      for (final e in expectedEntries.entries) {
-        if (!v.containsKey(e.key)) return false;
-        if (v[e.key] != e.value) return false;
-      }
-      return true;
-    },
-    'map contains all: $expectedEntries',
-  );
+  return predicate((v) {
+    if (v is! Map) return false;
+    for (final e in expectedEntries.entries) {
+      if (!v.containsKey(e.key)) return false;
+      if (v[e.key] != e.value) return false;
+    }
+    return true;
+  }, 'map contains all: $expectedEntries');
 }

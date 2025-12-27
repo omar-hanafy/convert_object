@@ -129,4 +129,5 @@ app.*.map.json
 !.idea/dictionaries/
 !.idea/runConfigurations/
 /pubspec.lock
+example/pubspec.lock
 lib/core/config/api_keys.dart

@@ -136,10 +136,7 @@ void main() {
       // Act + Assert
       expect(
         () => Convert.toType<int>(input),
-        throwsConversionException(
-          method: 'toType<int>',
-          targetType: 'int',
-        ),
+        throwsConversionException(method: 'toType<int>', targetType: 'int'),
       );
     });
 
@@ -176,28 +173,33 @@ void main() {
     });
 
     test(
-        'should prefer TypeRegistry parser over built-in routing when registered',
-        () {
-      // Arrange
-      final registry = const TypeRegistry.empty().register<int>((_) => 999);
-      final overrides = makeTestConfig(registry: registry);
+      'should prefer TypeRegistry parser over built-in routing when registered',
+      () {
+        // Arrange
+        final registry = const TypeRegistry.empty().register<int>((_) => 999);
+        final overrides = makeTestConfig(registry: registry);
 
-      // Act
-      final globalResult = Convert.toType<int>('5');
-      final scopedResult =
-          withScopedConfig(overrides, () => Convert.toType<int>('5'));
+        // Act
+        final globalResult = Convert.toType<int>('5');
+        final scopedResult = withScopedConfig(
+          overrides,
+          () => Convert.toType<int>('5'),
+        );
 
-      // Assert
-      expect(globalResult, equals(5));
-      expect(scopedResult, equals(999));
-    });
+        // Assert
+        expect(globalResult, equals(5));
+        expect(scopedResult, equals(999));
+      },
+    );
 
     test('should prefer scoped TypeRegistry over a global TypeRegistry', () {
       // Arrange
-      final globalRegistry =
-          const TypeRegistry.empty().register<int>((_) => 111);
-      final scopedRegistry =
-          const TypeRegistry.empty().register<int>((_) => 222);
+      final globalRegistry = const TypeRegistry.empty().register<int>(
+        (_) => 111,
+      );
+      final scopedRegistry = const TypeRegistry.empty().register<int>(
+        (_) => 222,
+      );
 
       // Act
       final result = withGlobalConfig(
@@ -231,17 +233,18 @@ void main() {
     });
 
     test(
-        'should return null when conversion fails for supported primitive types',
-        () {
-      // Arrange
-      const input = 'abc';
+      'should return null when conversion fails for supported primitive types',
+      () {
+        // Arrange
+        const input = 'abc';
 
-      // Act
-      final result = Convert.tryToType<int>(input);
+        // Act
+        final result = Convert.tryToType<int>(input);
 
-      // Assert
-      expect(result, isNull);
-    });
+        // Assert
+        expect(result, isNull);
+      },
+    );
 
     test('should return null for unsupported target types', () {
       // Arrange

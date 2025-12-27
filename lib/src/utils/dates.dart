@@ -5,10 +5,14 @@ import 'package:intl/intl.dart';
 // Reused matchers and formatters to avoid repeated allocations on hot paths.
 final RegExp _alphaRe = RegExp(r'[\p{L}]', unicode: true);
 final RegExp _digitsOnlyRe = RegExp(r'[^0-9]');
-final RegExp _ordinalsRe =
-    RegExp(r'\b(\d+)(st|nd|rd|th)\b', caseSensitive: false);
-final DateFormat _httpDateFmt =
-    DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", 'en_US');
+final RegExp _ordinalsRe = RegExp(
+  r'\b(\d+)(st|nd|rd|th)\b',
+  caseSensitive: false,
+);
+final DateFormat _httpDateFmt = DateFormat(
+  "EEE, dd MMM yyyy HH:mm:ss 'GMT'",
+  'en_US',
+);
 const int _kMaxDateFormatCacheSize = 32;
 final LinkedHashMap<String, DateFormat> _dateFormatCache =
     LinkedHashMap<String, DateFormat>();
@@ -36,8 +40,11 @@ extension DateParsingTextX on String {
   }
 
   /// Attempts to parse this string using the supplied [format] and [locale].
-  DateTime? tryToDateFormatted(String format, String? locale,
-      {bool utc = false}) {
+  DateTime? tryToDateFormatted(
+    String format,
+    String? locale, {
+    bool utc = false,
+  }) {
     try {
       return toDateFormatted(format, locale, utc: utc);
     } catch (_) {
@@ -77,8 +84,9 @@ extension DateParsingTextX on String {
     // Effective locale for ambiguous decisions.
     final effectiveLocale =
         locale ?? (useCurrentLocale ? Intl.getCurrentLocale() : null);
-    final isUS =
-        (effectiveLocale ?? Intl.getCurrentLocale()).startsWith('en_US');
+    final isUS = (effectiveLocale ?? Intl.getCurrentLocale()).startsWith(
+      'en_US',
+    );
 
     // 0) Unix epoch first (handles pure digits), with 12-digit disambiguation.
     final unix = _tryParseUnix(raw);
@@ -111,13 +119,13 @@ extension DateParsingTextX on String {
             'MM/dd/yyyy HH:mm:ss',
             'MM/dd/yyyy',
             'dd/MM/yyyy HH:mm:ss',
-            'dd/MM/yyyy'
+            'dd/MM/yyyy',
           ]
         : const [
             'dd/MM/yyyy HH:mm:ss',
             'dd/MM/yyyy',
             'MM/dd/yyyy HH:mm:ss',
-            'MM/dd/yyyy'
+            'MM/dd/yyyy',
           ];
 
     for (final fmt in slashedCandidates) {
@@ -228,8 +236,9 @@ DateTime? _tryParseUnix(String s) {
   if (!RegExp(r'^[+-]?\d+$').hasMatch(trimmed)) return null;
 
   final negative = trimmed.startsWith('-');
-  final body =
-      (negative || trimmed.startsWith('+')) ? trimmed.substring(1) : trimmed;
+  final body = (negative || trimmed.startsWith('+'))
+      ? trimmed.substring(1)
+      : trimmed;
   final len = body.length;
 
   try {
@@ -275,10 +284,7 @@ DateTime? _tryParseWith(String fmt, String s, String? locale) {
 /// - 14 digits: yyyyMMddHHmmss (manual)
 ///
 /// Returns local DateTime (or UTC if [utc] is true).
-DateTime? _tryParseCompactDate(
-  String input, {
-  bool utc = false,
-}) {
+DateTime? _tryParseCompactDate(String input, {bool utc = false}) {
   if (_alphaRe.hasMatch(input)) return null;
 
   final digitsOnly = input.replaceAll(_digitsOnlyRe, '');

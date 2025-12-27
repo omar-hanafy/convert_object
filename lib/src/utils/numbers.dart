@@ -77,11 +77,10 @@ NumberFormat _getNumberFormat(String format, String? locale) {
 /// Extension methods for parsing numeric strings with lenient formatting.
 extension NumParsingTextX on String {
   String _cleanNumber() {
-    var s = replaceAll('\u00A0', '')
-        .replaceAll(',', '')
-        .replaceAll(' ', '')
-        .replaceAll('_', '')
-        .trim();
+    var s = replaceAll(
+      '\u00A0',
+      '',
+    ).replaceAll(',', '').replaceAll(' ', '').replaceAll('_', '').trim();
     if (s.startsWith('(') && s.endsWith(')')) {
       s = '-${s.substring(1, s.length - 1)}';
     }

@@ -9,14 +9,13 @@ String convertToString(
   int? listIndex,
   String? defaultValue,
   String Function(Object?)? converter,
-}) =>
-    Convert.string(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.string(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToString].
 String? tryConvertToString(
@@ -25,14 +24,13 @@ String? tryConvertToString(
   int? listIndex,
   String? defaultValue,
   String Function(Object?)? converter,
-}) =>
-    Convert.tryToString(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToString(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // Numbers
 
@@ -45,16 +43,15 @@ num convertToNum(
   String? locale,
   num? defaultValue,
   num Function(Object?)? converter,
-}) =>
-    Convert.toNum(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toNum(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToNum].
 num? tryConvertToNum(
@@ -65,16 +62,15 @@ num? tryConvertToNum(
   String? locale,
   num? defaultValue,
   num Function(Object?)? converter,
-}) =>
-    Convert.tryToNum(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToNum(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.toInt].
 int convertToInt(
@@ -85,16 +81,15 @@ int convertToInt(
   String? locale,
   int? defaultValue,
   int Function(Object?)? converter,
-}) =>
-    Convert.toInt(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toInt(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToInt].
 int? tryConvertToInt(
@@ -105,16 +100,15 @@ int? tryConvertToInt(
   String? locale,
   int? defaultValue,
   int Function(Object?)? converter,
-}) =>
-    Convert.tryToInt(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToInt(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.toDouble].
 double convertToDouble(
@@ -125,16 +119,15 @@ double convertToDouble(
   String? locale,
   double? defaultValue,
   double Function(Object?)? converter,
-}) =>
-    Convert.toDouble(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toDouble(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToDouble].
 double? tryConvertToDouble(
@@ -145,16 +138,15 @@ double? tryConvertToDouble(
   String? locale,
   double? defaultValue,
   double Function(Object?)? converter,
-}) =>
-    Convert.tryToDouble(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToDouble(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // BigInt
 
@@ -165,14 +157,13 @@ BigInt convertToBigInt(
   int? listIndex,
   BigInt? defaultValue,
   BigInt Function(Object?)? converter,
-}) =>
-    Convert.toBigInt(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toBigInt(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToBigInt].
 BigInt? tryConvertToBigInt(
@@ -181,14 +172,13 @@ BigInt? tryConvertToBigInt(
   int? listIndex,
   BigInt? defaultValue,
   BigInt Function(Object?)? converter,
-}) =>
-    Convert.tryToBigInt(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToBigInt(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // Bool
 
@@ -199,14 +189,13 @@ bool convertToBool(
   int? listIndex,
   bool? defaultValue,
   bool Function(Object?)? converter,
-}) =>
-    Convert.toBool(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toBool(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToBool].
 bool? tryConvertToBool(
@@ -215,14 +204,13 @@ bool? tryConvertToBool(
   int? listIndex,
   bool? defaultValue,
   bool Function(Object?)? converter,
-}) =>
-    Convert.tryToBool(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToBool(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // DateTime
 
@@ -238,19 +226,18 @@ DateTime convertToDateTime(
   bool utc = false,
   DateTime? defaultValue,
   DateTime Function(Object?)? converter,
-}) =>
-    Convert.toDateTime(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      autoDetectFormat: autoDetectFormat,
-      useCurrentLocale: useCurrentLocale,
-      utc: utc,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toDateTime(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  autoDetectFormat: autoDetectFormat,
+  useCurrentLocale: useCurrentLocale,
+  utc: utc,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToDateTime].
 DateTime? tryConvertToDateTime(
@@ -264,19 +251,18 @@ DateTime? tryConvertToDateTime(
   bool utc = false,
   DateTime? defaultValue,
   DateTime Function(Object?)? converter,
-}) =>
-    Convert.tryToDateTime(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      format: format,
-      locale: locale,
-      autoDetectFormat: autoDetectFormat,
-      useCurrentLocale: useCurrentLocale,
-      utc: utc,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToDateTime(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  format: format,
+  locale: locale,
+  autoDetectFormat: autoDetectFormat,
+  useCurrentLocale: useCurrentLocale,
+  utc: utc,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // Uri
 
@@ -287,14 +273,13 @@ Uri convertToUri(
   int? listIndex,
   Uri? defaultValue,
   Uri Function(Object?)? converter,
-}) =>
-    Convert.toUri(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.toUri(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 /// Top-level convenience alias for [Convert.tryToUri].
 Uri? tryConvertToUri(
@@ -303,14 +288,13 @@ Uri? tryConvertToUri(
   int? listIndex,
   Uri? defaultValue,
   Uri Function(Object?)? converter,
-}) =>
-    Convert.tryToUri(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      converter: converter,
-    );
+}) => Convert.tryToUri(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  converter: converter,
+);
 
 // Collections
 
@@ -322,15 +306,14 @@ Map<K, V> convertToMap<K, V>(
   Map<K, V>? defaultValue,
   K Function(Object?)? keyConverter,
   V Function(Object?)? valueConverter,
-}) =>
-    Convert.toMap<K, V>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      keyConverter: keyConverter,
-      valueConverter: valueConverter,
-    );
+}) => Convert.toMap<K, V>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  keyConverter: keyConverter,
+  valueConverter: valueConverter,
+);
 
 /// Top-level convenience alias for [Convert.tryToMap].
 Map<K, V>? tryConvertToMap<K, V>(
@@ -340,15 +323,14 @@ Map<K, V>? tryConvertToMap<K, V>(
   Map<K, V>? defaultValue,
   K Function(Object?)? keyConverter,
   V Function(Object?)? valueConverter,
-}) =>
-    Convert.tryToMap<K, V>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      keyConverter: keyConverter,
-      valueConverter: valueConverter,
-    );
+}) => Convert.tryToMap<K, V>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  keyConverter: keyConverter,
+  valueConverter: valueConverter,
+);
 
 /// Top-level convenience alias for [Convert.toSet].
 Set<T> convertToSet<T>(
@@ -357,14 +339,13 @@ Set<T> convertToSet<T>(
   int? listIndex,
   Set<T>? defaultValue,
   T Function(Object?)? elementConverter,
-}) =>
-    Convert.toSet<T>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      elementConverter: elementConverter,
-    );
+}) => Convert.toSet<T>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  elementConverter: elementConverter,
+);
 
 /// Top-level convenience alias for [Convert.tryToSet].
 Set<T>? tryConvertToSet<T>(
@@ -373,14 +354,13 @@ Set<T>? tryConvertToSet<T>(
   int? listIndex,
   Set<T>? defaultValue,
   T Function(Object?)? elementConverter,
-}) =>
-    Convert.tryToSet<T>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      elementConverter: elementConverter,
-    );
+}) => Convert.tryToSet<T>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  elementConverter: elementConverter,
+);
 
 /// Top-level convenience alias for [Convert.toList].
 List<T> convertToList<T>(
@@ -389,14 +369,13 @@ List<T> convertToList<T>(
   int? listIndex,
   List<T>? defaultValue,
   T Function(Object?)? elementConverter,
-}) =>
-    Convert.toList<T>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      elementConverter: elementConverter,
-    );
+}) => Convert.toList<T>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  elementConverter: elementConverter,
+);
 
 /// Top-level convenience alias for [Convert.tryToList].
 List<T>? tryConvertToList<T>(
@@ -405,14 +384,13 @@ List<T>? tryConvertToList<T>(
   int? listIndex,
   List<T>? defaultValue,
   T Function(Object?)? elementConverter,
-}) =>
-    Convert.tryToList<T>(
-      object,
-      mapKey: mapKey,
-      listIndex: listIndex,
-      defaultValue: defaultValue,
-      elementConverter: elementConverter,
-    );
+}) => Convert.tryToList<T>(
+  object,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  elementConverter: elementConverter,
+);
 
 // Generic
 

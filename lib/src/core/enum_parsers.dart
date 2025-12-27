@@ -23,26 +23,24 @@ class EnumParsers {
   static T Function(dynamic) byNameOrFallback<T extends Enum>(
     List<T> values,
     T fallback,
-  ) =>
-      (dynamic obj) {
-        try {
-          return values.byName(obj.toString());
-        } catch (_) {
-          return fallback;
-        }
-      };
+  ) => (dynamic obj) {
+    try {
+      return values.byName(obj.toString());
+    } catch (_) {
+      return fallback;
+    }
+  };
 
   /// Builds a parser that matches enum names ignoring case.
   static T Function(dynamic) byNameCaseInsensitive<T extends Enum>(
     List<T> values,
-  ) =>
-      (dynamic obj) {
-        final str = obj.toString().trim().toLowerCase();
-        return values.firstWhere(
-          (e) => e.name.toLowerCase() == str,
-          orElse: () => throw ArgumentError('Invalid enum value: $obj'),
-        );
-      };
+  ) => (dynamic obj) {
+    final str = obj.toString().trim().toLowerCase();
+    return values.firstWhere(
+      (e) => e.name.toLowerCase() == str,
+      orElse: () => throw ArgumentError('Invalid enum value: $obj'),
+    );
+  };
 
   /// Builds a parser matching enum indices via [ConvertObjectImpl.toInt].
   static T Function(dynamic) byIndex<T extends Enum>(List<T> values) =>

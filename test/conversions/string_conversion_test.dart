@@ -73,25 +73,23 @@ void main() {
     });
 
     test(
-        'should throw ConversionException when input is null and no defaultValue',
-        () {
-      // Arrange
+      'should throw ConversionException when input is null and no defaultValue',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.string(null),
-        throwsConversionException(method: 'string'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.string(null),
+          throwsConversionException(method: 'string'),
+        );
+      },
+    );
 
     test('should use custom converter when provided', () {
       // Arrange
 
       // Act
-      final result = Convert.string(
-        123,
-        converter: (_) => 'custom',
-      );
+      final result = Convert.string(123, converter: (_) => 'custom');
 
       // Assert
       expect(result, equals('custom'));
@@ -125,16 +123,17 @@ void main() {
     });
 
     test(
-        'should return defaultValue when input is null and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is null and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToString(null, defaultValue: 'fallback');
+        // Act
+        final result = Convert.tryToString(null, defaultValue: 'fallback');
 
-      // Assert
-      expect(result, equals('fallback'));
-    });
+        // Assert
+        expect(result, equals('fallback'));
+      },
+    );
 
     test('should return defaultValue when selection fails', () {
       // Arrange

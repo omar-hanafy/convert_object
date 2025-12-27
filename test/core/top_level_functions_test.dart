@@ -337,16 +337,17 @@ void main() {
     });
 
     test(
-        'convertToType should throw ConversionException when Convert.toType throws',
-        () {
-      // Arrange
-      const Object? input = null;
+      'convertToType should throw ConversionException when Convert.toType throws',
+      () {
+        // Arrange
+        const Object? input = null;
 
-      // Act + Assert
-      expect(
-        () => convertToType<int>(input),
-        throwsConversionException(method: 'toType<int>'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => convertToType<int>(input),
+          throwsConversionException(method: 'toType<int>'),
+        );
+      },
+    );
   });
 }

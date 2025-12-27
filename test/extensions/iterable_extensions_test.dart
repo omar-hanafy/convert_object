@@ -37,10 +37,10 @@ void main() {
       // Arrange
       final data = <Map<String, dynamic>>[
         {
-          'nums': <dynamic>['1', '2']
+          'nums': <dynamic>['1', '2'],
         },
         {
-          'nums': <dynamic>['3', '4']
+          'nums': <dynamic>['3', '4'],
         },
       ];
 
@@ -89,8 +89,8 @@ void main() {
       // Arrange
       final data = <Map<String, dynamic>>[
         {
-          'nums': <dynamic>['1', '2']
-        }
+          'nums': <dynamic>['1', '2'],
+        },
       ];
 
       // Act
@@ -104,8 +104,8 @@ void main() {
       // Arrange
       final data = <Map<String, dynamic>>[
         {
-          'map': <String, int>{'a': 1}
-        }
+          'map': <String, int>{'a': 1},
+        },
       ];
 
       // Act
@@ -162,18 +162,19 @@ void main() {
     });
 
     test(
-        'intersect should behave like a union between this iterable and the other',
-        () {
-      // Arrange
-      final a = <int>[1, 2];
-      final b = <int>[2, 3];
+      'intersect should behave like a union between this iterable and the other',
+      () {
+        // Arrange
+        final a = <int>[1, 2];
+        final b = <int>[2, 3];
 
-      // Act
-      final result = a.intersect(b);
+        // Act
+        final result = a.intersect(b);
 
-      // Assert
-      expect(result, equals(<int>{1, 2, 3}));
-    });
+        // Assert
+        expect(result, equals(<int>{1, 2, 3}));
+      },
+    );
 
     test('mapList should map elements and materialize them into a List', () {
       // Arrange
@@ -187,17 +188,20 @@ void main() {
     });
 
     test(
-        'mapIndexedList should map elements with index and materialize into a List',
-        () {
-      // Arrange
-      final data = <String>['a', 'b'];
+      'mapIndexedList should map elements with index and materialize into a List',
+      () {
+        // Arrange
+        final data = <String>['a', 'b'];
 
-      // Act
-      final result = data.mapIndexedList((index, element) => '$index:$element');
+        // Act
+        final result = data.mapIndexedList(
+          (index, element) => '$index:$element',
+        );
 
-      // Assert
-      expect(result, equals(<String>['0:a', '1:b']));
-    });
+        // Assert
+        expect(result, equals(<String>['0:a', '1:b']));
+      },
+    );
   });
 
   group('NullableIterableConversionX', () {
@@ -224,38 +228,41 @@ void main() {
     });
 
     test(
-        'tryGetInt should use alternativeIndices when the primary index is null',
-        () {
-      // Arrange
-      final List<Object?> data = <Object?>[
-        null,
-        <String, dynamic>{'age': '30'},
-      ];
+      'tryGetInt should use alternativeIndices when the primary index is null',
+      () {
+        // Arrange
+        final List<Object?> data = <Object?>[
+          null,
+          <String, dynamic>{'age': '30'},
+        ];
 
-      // Act
-      final result = data.tryGetInt(
-        0,
-        alternativeIndices: const [1],
-        innerMapKey: 'age',
-      );
+        // Act
+        final result = data.tryGetInt(
+          0,
+          alternativeIndices: const [1],
+          innerMapKey: 'age',
+        );
 
-      // Assert
-      expect(result, equals(30));
-    });
+        // Assert
+        expect(result, equals(30));
+      },
+    );
   });
 
   group('SetConvertToX', () {
-    test('convertTo should convert a Set<E> into a Set<R> using convert_object',
-        () {
-      // Arrange
-      final Set<String> input = <String>{'1', '2'};
+    test(
+      'convertTo should convert a Set<E> into a Set<R> using convert_object',
+      () {
+        // Arrange
+        final Set<String> input = <String>{'1', '2'};
 
-      // Act
-      final result = input.convertTo<int>();
+        // Act
+        final result = input.convertTo<int>();
 
-      // Assert
-      expect(result, equals(<int>{1, 2}));
-    });
+        // Assert
+        expect(result, equals(<int>{1, 2}));
+      },
+    );
 
     test('convertTo should throw when the receiver set is null', () {
       // Arrange

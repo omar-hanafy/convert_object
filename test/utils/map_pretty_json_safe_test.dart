@@ -52,8 +52,9 @@ void main() {
     test('should encode non-finite doubles as null when configured', () {
       // Arrange
       const nan = double.nan;
-      const options =
-          JsonOptions(nonFiniteDoubles: NonFiniteDoubleStrategy.nullValue);
+      const options = JsonOptions(
+        nonFiniteDoubles: NonFiniteDoubleStrategy.nullValue,
+      );
 
       // Act
       final out = jsonSafe(nan, options: options);
@@ -65,8 +66,9 @@ void main() {
     test('should throw when configured to error on non-finite doubles', () {
       // Arrange
       const nan = double.nan;
-      const options =
-          JsonOptions(nonFiniteDoubles: NonFiniteDoubleStrategy.error);
+      const options = JsonOptions(
+        nonFiniteDoubles: NonFiniteDoubleStrategy.error,
+      );
 
       // Act / Assert
       expect(
@@ -75,38 +77,49 @@ void main() {
       );
     });
 
-    test('should encode enums as name by default and index when configured',
-        () {
-      // Arrange
-      const e = TestColor.green;
+    test(
+      'should encode enums as name by default and index when configured',
+      () {
+        // Arrange
+        const e = TestColor.green;
 
-      // Act
-      final byName = jsonSafe(e);
-      final byIndex = jsonSafe(
-        e,
-        options: const JsonOptions(encodeEnumsAsName: false),
-      );
+        // Act
+        final byName = jsonSafe(e);
+        final byIndex = jsonSafe(
+          e,
+          options: const JsonOptions(encodeEnumsAsName: false),
+        );
 
-      // Assert
-      expect(byName, equals('green'));
-      expect(byIndex, equals(TestColor.green.index));
-      expect(byIndex, isA<int>());
-    });
+        // Assert
+        expect(byName, equals('green'));
+        expect(byIndex, equals(TestColor.green.index));
+        expect(byIndex, isA<int>());
+      },
+    );
 
     test('should encode DateTime using configured strategies', () {
       // Arrange
       final dt = DateTime.utc(2025, 11, 11, 10, 15, 30);
 
       // Act
-      final asIso = jsonSafe(dt,
-          options: const JsonOptions(
-              dateTimeStrategy: DateTimeStrategy.iso8601String));
-      final asMs = jsonSafe(dt,
-          options: const JsonOptions(
-              dateTimeStrategy: DateTimeStrategy.millisecondsSinceEpoch));
-      final asUs = jsonSafe(dt,
-          options: const JsonOptions(
-              dateTimeStrategy: DateTimeStrategy.microsecondsSinceEpoch));
+      final asIso = jsonSafe(
+        dt,
+        options: const JsonOptions(
+          dateTimeStrategy: DateTimeStrategy.iso8601String,
+        ),
+      );
+      final asMs = jsonSafe(
+        dt,
+        options: const JsonOptions(
+          dateTimeStrategy: DateTimeStrategy.millisecondsSinceEpoch,
+        ),
+      );
+      final asUs = jsonSafe(
+        dt,
+        options: const JsonOptions(
+          dateTimeStrategy: DateTimeStrategy.microsecondsSinceEpoch,
+        ),
+      );
 
       // Assert
       expect(asIso, equals(dt.toIso8601String()));
@@ -123,21 +136,30 @@ void main() {
       const fractional = Duration(seconds: 1, microseconds: 500000);
 
       // Act
-      final ms = jsonSafe(dur,
-          options: const JsonOptions(
-              durationStrategy: DurationStrategy.milliseconds));
-      final us = jsonSafe(dur,
-          options: const JsonOptions(
-              durationStrategy: DurationStrategy.microseconds));
-      final iso = jsonSafe(dur,
-          options:
-              const JsonOptions(durationStrategy: DurationStrategy.iso8601));
-      final isoZero = jsonSafe(zero,
-          options:
-              const JsonOptions(durationStrategy: DurationStrategy.iso8601));
-      final isoFractional = jsonSafe(fractional,
-          options:
-              const JsonOptions(durationStrategy: DurationStrategy.iso8601));
+      final ms = jsonSafe(
+        dur,
+        options: const JsonOptions(
+          durationStrategy: DurationStrategy.milliseconds,
+        ),
+      );
+      final us = jsonSafe(
+        dur,
+        options: const JsonOptions(
+          durationStrategy: DurationStrategy.microseconds,
+        ),
+      );
+      final iso = jsonSafe(
+        dur,
+        options: const JsonOptions(durationStrategy: DurationStrategy.iso8601),
+      );
+      final isoZero = jsonSafe(
+        zero,
+        options: const JsonOptions(durationStrategy: DurationStrategy.iso8601),
+      );
+      final isoFractional = jsonSafe(
+        fractional,
+        options: const JsonOptions(durationStrategy: DurationStrategy.iso8601),
+      );
 
       // Assert
       expect(ms, equals(dur.inMilliseconds));
@@ -185,9 +207,7 @@ void main() {
       final input = <Object, Object?>{
         1: 'a',
         true: 2,
-        'nested': <Object, Object?>{
-          3: TestColor.red,
-        },
+        'nested': <Object, Object?>{3: TestColor.red},
       };
 
       // Act
@@ -210,10 +230,7 @@ void main() {
       final input = <String, dynamic>{
         'a': null,
         'b': 1,
-        'nested': <String, dynamic>{
-          'c': null,
-          'd': 2,
-        },
+        'nested': <String, dynamic>{'c': null, 'd': 2},
       };
 
       // Act
@@ -242,24 +259,28 @@ void main() {
       expect(map.keys.toList(), equals(<String>['a', 'b']));
     });
 
-    test('should replace cycles with a placeholder when detectCycles is true',
-        () {
-      // Arrange
-      final a = <String, dynamic>{};
-      a['self'] = a;
+    test(
+      'should replace cycles with a placeholder when detectCycles is true',
+      () {
+        // Arrange
+        final a = <String, dynamic>{};
+        a['self'] = a;
 
-      // Act
-      final out = jsonSafe(
-        a,
-        options:
-            const JsonOptions(detectCycles: true, cyclePlaceholder: '<cycle>'),
-      );
+        // Act
+        final out = jsonSafe(
+          a,
+          options: const JsonOptions(
+            detectCycles: true,
+            cyclePlaceholder: '<cycle>',
+          ),
+        );
 
-      // Assert
-      expect(out, isA<Map>());
-      final map = out as Map;
-      expect(map['self'], equals('<cycle>'));
-    });
+        // Assert
+        expect(out, isA<Map>());
+        final map = out as Map;
+        expect(map['self'], equals('<cycle>'));
+      },
+    );
 
     test('should allow toEncodable to transform unknown objects', () {
       // Arrange
@@ -285,8 +306,10 @@ void main() {
       final input = _Unknown();
 
       // Act
-      final out =
-          jsonSafe(input, options: const JsonOptions(stringifyUnknown: true));
+      final out = jsonSafe(
+        input,
+        options: const JsonOptions(stringifyUnknown: true),
+      );
 
       // Assert
       expect(out, equals('Unknown!'));
@@ -298,8 +321,10 @@ void main() {
 
       // Act / Assert
       expect(
-        () => jsonSafe(input,
-            options: const JsonOptions(stringifyUnknown: false)),
+        () => jsonSafe(
+          input,
+          options: const JsonOptions(stringifyUnknown: false),
+        ),
         throwsA(isA<UnsupportedError>()),
       );
     });
@@ -329,10 +354,7 @@ void main() {
 
     test('Map.toJsonString should encode to valid JSON and round-trip', () {
       // Arrange
-      final input = <String, Object?>{
-        'a': 1,
-        'b': TestColor.blue,
-      };
+      final input = <String, Object?>{'a': 1, 'b': TestColor.blue};
 
       // Act
       final json = input.toJsonString(indent: '  ');

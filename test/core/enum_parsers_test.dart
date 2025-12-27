@@ -45,10 +45,7 @@ void main() {
       final parser = EnumParsers.byName(TestColor.values);
 
       // Act + Assert
-      expect(
-        () => parser('unknown'),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => parser('unknown'), throwsA(isA<StateError>()));
     });
   });
 
@@ -69,10 +66,7 @@ void main() {
       final parser = EnumParsers.byNameCaseInsensitive(TestColor.values);
 
       // Act + Assert
-      expect(
-        () => parser('not-a-color'),
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() => parser('not-a-color'), throwsA(isA<ArgumentError>()));
     });
   });
 
@@ -120,10 +114,7 @@ void main() {
       final parser = EnumParsers.byIndex(TestColor.values);
 
       // Act + Assert
-      expect(
-        () => parser(99),
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() => parser(99), throwsA(isA<ArgumentError>()));
     });
   });
 
@@ -218,19 +209,18 @@ void main() {
     });
 
     test(
-        'Convert.toEnum should throw ConversionException when parsing fails and no defaultValue is provided',
-        () {
-      // Arrange
-      const input = 'unknown';
+      'Convert.toEnum should throw ConversionException when parsing fails and no defaultValue is provided',
+      () {
+        // Arrange
+        const input = 'unknown';
 
-      // Act + Assert
-      expect(
-        () => Convert.toEnum<TestColor>(
-          input,
-          parser: TestColor.values.parser,
-        ),
-        throwsConversionException(method: 'toEnum<TestColor>'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () =>
+              Convert.toEnum<TestColor>(input, parser: TestColor.values.parser),
+          throwsConversionException(method: 'toEnum<TestColor>'),
+        );
+      },
+    );
   });
 }

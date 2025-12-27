@@ -55,17 +55,18 @@ void main() {
       });
 
       test(
-          'should return false when the string has leading or trailing whitespace',
-          () {
-        // Arrange
-        const input = ' user@example.com ';
+        'should return false when the string has leading or trailing whitespace',
+        () {
+          // Arrange
+          const input = ' user@example.com ';
 
-        // Act
-        final result = input.isEmailAddress;
+          // Act
+          final result = input.isEmailAddress;
 
-        // Assert
-        expect(result, isFalse);
-      });
+          // Assert
+          expect(result, isFalse);
+        },
+      );
 
       test('should return false for invalid email strings', () {
         // Arrange

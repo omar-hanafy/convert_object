@@ -9,9 +9,7 @@ class ConversionResult<T> {
   factory ConversionResult.success(T value) => ConversionResult._(value, null);
 
   /// Creates a failed result wrapping [error].
-  factory ConversionResult.failure(
-    ConversionException error,
-  ) =>
+  factory ConversionResult.failure(ConversionException error) =>
       ConversionResult._(null, error);
   final T? _value;
   final ConversionException? _error;
@@ -24,8 +22,9 @@ class ConversionResult<T> {
 
   /// Returns the converted value or throws the stored [ConversionException].
   T get value {
-    if (_error != null) {
-      Error.throwWithStackTrace(_error!, _error!.stackTrace);
+    final error = _error;
+    if (error != null) {
+      Error.throwWithStackTrace(error, error.stackTrace);
     }
     return _value as T;
   }

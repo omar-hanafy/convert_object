@@ -116,19 +116,20 @@ void main() {
 
     group('formatted parsing', () {
       test(
-          'should parse formatted numbers with NumberFormat when format is provided',
-          () {
-        // Arrange
-        const input = '1,234.50';
-        const format = '#,##0.00';
+        'should parse formatted numbers with NumberFormat when format is provided',
+        () {
+          // Arrange
+          const input = '1,234.50';
+          const format = '#,##0.00';
 
-        // Act
-        final result = input.toNumFormatted(format, 'en_US');
+          // Act
+          final result = input.toNumFormatted(format, 'en_US');
 
-        // Assert
-        expect(result, isA<num>());
-        expect(result, equals(1234.5));
-      });
+          // Assert
+          expect(result, isA<num>());
+          expect(result, equals(1234.5));
+        },
+      );
 
       test('should return null from tryToNumFormatted when parsing fails', () {
         // Arrange
@@ -158,24 +159,26 @@ void main() {
         expect(asDouble, equals(1234.5));
       });
 
-      test('should parse de_DE formatted numbers when locale data is available',
-          () {
-        // Arrange
-        const input = '1.234,50';
-        const format = '#,##0.00';
+      test(
+        'should parse de_DE formatted numbers when locale data is available',
+        () {
+          // Arrange
+          const input = '1.234,50';
+          const format = '#,##0.00';
 
-        // Act
-        num parsed;
-        try {
-          parsed = input.toNumFormatted(format, 'de_DE');
-        } catch (e) {
-          markTestSkipped('Intl number symbols for de_DE not available: $e');
-          return;
-        }
+          // Act
+          num parsed;
+          try {
+            parsed = input.toNumFormatted(format, 'de_DE');
+          } catch (e) {
+            markTestSkipped('Intl number symbols for de_DE not available: $e');
+            return;
+          }
 
-        // Assert
-        expect(parsed, equals(1234.5));
-      });
+          // Assert
+          expect(parsed, equals(1234.5));
+        },
+      );
     });
 
     test('fixture sanity: kNumberStrings should parse with toNum()', () {

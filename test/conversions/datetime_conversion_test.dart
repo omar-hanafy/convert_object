@@ -78,11 +78,7 @@ void main() {
       const input = '2025-01-31';
 
       // Act
-      final result = Convert.toDateTime(
-        input,
-        format: 'yyyy-MM-dd',
-        utc: true,
-      );
+      final result = Convert.toDateTime(input, format: 'yyyy-MM-dd', utc: true);
 
       // Assert
       expect(result, isUtcDateTime);
@@ -187,40 +183,42 @@ void main() {
     });
 
     test(
-        'should interpret ambiguous slashed dates using en_US semantics by default',
-        () {
-      // Arrange
-      const input = '01/02/2025';
+      'should interpret ambiguous slashed dates using en_US semantics by default',
+      () {
+        // Arrange
+        const input = '01/02/2025';
 
-      // Act
-      final result = Convert.toDateTime(input, autoDetectFormat: true);
+        // Act
+        final result = Convert.toDateTime(input, autoDetectFormat: true);
 
-      // Assert
-      // en_US -> MM/dd/yyyy => Jan 2, 2025
-      expect(result.year, equals(2025));
-      expect(result.month, equals(1));
-      expect(result.day, equals(2));
-    });
+        // Assert
+        // en_US -> MM/dd/yyyy => Jan 2, 2025
+        expect(result.year, equals(2025));
+        expect(result.month, equals(1));
+        expect(result.day, equals(2));
+      },
+    );
 
     test(
-        'should interpret ambiguous slashed dates using en_GB semantics when config locale is en_GB',
-        () {
-      // Arrange
-      const input = '01/02/2025';
-      const overrides = ConvertConfig(locale: 'en_GB');
+      'should interpret ambiguous slashed dates using en_GB semantics when config locale is en_GB',
+      () {
+        // Arrange
+        const input = '01/02/2025';
+        const overrides = ConvertConfig(locale: 'en_GB');
 
-      // Act
-      final result = withScopedConfig(
-        overrides,
-        () => Convert.toDateTime(input, autoDetectFormat: true),
-      );
+        // Act
+        final result = withScopedConfig(
+          overrides,
+          () => Convert.toDateTime(input, autoDetectFormat: true),
+        );
 
-      // Assert
-      // en_GB -> dd/MM/yyyy => Feb 1, 2025
-      expect(result.year, equals(2025));
-      expect(result.month, equals(2));
-      expect(result.day, equals(1));
-    });
+        // Assert
+        // en_GB -> dd/MM/yyyy => Feb 1, 2025
+        expect(result.year, equals(2025));
+        expect(result.month, equals(2));
+        expect(result.day, equals(1));
+      },
+    );
 
     test('should parse time-only inputs as today at the parsed time', () {
       // Arrange
@@ -235,11 +233,13 @@ void main() {
       expect(result.minute, equals(30));
       expect(result.second, equals(0));
 
-      final matchesBefore = result.year == before.year &&
+      final matchesBefore =
+          result.year == before.year &&
           result.month == before.month &&
           result.day == before.day;
 
-      final matchesAfter = result.year == after.year &&
+      final matchesAfter =
+          result.year == after.year &&
           result.month == after.month &&
           result.day == after.day;
 
@@ -278,31 +278,33 @@ void main() {
 
   group('Convert.toDateTime error handling', () {
     test(
-        'should throw ConversionException when input is malformed and no defaultValue is provided',
-        () {
-      // Arrange
+      'should throw ConversionException when input is malformed and no defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act + Assert
-      expect(
-        () => Convert.toDateTime('not a date'),
-        throwsConversionException(method: 'toDateTime'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => Convert.toDateTime('not a date'),
+          throwsConversionException(method: 'toDateTime'),
+        );
+      },
+    );
 
     test(
-        'should return defaultValue when input is malformed and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when input is malformed and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.toDateTime(
-        'not a date',
-        defaultValue: kKnownUtcInstant,
-      );
+        // Act
+        final result = Convert.toDateTime(
+          'not a date',
+          defaultValue: kKnownUtcInstant,
+        );
 
-      // Assert
-      expect(result, equals(kKnownUtcInstant));
-    });
+        // Assert
+        expect(result, equals(kKnownUtcInstant));
+      },
+    );
 
     test('should return null when tryToDateTime receives malformed input', () {
       // Arrange
@@ -315,31 +317,33 @@ void main() {
     });
 
     test(
-        'should return defaultValue when tryToDateTime receives malformed input and defaultValue is provided',
-        () {
-      // Arrange
+      'should return defaultValue when tryToDateTime receives malformed input and defaultValue is provided',
+      () {
+        // Arrange
 
-      // Act
-      final result = Convert.tryToDateTime(
-        'not a date',
-        defaultValue: kKnownUtcInstant,
-      );
+        // Act
+        final result = Convert.tryToDateTime(
+          'not a date',
+          defaultValue: kKnownUtcInstant,
+        );
 
-      // Assert
-      expect(result, equals(kKnownUtcInstant));
-    });
+        // Assert
+        expect(result, equals(kKnownUtcInstant));
+      },
+    );
   });
 
   group('Convert.toDateTime selection (mapKey/listIndex)', () {
     test('should parse values selected by mapKey', () {
       // Arrange
-      final data = <String, dynamic>{
-        'd': '2025-11-11T10:15:30Z',
-      };
+      final data = <String, dynamic>{'d': '2025-11-11T10:15:30Z'};
 
       // Act
-      final result =
-          Convert.toDateTime(data, mapKey: 'd', autoDetectFormat: true);
+      final result = Convert.toDateTime(
+        data,
+        mapKey: 'd',
+        autoDetectFormat: true,
+      );
 
       // Assert
       expect(result, sameInstantAs(kKnownUtcInstant));
@@ -347,13 +351,14 @@ void main() {
 
     test('should parse values selected by listIndex', () {
       // Arrange
-      final data = <dynamic>[
-        '2025-11-11T10:15:30Z',
-      ];
+      final data = <dynamic>['2025-11-11T10:15:30Z'];
 
       // Act
-      final result =
-          Convert.toDateTime(data, listIndex: 0, autoDetectFormat: true);
+      final result = Convert.toDateTime(
+        data,
+        listIndex: 0,
+        autoDetectFormat: true,
+      );
 
       // Assert
       expect(result, sameInstantAs(kKnownUtcInstant));

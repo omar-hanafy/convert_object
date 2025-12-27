@@ -64,7 +64,9 @@ void main() {
       final success = ConversionResult.success(5);
       final failure = ConversionResult<int>.failure(
         ConversionException(
-            error: 'bad', context: <String, dynamic>{'method': 'test'}),
+          error: 'bad',
+          context: <String, dynamic>{'method': 'test'},
+        ),
       );
 
       // Act
@@ -84,14 +86,18 @@ void main() {
       final success = ConversionResult.success(5);
       final failure = ConversionResult<int>.failure(
         ConversionException(
-            error: 'bad', context: <String, dynamic>{'method': 'test'}),
+          error: 'bad',
+          context: <String, dynamic>{'method': 'test'},
+        ),
       );
 
       // Act
-      final chainedSuccess =
-          success.flatMap((v) => ConversionResult.success(v * 2));
-      final chainedFailure =
-          failure.flatMap((v) => ConversionResult.success(v * 2));
+      final chainedSuccess = success.flatMap(
+        (v) => ConversionResult.success(v * 2),
+      );
+      final chainedFailure = failure.flatMap(
+        (v) => ConversionResult.success(v * 2),
+      );
 
       // Assert
       expect(chainedSuccess.isSuccess, isTrue);
@@ -101,27 +107,31 @@ void main() {
       expect(chainedFailure.error, isNotNull);
     });
 
-    test('fold should return onSuccess for success and onFailure for failure',
-        () {
-      // Arrange
-      final success = ConversionResult.success(5);
-      final ex = ConversionException(
-          error: 'bad', context: <String, dynamic>{'method': 'test'});
-      final failure = ConversionResult<int>.failure(ex);
+    test(
+      'fold should return onSuccess for success and onFailure for failure',
+      () {
+        // Arrange
+        final success = ConversionResult.success(5);
+        final ex = ConversionException(
+          error: 'bad',
+          context: <String, dynamic>{'method': 'test'},
+        );
+        final failure = ConversionResult<int>.failure(ex);
 
-      // Act
-      final successOut = success.fold(
-        onSuccess: (v) => 'ok:$v',
-        onFailure: (e) => 'err:${e.error}',
-      );
-      final failureOut = failure.fold(
-        onSuccess: (v) => 'ok:$v',
-        onFailure: (e) => 'err:${e.error}',
-      );
+        // Act
+        final successOut = success.fold(
+          onSuccess: (v) => 'ok:$v',
+          onFailure: (e) => 'err:${e.error}',
+        );
+        final failureOut = failure.fold(
+          onSuccess: (v) => 'ok:$v',
+          onFailure: (e) => 'err:${e.error}',
+        );
 
-      // Assert
-      expect(successOut, equals('ok:5'));
-      expect(failureOut, equals('err:bad'));
-    });
+        // Assert
+        expect(successOut, equals('ok:5'));
+        expect(failureOut, equals('err:bad'));
+      },
+    );
   });
 }

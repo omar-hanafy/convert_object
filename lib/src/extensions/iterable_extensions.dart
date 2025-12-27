@@ -28,15 +28,14 @@ extension IterableConversionX<E> on Iterable<E> {
     int? innerIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
-  }) =>
-      ConvertObjectImpl.string(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.string(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to an [int].
   int getInt(
@@ -47,17 +46,16 @@ extension IterableConversionX<E> on Iterable<E> {
     String? locale,
     int? defaultValue,
     ElementConverter<int>? converter,
-  }) =>
-      ConvertObjectImpl.toInt(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toInt(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [double].
   double getDouble(
@@ -68,17 +66,16 @@ extension IterableConversionX<E> on Iterable<E> {
     String? locale,
     double? defaultValue,
     ElementConverter<double>? converter,
-  }) =>
-      ConvertObjectImpl.toDouble(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toDouble(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [num].
   num getNum(
@@ -89,17 +86,16 @@ extension IterableConversionX<E> on Iterable<E> {
     String? locale,
     num? defaultValue,
     ElementConverter<num>? converter,
-  }) =>
-      ConvertObjectImpl.toNum(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toNum(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [bool].
   bool getBool(
@@ -108,15 +104,14 @@ extension IterableConversionX<E> on Iterable<E> {
     int? innerIndex,
     bool? defaultValue,
     ElementConverter<bool>? converter,
-  }) =>
-      ConvertObjectImpl.toBool(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toBool(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [BigInt].
   BigInt getBigInt(
@@ -125,15 +120,14 @@ extension IterableConversionX<E> on Iterable<E> {
     int? innerIndex,
     BigInt? defaultValue,
     ElementConverter<BigInt>? converter,
-  }) =>
-      ConvertObjectImpl.toBigInt(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toBigInt(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [DateTime].
   DateTime getDateTime(
@@ -147,20 +141,19 @@ extension IterableConversionX<E> on Iterable<E> {
     bool utc = false,
     DateTime? defaultValue,
     ElementConverter<DateTime>? converter,
-  }) =>
-      ConvertObjectImpl.toDateTime(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        autoDetectFormat: autoDetectFormat,
-        useCurrentLocale: useCurrentLocale,
-        utc: utc,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toDateTime(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [Uri].
   Uri getUri(
@@ -169,63 +162,72 @@ extension IterableConversionX<E> on Iterable<E> {
     int? innerIndex,
     Uri? defaultValue,
     ElementConverter<Uri>? converter,
-  }) =>
-      ConvertObjectImpl.toUri(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {'index': index},
-      );
+  }) => ConvertObjectImpl.toUri(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [List] of [T].
-  List<T> getList<T>(int index,
-          {dynamic innerMapKey, int? innerIndex, List<T>? defaultValue}) =>
-      ConvertObjectImpl.toList<T>(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {'index': index},
-      );
+  List<T> getList<T>(
+    int index, {
+    dynamic innerMapKey,
+    int? innerIndex,
+    List<T>? defaultValue,
+  }) => ConvertObjectImpl.toList<T>(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [Set] of [T].
-  Set<T> getSet<T>(int index,
-          {dynamic innerMapKey, int? innerIndex, Set<T>? defaultValue}) =>
-      ConvertObjectImpl.toSet<T>(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {'index': index},
-      );
+  Set<T> getSet<T>(
+    int index, {
+    dynamic innerMapKey,
+    int? innerIndex,
+    Set<T>? defaultValue,
+  }) => ConvertObjectImpl.toSet<T>(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to a [Map] of [K2] to [V2].
-  Map<K2, V2> getMap<K2, V2>(int index,
-          {dynamic innerMapKey, int? innerIndex, Map<K2, V2>? defaultValue}) =>
-      ConvertObjectImpl.toMap<K2, V2>(
-        _valueAt(index),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {'index': index},
-      );
+  Map<K2, V2> getMap<K2, V2>(
+    int index, {
+    dynamic innerMapKey,
+    int? innerIndex,
+    Map<K2, V2>? defaultValue,
+  }) => ConvertObjectImpl.toMap<K2, V2>(
+    _valueAt(index),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {'index': index},
+  );
 
   /// Converts the element at [index] to an enum value using [parser].
-  T getEnum<T extends Enum>(int index,
-          {required T Function(dynamic) parser,
-          dynamic innerMapKey,
-          int? innerIndex,
-          T? defaultValue}) =>
-      ConvertObjectImpl.toEnum<T>(
-        _valueAt(index),
-        parser: parser,
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {'index': index},
-      );
+  T getEnum<T extends Enum>(
+    int index, {
+    required T Function(dynamic) parser,
+    dynamic innerMapKey,
+    int? innerIndex,
+    T? defaultValue,
+  }) => ConvertObjectImpl.toEnum<T>(
+    _valueAt(index),
+    parser: parser,
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {'index': index},
+  );
 
   // Convert all
   /// Converts every element in this iterable to [T].
@@ -256,17 +258,20 @@ extension IterableConversionX<E> on Iterable<E> {
   }
 
   /// Maps the elements and eagerly materializes them into a [List] using convert_object.
-  List<R> mapList<R>(R Function(E e) mapper,
-          {ElementConverter<R>? converter}) =>
-      ConvertObjectImpl.toList<R>(
-        map(mapper),
-        elementConverter: converter,
-        debugInfo: {'method': 'IterableConversionX.mapList'},
-      );
+  List<R> mapList<R>(
+    R Function(E e) mapper, {
+    ElementConverter<R>? converter,
+  }) => ConvertObjectImpl.toList<R>(
+    map(mapper),
+    elementConverter: converter,
+    debugInfo: {'method': 'IterableConversionX.mapList'},
+  );
 
   /// Maps elements with their index and eagerly materializes the result into a [List].
-  List<R> mapIndexedList<R>(R Function(int index, E element) mapper,
-      {ElementConverter<R>? converter}) {
+  List<R> mapIndexedList<R>(
+    R Function(int index, E element) mapper, {
+    ElementConverter<R>? converter,
+  }) {
     var index = 0;
     final mapped = map((element) => mapper(index++, element));
     return ConvertObjectImpl.toList<R>(
@@ -301,19 +306,18 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     int? innerIndex,
     String? defaultValue,
     ElementConverter<String>? converter,
-  }) =>
-      ConvertObjectImpl.tryToString(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToString(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [int].
   int? tryGetInt(
@@ -325,21 +329,20 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     String? locale,
     int? defaultValue,
     ElementConverter<int>? converter,
-  }) =>
-      ConvertObjectImpl.tryToInt(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToInt(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [double].
   double? tryGetDouble(
@@ -351,21 +354,20 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     String? locale,
     double? defaultValue,
     ElementConverter<double>? converter,
-  }) =>
-      ConvertObjectImpl.tryToDouble(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToDouble(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [bool].
   bool? tryGetBool(
@@ -375,19 +377,18 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     int? innerIndex,
     bool? defaultValue,
     ElementConverter<bool>? converter,
-  }) =>
-      ConvertObjectImpl.tryToBool(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToBool(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [num].
   num? tryGetNum(
@@ -399,21 +400,20 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     String? locale,
     num? defaultValue,
     ElementConverter<num>? converter,
-  }) =>
-      ConvertObjectImpl.tryToNum(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToNum(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [BigInt].
   BigInt? tryGetBigInt(
@@ -423,19 +423,18 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     int? innerIndex,
     BigInt? defaultValue,
     ElementConverter<BigInt>? converter,
-  }) =>
-      ConvertObjectImpl.tryToBigInt(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToBigInt(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [DateTime].
   DateTime? tryGetDateTime(
@@ -450,24 +449,23 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     bool utc = false,
     DateTime? defaultValue,
     ElementConverter<DateTime>? converter,
-  }) =>
-      ConvertObjectImpl.tryToDateTime(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        format: format,
-        locale: locale,
-        autoDetectFormat: autoDetectFormat,
-        useCurrentLocale: useCurrentLocale,
-        utc: utc,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToDateTime(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to [Uri].
   Uri? tryGetUri(
@@ -477,93 +475,96 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     int? innerIndex,
     Uri? defaultValue,
     ElementConverter<Uri>? converter,
-  }) =>
-      ConvertObjectImpl.tryToUri(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        converter: converter,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  }) => ConvertObjectImpl.tryToUri(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [List] of [T].
-  List<T>? tryGetList<T>(int index,
-          {List<int>? alternativeIndices,
-          dynamic innerMapKey,
-          int? innerIndex,
-          List<T>? defaultValue}) =>
-      ConvertObjectImpl.tryToList<T>(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  List<T>? tryGetList<T>(
+    int index, {
+    List<int>? alternativeIndices,
+    dynamic innerMapKey,
+    int? innerIndex,
+    List<T>? defaultValue,
+  }) => ConvertObjectImpl.tryToList<T>(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [Set] of [T].
-  Set<T>? tryGetSet<T>(int index,
-          {List<int>? alternativeIndices,
-          dynamic innerMapKey,
-          int? innerIndex,
-          Set<T>? defaultValue}) =>
-      ConvertObjectImpl.tryToSet<T>(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  Set<T>? tryGetSet<T>(
+    int index, {
+    List<int>? alternativeIndices,
+    dynamic innerMapKey,
+    int? innerIndex,
+    Set<T>? defaultValue,
+  }) => ConvertObjectImpl.tryToSet<T>(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [Map] of [K2] to [V2].
-  Map<K2, V2>? tryGetMap<K2, V2>(int index,
-          {List<int>? alternativeIndices,
-          dynamic innerMapKey,
-          int? innerIndex,
-          Map<K2, V2>? defaultValue}) =>
-      ConvertObjectImpl.tryToMap<K2, V2>(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  Map<K2, V2>? tryGetMap<K2, V2>(
+    int index, {
+    List<int>? alternativeIndices,
+    dynamic innerMapKey,
+    int? innerIndex,
+    Map<K2, V2>? defaultValue,
+  }) => ConvertObjectImpl.tryToMap<K2, V2>(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 
   /// Tries to convert the element at [index] (or fallback indices) to an enum using [parser].
-  T? tryGetEnum<T extends Enum>(int index,
-          {required T Function(dynamic) parser,
-          List<int>? alternativeIndices,
-          dynamic innerMapKey,
-          int? innerIndex,
-          T? defaultValue}) =>
-      ConvertObjectImpl.tryToEnum<T>(
-        _firstForIndices(index, alternativeIndices: alternativeIndices),
-        parser: parser,
-        mapKey: innerMapKey,
-        listIndex: innerIndex,
-        defaultValue: defaultValue,
-        debugInfo: {
-          'index': index,
-          if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-            'altIndexes': alternativeIndices,
-        },
-      );
+  T? tryGetEnum<T extends Enum>(
+    int index, {
+    required T Function(dynamic) parser,
+    List<int>? alternativeIndices,
+    dynamic innerMapKey,
+    int? innerIndex,
+    T? defaultValue,
+  }) => ConvertObjectImpl.tryToEnum<T>(
+    _firstForIndices(index, alternativeIndices: alternativeIndices),
+    parser: parser,
+    mapKey: innerMapKey,
+    listIndex: innerIndex,
+    defaultValue: defaultValue,
+    debugInfo: {
+      'index': index,
+      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
+        'altIndexes': alternativeIndices,
+    },
+  );
 }
 
 /// Converts nullable sets into a [Set] of a different type.
