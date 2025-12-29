@@ -366,11 +366,13 @@ final union = {1,2,3}.intersect([3,4,5]);       // {1,2,3,4,5}  (legacy: name ke
 someObj.convert.toBool();
 ```
 
-#### Let extensions
+#### Scope functions
 
 ```dart
 final x = '  hello '.let((s) => s.trim());          // "hello"
 final y = (null as String?).letOr((s) => s.length, defaultValue: 0); // 0
+final z = 'hi'.also((s) => print(s)).takeIf((s) => s.length == 2); // "hi"
+final w = 'no'.takeUnless((s) => s == 'no');        // null
 ```
 
 ---
@@ -1137,17 +1139,23 @@ extension SetConvertToX<E> on Set<E>? {
 
 ---
 
-### Let extensions
+### Scope functions
 
 ```dart
 extension LetExtension<T extends Object> on T {
   R let<R>(R Function(T it) block);
+  T also(void Function(T it) block);
+  T? takeIf(bool Function(T it) predicate);
+  T? takeUnless(bool Function(T it) predicate);
 }
 
 extension LetExtensionNullable<T extends Object> on T? {
   R? let<R>(R Function(T it) block);
   R  letOr<R>(R Function(T it) block, {required R defaultValue});
   R? letNullable<R>(R? Function(T? it) block); // legacy-compat variant
+  T? also(void Function(T it) block);
+  T? takeIf(bool Function(T it) predicate);
+  T? takeUnless(bool Function(T it) predicate);
 }
 ```
 
