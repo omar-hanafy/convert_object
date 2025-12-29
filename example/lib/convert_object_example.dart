@@ -178,6 +178,15 @@ void advancedConversions() {
   print('Let transformation: $uppercase');
   print('Let with default: $defaulted');
 
+  const nonNull = 'hi';
+  final alsoResult = nonNull.also((s) => print('Also saw: $s'));
+  final takeIfResult = nonNull.takeIf((s) => s.length == 2);
+  final takeUnlessResult = nonNull.takeUnless((s) => s == 'hi');
+
+  print('Also result: $alsoResult');
+  print('TakeIf result: $takeIfResult');
+  print('TakeUnless result: $takeUnlessResult');
+
   print('');
 }
 

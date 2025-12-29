@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Add Kotlin-style scope helpers: `also`, `takeIf`, and `takeUnless`.
+
 ## 1.0.1
 
 - Add Roman numeral helpers and conversions.
