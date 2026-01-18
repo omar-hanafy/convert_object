@@ -53,6 +53,18 @@ void main() {
       expect(decoded, equals(input));
     });
 
+    test('should decode JSON after trimming whitespace', () {
+      // Arrange
+      const input = '  {"a": 1}  ';
+
+      // Act
+      final decoded = input.tryDecode();
+
+      // Assert
+      expect(decoded, isA<Map>());
+      expect((decoded as Map)['a'], equals(1));
+    });
+
     test('decode() should throw when JSON is invalid', () {
       // Arrange
       const input = 'not json';

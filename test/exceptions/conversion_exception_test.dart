@@ -5,6 +5,22 @@ void main() {
   group('ConversionException', () {
     const marker = 'ReportMarker';
 
+    test('nullObject factory should set error and context', () {
+      // Arrange
+      final stack = StackTrace.current;
+
+      // Act
+      final ex = ConversionException.nullObject(
+        context: <String, dynamic>{'method': 'test'},
+        stackTrace: stack,
+      );
+
+      // Assert
+      expect(ex.error, equals('object is unsupported or null'));
+      expect(ex.context['method'], equals('test'));
+      expect(ex.stackTrace, equals(stack));
+    });
+
     test('should expose an unmodifiable context map', () {
       // Arrange
       final ex = ConversionException(

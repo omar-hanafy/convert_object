@@ -19,6 +19,7 @@ FOLLOWUP.md
 *.iws
 .idea/
 .cxx/
+.code/
 
 # Visual Studio Code related
 .classpath

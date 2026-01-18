@@ -100,3 +100,24 @@ Shared fixtures and utilities live in:
 * `test/helpers/matchers.dart`
 
 Use them for consistent datasets and matchers across the suite.
+
+## API to test matrix
+
+This matrix tracks coverage of the public API and core utilities.
+
+| Area | APIs | Tests |
+| --- | --- | --- |
+| Convert facade | `Convert.*` primitives, collections, enums, uri, datetime, toType | `test/core/convert_facade_test.dart`, `test/conversions/*_conversion_test.dart`, `test/core/convert_to_type_routing_test.dart`, `test/core/enum_parsers_test.dart`, `test/conversions/collections_*_test.dart` |
+| Converter fluent API | `Converter`, `.convert`, chaining, defaults | `test/core/converter_fluent_api_test.dart`, `test/extensions/object_convert_extension_test.dart` |
+| Top level functions | `convertTo*` and `tryConvertTo*` | `test/core/top_level_functions_test.dart` |
+| Config and registry | `ConvertConfig`, overrides, merge, hooks, registry | `test/config/options_merge_test.dart`, `test/config/convert_config_scoping_test.dart`, `test/config/on_exception_hook_test.dart`, `test/config/type_registry_test.dart` |
+| Extensions - map | `get*`, `tryGet*`, parse helpers | `test/extensions/map_extensions_test.dart` |
+| Extensions - iterable | `get*`, `tryGet*`, convertAll, mapList | `test/extensions/iterable_extensions_test.dart` |
+| Extensions - let | `let`, `also`, `takeIf`, `takeUnless` | `test/extensions/let_extensions_test.dart` |
+| Utils - numbers | parsing, formatted, roman numerals | `test/utils/numbers_parsing_test.dart` |
+| Utils - dates | ISO, formatted, auto detect | `test/utils/dates_parsing_iso_epoch_test.dart`, `test/utils/dates_auto_format_test.dart` |
+| Utils - bools | `asBool` | `test/utils/bools_as_bool_test.dart` |
+| Utils - uri | `isEmailAddress`, `isValidPhoneNumber`, conversions | `test/utils/uri_parsing_utils_test.dart` |
+| Utils - json | `tryDecode`, jsonSafe, map and iterable helpers | `test/utils/json_try_decode_test.dart`, `test/utils/map_pretty_json_safe_test.dart` |
+| Exceptions | `ConversionException` | `test/exceptions/conversion_exception_test.dart` |
+| Results | `ConversionResult` | `test/result/conversion_result_test.dart` |

@@ -107,6 +107,17 @@ void main() {
       expect(result, equals(<int>{1, 2}));
     });
 
+    test('should convert a Map<K, V> directly to a Set<V>', () {
+      // Arrange
+      final map = <String, int>{'a': 1, 'b': 2};
+
+      // Act
+      final result = Convert.toSet<int>(map);
+
+      // Assert
+      expect(result, equals(<int>{1, 2}));
+    });
+
     test(
       'should return defaultValue when conversion fails and defaultValue is provided',
       () {
@@ -118,9 +129,26 @@ void main() {
         final result = Convert.toSet<int>(input, defaultValue: fallback);
 
         // Assert
-        expect(result, equals(fallback));
-      },
+      expect(result, equals(fallback));
+    },
     );
+
+    test('should include elementIndex in ConversionException context', () {
+      // Arrange
+      final input = <dynamic>['1', 'x', '3'];
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toSet<int>(input);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.context['elementIndex'], equals(1));
+    });
   });
 
   group('Convert.tryToSet', () {
@@ -182,6 +210,20 @@ void main() {
       // Assert
       expect(result, isA<Set<int>>());
       expect(result, equals(<int>{}));
+    });
+
+    test('should apply elementConverter when provided', () {
+      // Arrange
+      final input = <dynamic>['1', '2'];
+
+      // Act
+      final result = Convert.tryToSet<int>(
+        input,
+        elementConverter: (e) => int.parse(e as String),
+      );
+
+      // Assert
+      expect(result, equals(<int>{1, 2}));
     });
   });
 }

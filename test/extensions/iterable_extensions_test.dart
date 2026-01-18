@@ -1,4 +1,5 @@
 import 'package:convert_object/convert_object.dart';
+import 'package:intl/intl.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fixtures.dart';
@@ -7,15 +8,19 @@ import '../helpers/test_enums.dart';
 
 void main() {
   late ConvertConfig prev;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
+    prevIntlLocale = Intl.defaultLocale;
+    Intl.defaultLocale = 'en_US';
     prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
     Convert.configure(prev);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('IterableConversionX', () {
@@ -85,6 +90,28 @@ void main() {
       expect(b, isFalse);
     });
 
+    test('getNum should convert numeric strings', () {
+      // Arrange
+      final data = <String>['1,234.5'];
+
+      // Act
+      final result = data.getNum(0);
+
+      // Assert
+      expect(result, equals(1234.5));
+    });
+
+    test('getBigInt should convert large integer strings', () {
+      // Arrange
+      final data = <String>['9007199254740993'];
+
+      // Act
+      final result = data.getBigInt(0);
+
+      // Assert
+      expect(result, equals(BigInt.parse('9007199254740993')));
+    });
+
     test('getList should convert a nested list using innerMapKey', () {
       // Arrange
       final data = <Map<String, dynamic>>[
@@ -98,6 +125,21 @@ void main() {
 
       // Assert
       expect(result, equals(<int>[1, 2]));
+    });
+
+    test('getSet should convert a nested list into a Set', () {
+      // Arrange
+      final data = <Map<String, dynamic>>[
+        {
+          'tags': <dynamic>['a', 'b', 'c'],
+        },
+      ];
+
+      // Act
+      final result = data.getSet<String>(0, innerMapKey: 'tags');
+
+      // Assert
+      expect(result, equals(<String>{'a', 'b', 'c'}));
     });
 
     test('getMap should return a nested typed map using innerMapKey', () {
@@ -137,6 +179,17 @@ void main() {
       // Assert
       expect(c1, equals(TestColor.red));
       expect(c2, equals(TestColor.green));
+    });
+
+    test('getUri should convert string values to Uri', () {
+      // Arrange
+      final data = <String>['https://example.com'];
+
+      // Act
+      final result = data.getUri(0);
+
+      // Assert
+      expect(result, uriEquals('https://example.com'));
     });
 
     test('convertAll should convert every element to the requested type', () {
@@ -244,9 +297,55 @@ void main() {
         );
 
         // Assert
-        expect(result, equals(30));
-      },
+      expect(result, equals(30));
+    },
     );
+
+    test('tryGetNum should return null when iterable is null', () {
+      // Arrange
+      List<Object?>? data;
+
+      // Act
+      final result = data.tryGetNum(0);
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('tryGetBigInt should convert when value is present', () {
+      // Arrange
+      final List<Object?> data = <Object?>['9007199254740993'];
+
+      // Act
+      final result = data.tryGetBigInt(0);
+
+      // Assert
+      expect(result, equals(BigInt.parse('9007199254740993')));
+    });
+
+    test('tryGetUri should convert string values to Uri', () {
+      // Arrange
+      final List<Object?> data = <Object?>['https://example.com'];
+
+      // Act
+      final result = data.tryGetUri(0);
+
+      // Assert
+      expect(result, uriEquals('https://example.com'));
+    });
+
+    test('tryGetSet should convert list values into a Set', () {
+      // Arrange
+      final List<Object?> data = <Object?>[
+        <dynamic>['a', 'b', 'c'],
+      ];
+
+      // Act
+      final result = data.tryGetSet<String>(0);
+
+      // Assert
+      expect(result, equals(<String>{'a', 'b', 'c'}));
+    });
   });
 
   group('SetConvertToX', () {

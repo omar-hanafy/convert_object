@@ -137,6 +137,21 @@ const List<String> kNumberStrings = <String>[
   '\u00A01\u00A0234\u00A0', // NBSP grouping
 ];
 
+/// Roman numeral fixtures.
+const Map<int, String> kRomanNumerals = <int, String>{
+  1: 'I',
+  4: 'IV',
+  9: 'IX',
+  40: 'XL',
+  90: 'XC',
+  400: 'CD',
+  900: 'CM',
+  1994: 'MCMXCIV',
+  2024: 'MMXXIV',
+  3888: 'MMMDCCCLXXXVIII',
+  3999: 'MMMCMXCIX',
+};
+
 /// Bool parsing fixtures.
 const List<Object?> kTruthyValues = <Object?>[
   true,

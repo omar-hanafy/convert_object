@@ -119,6 +119,32 @@ void main() {
       );
     });
 
+    test('should reject http URIs missing a host when allowRelative is false',
+        () {
+      // Arrange
+      const overrides = ConvertConfig(uri: UriOptions(allowRelative: false));
+
+      // Act + Assert
+      expect(
+        () => withScopedConfig(overrides, () => Convert.toUri('http://')),
+        throwsConversionException(method: 'toUri'),
+      );
+    });
+
+    test('should reject mailto or tel URIs missing a path', () {
+      // Arrange
+
+      // Act + Assert
+      expect(
+        () => Convert.toUri('mailto:'),
+        throwsConversionException(method: 'toUri'),
+      );
+      expect(
+        () => Convert.toUri('tel:'),
+        throwsConversionException(method: 'toUri'),
+      );
+    });
+
     test(
       'should throw ConversionException on empty input when no defaultValue is provided',
       () {
@@ -142,9 +168,30 @@ void main() {
         final result = Convert.toUri('   ', defaultValue: fallback);
 
         // Assert
-        expect(result, equals(fallback));
-      },
+      expect(result, equals(fallback));
+    },
     );
+
+    test('should rethrow ConversionException from converter', () {
+      expect(
+        () => Convert.toUri(
+          'https://example.com',
+          converter: (_) => throw ConversionException(
+            error: 'boom',
+            context: {'method': 'toUri'},
+            stackTrace: StackTrace.current,
+          ),
+        ),
+        throwsA(isA<ConversionException>()),
+      );
+    });
+
+    test('should throw null object when input is null', () {
+      expect(
+        () => Convert.toUri(null),
+        throwsConversionException(method: 'toUri'),
+      );
+    });
 
     test('should support mapKey and listIndex selection', () {
       // Arrange

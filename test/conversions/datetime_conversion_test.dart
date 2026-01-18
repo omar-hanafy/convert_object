@@ -8,6 +8,7 @@ import '../helpers/matchers.dart';
 void main() {
   late ConvertConfig prev;
   late String? prevIntlLocale;
+  late String? prevTestLocale;
 
   setUpAll(() async {
     // Arrange
@@ -27,12 +28,15 @@ void main() {
 
   setUp(() {
     // Arrange
+    prevTestLocale = Intl.defaultLocale;
+    Intl.defaultLocale = 'en_US';
     prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
     Convert.configure(prev);
+    Intl.defaultLocale = prevTestLocale;
   });
 
   group('Convert.toDateTime (epoch numbers)', () {
@@ -99,6 +103,23 @@ void main() {
 
       // Assert
       expect(result.isUtc, isFalse);
+      expect(result.year, equals(2025));
+      expect(result.month, equals(1));
+      expect(result.day, equals(31));
+    });
+
+    test('explicit format should take precedence over autoDetectFormat', () {
+      // Arrange
+      const input = '2025-01-31';
+
+      // Act
+      final result = Convert.toDateTime(
+        input,
+        format: 'yyyy-MM-dd',
+        autoDetectFormat: true,
+      );
+
+      // Assert
       expect(result.year, equals(2025));
       expect(result.month, equals(1));
       expect(result.day, equals(31));
@@ -216,9 +237,30 @@ void main() {
         // en_GB -> dd/MM/yyyy => Feb 1, 2025
         expect(result.year, equals(2025));
         expect(result.month, equals(2));
-        expect(result.day, equals(1));
-      },
+      expect(result.day, equals(1));
+    },
     );
+
+    test('should honor useCurrentLocale when enabled', () {
+      // Arrange
+      const input = '01/02/2025';
+      Intl.defaultLocale = 'en_GB';
+      final overrides = ConvertConfig.overrides(clearLocale: true);
+
+      // Act
+      final result = withScopedConfig(
+        overrides,
+        () => Convert.toDateTime(
+          input,
+          autoDetectFormat: true,
+          useCurrentLocale: true,
+        ),
+      );
+
+      // Assert
+      expect(result.month, equals(2));
+      expect(result.day, equals(1));
+    });
 
     test('should parse time-only inputs as today at the parsed time', () {
       // Arrange

@@ -1,4 +1,5 @@
 import 'package:convert_object/convert_object.dart';
+import 'package:intl/intl.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fixtures.dart';
@@ -8,15 +9,19 @@ import '../helpers/test_models.dart';
 
 void main() {
   late ConvertConfig prev;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
+    prevIntlLocale = Intl.defaultLocale;
+    Intl.defaultLocale = 'en_US';
     prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
     Convert.configure(prev);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('MapConversionX', () {
@@ -107,6 +112,17 @@ void main() {
       expect(result, equals(5.5));
     });
 
+    test('getNum should convert numeric strings', () {
+      // Arrange
+      final map = kNestedMap;
+
+      // Act
+      final result = map.getNum('score');
+
+      // Assert
+      expect(result, equals(1234.5));
+    });
+
     test('getBool should convert truthy strings', () {
       // Arrange
       final map = kNestedMap;
@@ -116,6 +132,17 @@ void main() {
 
       // Assert
       expect(result, isTrue);
+    });
+
+    test('getBigInt should convert large integers', () {
+      // Arrange
+      final map = <String, dynamic>{'big': '9007199254740993'};
+
+      // Act
+      final result = map.getBigInt('big');
+
+      // Assert
+      expect(result, equals(BigInt.parse('9007199254740993')));
     });
 
     test(
@@ -144,6 +171,17 @@ void main() {
       expect(tags, equals(<String>['a', 'b', 'c']));
     });
 
+    test('getSet should convert a nested list into a Set', () {
+      // Arrange
+      final map = kNestedMap;
+
+      // Act
+      final tags = map.getSet<String>('meta', innerKey: 'tags');
+
+      // Assert
+      expect(tags, equals(<String>{'a', 'b', 'c'}));
+    });
+
     test('getList should respect innerListIndex on a list value', () {
       // Arrange
       final map = <String, dynamic>{
@@ -169,6 +207,17 @@ void main() {
 
       // Assert
       expect(result, equals(TestColor.red));
+    });
+
+    test('getUri should convert a string to Uri', () {
+      // Arrange
+      final map = <String, dynamic>{'url': 'https://example.com'};
+
+      // Act
+      final result = map.getUri('url');
+
+      // Assert
+      expect(result, uriEquals('https://example.com'));
     });
 
     test('getMap should respect innerKey when the value is already a map', () {
@@ -329,6 +378,56 @@ void main() {
 
       // Assert
       expect(result, equals(30));
+    });
+
+    test('tryGetNum should return null when value is missing', () {
+      // Arrange
+      final Map<String, dynamic> map = <String, dynamic>{};
+
+      // Act
+      final result = map.tryGetNum('missing');
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('tryGetBigInt should convert when value is present', () {
+      // Arrange
+      final Map<String, dynamic> map = <String, dynamic>{
+        'big': '9007199254740993',
+      };
+
+      // Act
+      final result = map.tryGetBigInt('big');
+
+      // Assert
+      expect(result, equals(BigInt.parse('9007199254740993')));
+    });
+
+    test('tryGetSet should convert list values into a Set', () {
+      // Arrange
+      final Map<String, dynamic> map = <String, dynamic>{
+        'tags': <dynamic>['a', 'b', 'c'],
+      };
+
+      // Act
+      final result = map.tryGetSet<String>('tags');
+
+      // Assert
+      expect(result, equals(<String>{'a', 'b', 'c'}));
+    });
+
+    test('tryGetUri should return a Uri when value is valid', () {
+      // Arrange
+      final Map<String, dynamic> map = <String, dynamic>{
+        'url': 'https://example.com',
+      };
+
+      // Act
+      final result = map.tryGetUri('url');
+
+      // Assert
+      expect(result, uriEquals('https://example.com'));
     });
 
     test('tryGetEnum should return defaultValue when parsing fails', () {

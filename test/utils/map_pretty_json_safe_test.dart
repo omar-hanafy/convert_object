@@ -160,6 +160,10 @@ void main() {
         fractional,
         options: const JsonOptions(durationStrategy: DurationStrategy.iso8601),
       );
+      final isoWithDays = jsonSafe(
+        const Duration(days: 1, hours: 2),
+        options: const JsonOptions(durationStrategy: DurationStrategy.iso8601),
+      );
 
       // Assert
       expect(ms, equals(dur.inMilliseconds));
@@ -167,6 +171,21 @@ void main() {
       expect(iso, equals('PT1H2M3S'));
       expect(isoZero, equals('PT0S'));
       expect(isoFractional, equals('PT1.5S'));
+      expect(isoWithDays, equals('P1DT2H'));
+    });
+
+    test('should handle sets when cycle detection is enabled', () {
+      // Arrange
+      final input = <int>{1, 2, 3};
+
+      // Act
+      final out = jsonSafe(
+        input,
+        options: const JsonOptions(detectCycles: true),
+      );
+
+      // Assert
+      expect(out, equals(<int>[1, 2, 3]));
     });
 
     test('should encode Uri and BigInt as strings', () {
@@ -278,9 +297,43 @@ void main() {
         // Assert
         expect(out, isA<Map>());
         final map = out as Map;
-        expect(map['self'], equals('<cycle>'));
-      },
+      expect(map['self'], equals('<cycle>'));
+    },
     );
+
+    test('should replace cycles inside lists when detectCycles is true', () {
+      // Arrange
+      final list = <dynamic>[];
+      list.add(list);
+
+      // Act
+      final out = jsonSafe(
+        list,
+        options: const JsonOptions(
+          detectCycles: true,
+          cyclePlaceholder: '<cycle>',
+        ),
+      );
+
+      // Assert
+      expect(out, isA<List>());
+      expect((out as List).first, equals('<cycle>'));
+    });
+
+    test('should still serialize sets when setsAsLists is false', () {
+      // Arrange
+      final input = <int>{1, 2};
+
+      // Act
+      final out = jsonSafe(
+        input,
+        options: const JsonOptions(setsAsLists: false),
+      );
+
+      // Assert
+      expect(out, isA<List>());
+      expect((out as List).toSet(), equals(<int>{1, 2}));
+    });
 
     test('should allow toEncodable to transform unknown objects', () {
       // Arrange
@@ -352,6 +405,17 @@ void main() {
       expect(out['1'], equals('stringified-key'));
     });
 
+    test('Map.toJsonMap should sort keys when configured', () {
+      // Arrange
+      final input = <String, Object?>{'b': 2, 'a': 1};
+
+      // Act
+      final out = input.toJsonMap(options: const JsonOptions(sortKeys: true));
+
+      // Assert
+      expect(out.keys.toList(), equals(<String>['a', 'b']));
+    });
+
     test('Map.toJsonString should encode to valid JSON and round-trip', () {
       // Arrange
       final input = <String, Object?>{'a': 1, 'b': TestColor.blue};
@@ -398,6 +462,43 @@ void main() {
       expect(out[2], equals('Infinity'));
     });
 
+    test('Iterable.toJsonString should encode to valid JSON', () {
+      // Arrange
+      final input = <Object?>[TestColor.red, 2, 'x'];
+
+      // Act
+      final text = input.toJsonString();
+      final decoded = jsonDecode(text) as List<dynamic>;
+
+      // Assert
+      expect(decoded, equals(<dynamic>['red', 2, 'x']));
+    });
+
+    test('Iterable.toJsonString should honor indentation', () {
+      // Arrange
+      final input = <Object?>[TestColor.green, 2];
+
+      // Act
+      final text = input.toJsonString(indent: '  ');
+      final decoded = jsonDecode(text) as List<dynamic>;
+
+      // Assert
+      expect(text, contains('\n'));
+      expect(decoded, equals(<dynamic>['green', 2]));
+    });
+
+    test('Iterable.encodeWithIndent should return pretty JSON', () {
+      // Arrange
+      final input = <Object?>[1, TestColor.red];
+
+      // Act
+      final text = input.encodeWithIndent;
+
+      // Assert
+      expect(text, contains('\n'));
+      expect(jsonDecode(text), equals(<dynamic>[1, 'red']));
+    });
+
     test('Object.toJsonSafe should normalize values consistently', () {
       // Arrange
       final input = <String, Object?>{
@@ -413,6 +514,72 @@ void main() {
       final map = out as Map;
       expect(map['enum'], equals('post'));
       expect(map['dur'], equals(const Duration(minutes: 1).inMilliseconds));
+    });
+
+    test('Object.toJsonString should encode values directly', () {
+      // Arrange
+      final Object input = <String, Object?>{'a': 1, 'b': TestColor.blue};
+
+      // Act
+      final text = input.toJsonString();
+      final decoded = jsonDecode(text) as Map<String, dynamic>;
+
+      // Assert
+      expect(decoded['a'], equals(1));
+      expect(decoded['b'], equals('blue'));
+    });
+
+    test('Object.toJsonString should honor indentation', () {
+      // Arrange
+      final Object input = <String, Object?>{'a': 1, 'b': TestColor.red};
+
+      // Act
+      final text = input.toJsonString(indent: '  ');
+      final decoded = jsonDecode(text) as Map<String, dynamic>;
+
+      // Assert
+      expect(text, contains('\n'));
+      expect(decoded['a'], equals(1));
+      expect(decoded['b'], equals('red'));
+    });
+  });
+
+  group('JsonOptions', () {
+    test('copyWith should update selected fields only', () {
+      // Arrange
+      const options = JsonOptions();
+
+      // Act
+      final updated = options.copyWith(dropNulls: true, sortKeys: true);
+
+      // Assert
+      expect(updated.dropNulls, isTrue);
+      expect(updated.sortKeys, isTrue);
+      expect(updated.encodeEnumsAsName, isTrue);
+      expect(updated.durationStrategy, equals(DurationStrategy.milliseconds));
+      expect(updated.nonFiniteDoubles, equals(NonFiniteDoubleStrategy.string));
+    });
+
+    test('copyWith should honor dropNulls and sortKeys variables', () {
+      // Arrange
+      final initialDropNulls = false;
+      final initialSortKeys = false;
+      final options = JsonOptions(
+        dropNulls: initialDropNulls,
+        sortKeys: initialSortKeys,
+      );
+      final dropNulls = true;
+      final sortKeys = true;
+
+      // Act
+      final updated = options.copyWith(
+        dropNulls: dropNulls,
+        sortKeys: sortKeys,
+      );
+
+      // Assert
+      expect(updated.dropNulls, isTrue);
+      expect(updated.sortKeys, isTrue);
     });
   });
 }

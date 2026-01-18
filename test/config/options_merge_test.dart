@@ -32,6 +32,51 @@ void main() {
   });
 
   group('ConvertConfig merge behavior', () {
+    group('Overrides clear flags', () {
+      test('clearLocale should set locale to null inside scope', () {
+        // Arrange
+        final baseConfig = makeTestConfig(locale: 'en_US');
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(clearLocale: true);
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.locale, isNull);
+          });
+
+          // Assert (after scope)
+          expect(Convert.config.locale, equals('en_US'));
+        });
+      });
+
+      test('clearOnException should remove hook inside scope', () {
+        // Arrange
+        var called = false;
+        final baseConfig = makeTestConfig(
+          onException: (_) {
+            called = true;
+          },
+        );
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final overrides = ConvertConfig.overrides(clearOnException: true);
+
+          Convert.runScopedConfig(overrides, () {
+            // Assert (inside scope)
+            expect(Convert.config.onException, isNull);
+            expect(
+              () => Convert.toInt('abc'),
+              throwsConversionException(method: 'toInt'),
+            );
+            expect(called, isFalse);
+          });
+        });
+      });
+    });
+
     group('NumberOptions', () {
       test(
         'should not override base numbers when overrides.numbers is the default const instance',
@@ -620,10 +665,56 @@ void main() {
             // Assert
             expect(before, equals(const UserId(1)));
             expect(inside, equals(const UserId(2)));
-            expect(after, equals(const UserId(1)));
-          });
-        },
+          expect(after, equals(const UserId(1)));
+        });
+      },
       );
+
+      test('should apply registry overrides when using ConvertConfig.overrides',
+          () {
+        // Arrange
+        final baseRegistry = const TypeRegistry.empty().register<UserId>(
+          (_) => const UserId(1),
+        );
+        final baseConfig = makeTestConfig(registry: baseRegistry);
+
+        final overrideRegistry = const TypeRegistry.empty().register<UserId>(
+          (_) => const UserId(2),
+        );
+        final overrides = ConvertConfig.overrides(registry: overrideRegistry);
+
+        // Act
+        withGlobalConfig(baseConfig, () {
+          final result = Convert.runScopedConfig(
+            overrides,
+            () => Convert.toType<UserId>('anything'),
+          );
+
+          // Assert
+          expect(result, equals(const UserId(2)));
+        });
+      });
+    });
+  });
+
+  group('ConvertConfig.copyWith', () {
+    test('should update only provided fields', () {
+      // Arrange
+      const base = ConvertConfig(
+        locale: 'en_US',
+        numbers: NumberOptions(defaultFormat: '#,##0.0'),
+      );
+
+      // Act
+      final updated = base.copyWith(
+        locale: 'fr_FR',
+        dates: const DateOptions(autoDetectFormat: true),
+      );
+
+      // Assert
+      expect(updated.locale, equals('fr_FR'));
+      expect(updated.numbers.defaultFormat, equals('#,##0.0'));
+      expect(updated.dates.autoDetectFormat, isTrue);
     });
   });
 }

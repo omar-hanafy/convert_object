@@ -95,9 +95,63 @@ void main() {
         // Assert
         expect(result, isNull);
       });
+
+      test('should return null when locale data is unavailable', () {
+        // Arrange
+        const input = '2025-01-31';
+        final previous = Intl.defaultLocale;
+        Intl.defaultLocale = 'xx_YY';
+        try {
+          // Act
+          final result = input.tryToDateFormatted('yyyy-MM-dd', 'xx_YY');
+
+          // Assert
+          expect(result, isNull);
+        } finally {
+          Intl.defaultLocale = previous;
+        }
+      });
+
+      test('should evict date format cache when size exceeds max', () {
+        // Arrange
+        const input = '2025-01-31';
+
+        // Act
+        for (var i = 0; i < 35; i++) {
+          final locale = 'xx_$i';
+          final result = input.tryToDateFormatted('yyyy-MM-dd', locale);
+          expect(result, isA<DateTime>());
+        }
+      });
     });
 
     group('toDateAutoFormat epoch digits', () {
+      test('should parse ISO timestamps via toDateAutoFormat', () {
+        // Arrange
+        const input = '2025-11-11T10:15:30Z';
+        final expected = DateTime.utc(2025, 11, 11, 10, 15, 30);
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result, isUtcDateTime);
+        expect(result, sameInstantAs(expected));
+      });
+
+      test('should parse HTTP dates via toDateAutoFormat', () {
+        // Arrange
+        const input = 'Tue, 03 Jun 2008 11:05:30 GMT';
+        final expected = DateTime.utc(2008, 6, 3, 11, 5, 30);
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result, isUtcDateTime);
+        expect(result, sameInstantAs(expected));
+      });
+
       test('should parse 9–10 digit epoch seconds when utc is true', () {
         // Arrange
         const input = '1700000000';
@@ -149,6 +203,48 @@ void main() {
           expect(result.minute, equals(30));
         },
       );
+
+      test('should parse compact dates with underscores in utc', () {
+        // Arrange
+        const input = '2025_01_31';
+        final expected = DateTime(2025, 1, 31).toUtc();
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result.isUtc, isTrue);
+        expect(result, sameInstantAs(expected));
+      });
+
+      test('should parse compact timestamps with underscores in utc', () {
+        // Arrange
+        const input = '2025_01_31_1530';
+        final expected = DateTime(2025, 1, 31, 15, 30).toUtc();
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result.isUtc, isTrue);
+        expect(result, sameInstantAs(expected));
+      });
+
+      test('should parse negative epoch seconds when utc is true', () {
+        // Arrange
+        const input = '-1000000000';
+        final expected = DateTime.fromMillisecondsSinceEpoch(
+          -1000000000 * 1000,
+          isUtc: true,
+        );
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result, isUtcDateTime);
+        expect(result, sameInstantAs(expected));
+      });
     });
   });
 }
