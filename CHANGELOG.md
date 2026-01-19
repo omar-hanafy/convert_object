@@ -1,3 +1,9 @@
+## 1.0.4
+
+- Consolidate 1.0.0 changelog into organized sections for clarity.
+- Update example with improved API usage demonstration.
+- Fix markdown table formatting in test documentation.
+
 ## 1.0.3
 
 - Align Converter fluent shortcuts with Convert optional arguments, including mapKey, listIndex, defaultValue, and formatting flags.
