@@ -1,5 +1,7 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
 
+// Provides bounds-safe element access without throwing RangeError.
+// Optimized for List to use direct indexing instead of iteration.
 extension _IterableIndexing<E> on Iterable<E> {
   E? _elementAtOrNull(int index) {
     if (index < 0) return null;
@@ -16,7 +18,24 @@ extension _IterableIndexing<E> on Iterable<E> {
   }
 }
 
-/// Conversion helpers for non-null [Iterable] collections.
+/// Type conversion helpers for non-null [Iterable] collections.
+///
+/// Provides index-based element access with automatic type conversion.
+/// Each method extracts the element at the specified index and converts
+/// it to the target type using the convert_object infrastructure.
+///
+/// ### Example
+/// ```dart
+/// final data = ['42', '3.14', 'true'];
+/// final intVal = data.getInt(0);       // 42
+/// final doubleVal = data.getDouble(1); // 3.14
+/// final boolVal = data.getBool(2);     // true
+/// ```
+///
+/// All methods support nested navigation via [innerMapKey] and [innerIndex]
+/// for complex structures like `List<Map<String, dynamic>>`.
+///
+/// See also: [NullableIterableConversionX] for nullable-safe variants.
 extension IterableConversionX<E> on Iterable<E> {
   E? _valueAt(int index) => _elementAtOrNull(index);
 

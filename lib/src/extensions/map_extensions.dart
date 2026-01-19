@@ -1,7 +1,7 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
 
+// Provides firstWhere without throwing StateError when no match is found.
 extension _I<E> on Iterable<E> {
-  /// The first element satisfying [test], or `null` if there are none.
   E? firstWhereOrNull(bool Function(E element) test) {
     for (var element in this) {
       if (test(element)) return element;
@@ -10,7 +10,33 @@ extension _I<E> on Iterable<E> {
   }
 }
 
-/// Conversion helpers for non-nullable maps.
+/// Type conversion helpers for non-nullable [Map] instances.
+///
+/// Provides key-based value extraction with automatic type conversion.
+/// Each method looks up the value for [key] (with optional fallback to
+/// [alternativeKeys]) and converts it to the target type.
+///
+/// ### Example
+/// ```dart
+/// final json = {'name': 'Alice', 'age': '25', 'active': 'true'};
+/// final name = json.getString('name');      // 'Alice'
+/// final age = json.getInt('age');           // 25
+/// final active = json.getBool('active');    // true
+/// ```
+///
+/// ### Alternative Keys
+/// When APIs vary in naming conventions, use [alternativeKeys] for resilience:
+/// ```dart
+/// final id = json.getInt('id', alternativeKeys: ['ID', '_id', 'userId']);
+/// ```
+///
+/// ### Nested Navigation
+/// For complex structures, use [innerKey] and [innerListIndex]:
+/// ```dart
+/// final city = json.getString('address', innerKey: 'city');
+/// ```
+///
+/// See also: [NullableMapConversionX] for nullable-safe `tryGetX` variants.
 extension MapConversionX<K, V> on Map<K, V> {
   V? _firstValueForKeys(K key, {List<K>? alternativeKeys}) {
     var value = this[key];

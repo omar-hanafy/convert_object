@@ -3,12 +3,45 @@ import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/json.dart';
 
 /// Signature for lazily transforming a stored value before conversion.
+///
+/// Used with `Converter.withConverter` to pre-process values before type
+/// conversion (e.g., extracting a specific field or decoding custom formats).
 typedef DynamicConverter<T> = T Function(Object? value);
 
-/// Fluent wrapper that offers composable access to conversion helpers.
+/// Fluent wrapper for chained type conversions with navigation and fallbacks.
+///
+/// `Converter` provides a chainable API for extracting and converting values
+/// from nested data structures. It is the primary way to convert values
+/// fluently via the `value.convert.toInt()` syntax.
+///
+/// ### Basic Usage
+/// ```dart
+/// final json = {'user': {'age': '25'}};
+/// final age = json.convert.fromMap('user').fromMap('age').toInt();
+/// ```
+///
+/// ### With Defaults
+/// ```dart
+/// final value = data.convert.withDefault(0).toInt(); // Falls back to 0
+/// ```
+///
+/// ### With Custom Pre-Processing
+/// ```dart
+/// final value = raw.convert.withConverter((v) => v?.trim()).string();
+/// ```
+///
+/// Unlike `Convert`, which is stateless, `Converter` wraps a value and allows
+/// incremental navigation through nested structures. Configuration set via
+/// [withDefault] or [withConverter] persists through navigation methods.
+///
+/// See also:
+/// * `Convert` for stateless conversion methods.
+/// * `ConvertObjectExtension` for the `.convert` getter.
 class Converter {
-  /// Creates a converter around [_value] with optional fallbacks or custom
-  /// pre-processing.
+  /// Creates a converter wrapping [_value] with optional fallback and pre-processing.
+  ///
+  /// Typically you obtain a `Converter` via `value.convert` rather than
+  /// constructing directly.
   const Converter(
     this._value, {
     Object? defaultValue,
@@ -19,6 +52,8 @@ class Converter {
   final Object? _defaultValue;
   final DynamicConverter<dynamic>? _customConverter;
 
+  // Applies the custom converter to pre-process values before type conversion.
+  // Wraps any converter errors in [ConversionException] for debugging context.
   Object? _transformValue(String method) {
     if (_customConverter == null) return _value;
     try {
@@ -36,20 +71,26 @@ class Converter {
     }
   }
 
-  // Options -----------------------------------------------------------
-  /// Returns a new [Converter] that uses [value] whenever a conversion fails.
+  /// Configures a default value to be returned if the subsequent conversion operation fails.
+  ///
+  /// This allows the chain to recover gracefully from errors (e.g., parsing failures).
   Converter withDefault(Object? value) =>
       Converter(_value, defaultValue: value, customConverter: _customConverter);
 
-  /// Returns a new [Converter] that applies [converter] before any lookup.
+  /// Applies a custom transformation to the value before any conversion attempt.
+  ///
+  /// The [converter] function is called with the current value, and its result
+  /// is used for subsequent operations.
   Converter withConverter(DynamicConverter<dynamic> converter) => Converter(
     _value,
     defaultValue: _defaultValue,
     customConverter: converter,
   );
 
-  // Navigation --------------------------------------------------------
-  /// Reads a nested value from a map (or JSON string map) using [key].
+  /// Extracts a value from a [Map] using the specified [key].
+  ///
+  /// If the current value is a JSON string representing a map, it is automatically decoded.
+  /// If the key is missing or the value is not a map, the result wraps `null`.
   Converter fromMap(Object? key) {
     final v = _value;
     if (v is Map) {
@@ -76,7 +117,10 @@ class Converter {
     );
   }
 
-  /// Reads a nested value from a list (or JSON string list) using [index].
+  /// Extracts a value from a [List] using the specified [index].
+  ///
+  /// If the current value is a JSON string representing a list, it is automatically decoded.
+  /// If the index is out of bounds or the value is not a list, the result wraps `null`.
   Converter fromList(int index) {
     final v = _value;
     if (v is List) {
@@ -103,7 +147,9 @@ class Converter {
     );
   }
 
-  /// Decodes JSON string input before continuing conversions.
+  /// Explicitly decodes a JSON string into a Dart object (Map, List, etc.).
+  ///
+  /// If the current value is not a string or invalid JSON, the state remains unchanged.
   Converter get decoded {
     final v = _value;
     if (v is String) {
@@ -117,14 +163,17 @@ class Converter {
     return this;
   }
 
-  // Generic -----------------------------------------------------------
-  /// Converts the wrapped value to [T], throwing when conversion fails.
+  /// Converts the wrapped value to type [T].
+  ///
+  /// Throws a [ConversionException] if the conversion fails.
   T to<T>() {
     final source = _transformValue('Converter.to<$T>');
     return ConvertObjectImpl.toType<T>(source);
   }
 
-  /// Attempts to convert to [T], returning `null` on failure.
+  /// Attempts to convert the wrapped value to type [T].
+  ///
+  /// Returns `null` if the conversion fails or if the value is `null`.
   T? tryTo<T>() {
     if (_value == null) return null;
     try {
@@ -134,7 +183,9 @@ class Converter {
     }
   }
 
-  /// Converts to [T], returning [defaultValue] when conversion throws.
+  /// Converts the wrapped value to type [T], falling back to [defaultValue] on failure.
+  ///
+  /// This is equivalent to calling [tryTo] and providing a default.
   T toOr<T>(T defaultValue) {
     try {
       final v = to<T>();
@@ -144,8 +195,7 @@ class Converter {
     }
   }
 
-  // Primitive shortcuts ----------------------------------------------
-  /// Converts to [String], mirroring [Convert.string].
+  /// Converts to [String], mirroring `Convert.string`.
   String string({
     dynamic mapKey,
     int? listIndex,
@@ -163,7 +213,7 @@ class Converter {
   @override
   String toString() => string();
 
-  /// Converts to [String] without throwing, mirroring [Convert.tryToString].
+  /// Converts to [String] without throwing, mirroring `Convert.tryToString`.
   String? tryToString({
     dynamic mapKey,
     int? listIndex,
@@ -192,7 +242,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [num], mirroring [Convert.toNum].
+  /// Converts to [num], mirroring `Convert.toNum`.
   num toNum({
     dynamic mapKey,
     int? listIndex,
@@ -210,7 +260,7 @@ class Converter {
     converter: converter,
   );
 
-  /// Converts to [num] without throwing, mirroring [Convert.tryToNum].
+  /// Converts to [num] without throwing, mirroring `Convert.tryToNum`.
   num? tryToNum({
     dynamic mapKey,
     int? listIndex,
@@ -247,7 +297,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [int], mirroring [Convert.toInt].
+  /// Converts to [int], mirroring `Convert.toInt`.
   int toInt({
     dynamic mapKey,
     int? listIndex,
@@ -265,7 +315,7 @@ class Converter {
     converter: converter,
   );
 
-  /// Converts to [int] without throwing, mirroring [Convert.tryToInt].
+  /// Converts to [int] without throwing, mirroring `Convert.tryToInt`.
   int? tryToInt({
     dynamic mapKey,
     int? listIndex,
@@ -302,7 +352,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [double], mirroring [Convert.toDouble].
+  /// Converts to [double], mirroring `Convert.toDouble`.
   double toDouble({
     dynamic mapKey,
     int? listIndex,
@@ -321,7 +371,7 @@ class Converter {
   );
 
   /// Converts to [double] without throwing, mirroring
-  /// [Convert.tryToDouble].
+  /// `Convert.tryToDouble`.
   double? tryToDouble({
     dynamic mapKey,
     int? listIndex,
@@ -358,7 +408,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [bool], mirroring [Convert.toBool].
+  /// Converts to [bool], mirroring `Convert.toBool`.
   bool toBool({
     dynamic mapKey,
     int? listIndex,
@@ -372,7 +422,7 @@ class Converter {
     converter: converter,
   );
 
-  /// Converts to [bool] without throwing, mirroring [Convert.tryToBool].
+  /// Converts to [bool] without throwing, mirroring `Convert.tryToBool`.
   bool? tryToBool({
     dynamic mapKey,
     int? listIndex,
@@ -401,7 +451,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [BigInt], mirroring [Convert.toBigInt].
+  /// Converts to [BigInt], mirroring `Convert.toBigInt`.
   BigInt toBigInt({
     dynamic mapKey,
     int? listIndex,
@@ -416,7 +466,7 @@ class Converter {
   );
 
   /// Converts to [BigInt] without throwing, mirroring
-  /// [Convert.tryToBigInt].
+  /// `Convert.tryToBigInt`.
   BigInt? tryToBigInt({
     dynamic mapKey,
     int? listIndex,
@@ -445,7 +495,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [DateTime], mirroring [Convert.toDateTime].
+  /// Converts to [DateTime], mirroring `Convert.toDateTime`.
   DateTime toDateTime({
     dynamic mapKey,
     int? listIndex,
@@ -470,7 +520,7 @@ class Converter {
   );
 
   /// Converts to [DateTime] without throwing, mirroring
-  /// [Convert.tryToDateTime].
+  /// `Convert.tryToDateTime`.
   DateTime? tryToDateTime({
     dynamic mapKey,
     int? listIndex,
@@ -519,7 +569,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  /// Converts to [Uri], mirroring [Convert.toUri].
+  /// Converts to [Uri], mirroring `Convert.toUri`.
   Uri toUri({
     dynamic mapKey,
     int? listIndex,
@@ -533,7 +583,7 @@ class Converter {
     converter: converter,
   );
 
-  /// Converts to [Uri] without throwing, mirroring [Convert.tryToUri].
+  /// Converts to [Uri] without throwing, mirroring `Convert.tryToUri`.
   Uri? tryToUri({
     dynamic mapKey,
     int? listIndex,
@@ -562,8 +612,7 @@ class Converter {
       ) ??
       defaultValue;
 
-  // Enums -------------------------------------------------------------
-  /// Converts to [T] using [parser], mirroring [Convert.toEnum].
+  /// Converts to [T] using [parser], mirroring `Convert.toEnum`.
   T toEnum<T extends Enum>({
     required T Function(dynamic) parser,
     dynamic mapKey,
@@ -579,7 +628,7 @@ class Converter {
     debugInfo: debugInfo,
   );
 
-  /// Converts to [T] without throwing, mirroring [Convert.tryToEnum].
+  /// Converts to [T] without throwing, mirroring `Convert.tryToEnum`.
   T? tryToEnum<T extends Enum>({
     required T Function(dynamic) parser,
     dynamic mapKey,
@@ -595,7 +644,6 @@ class Converter {
     debugInfo: debugInfo,
   );
 
-  // Collections -------------------------------------------------------
   /// Converts to [List], optionally transforming each item.
   List<T> toList<T>({
     dynamic mapKey,

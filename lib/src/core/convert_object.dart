@@ -6,6 +6,19 @@ import 'package:meta/meta.dart';
 typedef ElementConverter<T> = T Function(Object? element);
 
 /// Backward-compatible static facade that mirrors the original ConvertObject API.
+///
+/// Use this class when you need stateless conversions that still honor the
+/// current [ConvertConfig.effective] settings.
+///
+/// ### Shared Behavior
+/// - `mapKey` and `listIndex` let you select nested data before conversion.
+/// - `defaultValue` short-circuits failures for the `toX` methods.
+/// - `tryToX` variants never throw and return `null` or `defaultValue`.
+/// - Collection conversions decode JSON strings when possible and then
+///   convert elements using the same conversion rules.
+///
+/// For fluent, stateful conversion chains, prefer `value.convert` from
+/// `ConvertObjectExtension`.
 abstract class Convert {
   /// Returns the effective configuration for the current zone.
   static ConvertConfig get config => ConvertConfig.effective;
@@ -24,7 +37,12 @@ abstract class Convert {
       ConvertConfig.runScoped(overrides, body);
 
   // Strings
-  /// Converts [object] to [String], throwing if the value cannot be coerced.
+  /// Converts [object] to [String], optionally selecting `mapKey` or
+  /// `listIndex` first.
+  ///
+  /// Uses `converter` when provided, otherwise falls back to
+  /// `Object.toString()`. Throws `ConversionException` when no value can be
+  /// produced and `defaultValue` is `null`.
   static String string(
     dynamic object, {
     dynamic mapKey,
@@ -39,8 +57,10 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [String] and returns `null` or [defaultValue] on
-  /// failure instead of throwing.
+  /// Converts [object] to [String] without throwing.
+  ///
+  /// Returns `defaultValue` when conversion fails, or `null` when both the
+  /// input and `defaultValue` are `null`.
   static String? tryToString(
     dynamic object, {
     dynamic mapKey,
@@ -56,8 +76,13 @@ abstract class Convert {
   );
 
   // Numbers
-  /// Converts [object] to [num], using optional formatting hints for parsing
-  /// textual input.
+  /// Converts [object] to [num], honoring [NumberOptions] defaults.
+  ///
+  /// If `format` is provided or [NumberOptions.defaultFormat] is set, formatted
+  /// parsing is attempted in the order defined by
+  /// [NumberOptions.tryFormattedFirst], then falls back to plain parsing.
+  /// Throws `ConversionException` when parsing fails and `defaultValue` is
+  /// `null`.
   static num toNum(
     dynamic object, {
     dynamic mapKey,
@@ -76,8 +101,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [num] returning `null` or [defaultValue] when
-  /// conversion fails.
+  /// Converts [object] to [num] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when parsing fails.
   static num? tryToNum(
     dynamic object, {
     dynamic mapKey,
@@ -97,6 +123,11 @@ abstract class Convert {
   );
 
   /// Converts [object] to [int], applying optional locale-aware formatting.
+  ///
+  /// Numeric inputs are truncated with `toInt()`. String inputs use
+  /// [NumberOptions] defaults unless overridden by `format` or `locale`.
+  /// Throws `ConversionException` when parsing fails and `defaultValue` is
+  /// `null`.
   static int toInt(
     dynamic object, {
     dynamic mapKey,
@@ -115,8 +146,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [int] while suppressing errors and returning
-  /// [defaultValue] or `null` if parsing cannot succeed.
+  /// Converts [object] to [int] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` if parsing cannot succeed.
   static int? tryToInt(
     dynamic object, {
     dynamic mapKey,
@@ -136,6 +168,11 @@ abstract class Convert {
   );
 
   /// Converts [object] to [double], supporting formatted numeric strings.
+  ///
+  /// Numeric inputs are converted with `toDouble()`. String inputs use
+  /// [NumberOptions] defaults unless overridden by `format` or `locale`.
+  /// Throws `ConversionException` when parsing fails and `defaultValue` is
+  /// `null`.
   static double toDouble(
     dynamic object, {
     dynamic mapKey,
@@ -154,8 +191,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [double] returning [defaultValue] or `null` on
-  /// parsing failure.
+  /// Converts [object] to [double] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` on parsing failure.
   static double? tryToDouble(
     dynamic object, {
     dynamic mapKey,
@@ -174,8 +212,11 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [BigInt], optionally falling back to
-  /// [defaultValue].
+  /// Converts [object] to [BigInt], accepting [BigInt], [num], or numeric
+  /// strings.
+  ///
+  /// Throws `ConversionException` when parsing fails and `defaultValue` is
+  /// `null`.
   static BigInt toBigInt(
     dynamic object, {
     dynamic mapKey,
@@ -190,8 +231,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [BigInt] suppressing errors; returns `null` when
-  /// conversion is not possible.
+  /// Converts [object] to [BigInt] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when conversion is not possible.
   static BigInt? tryToBigInt(
     dynamic object, {
     dynamic mapKey,
@@ -206,8 +248,10 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [bool], accepting common textual truthy/falsy
-  /// representations.
+  /// Converts [object] to [bool] using [BoolOptions] from [ConvertConfig].
+  ///
+  /// This conversion never throws. When parsing fails, it returns
+  /// `defaultValue` or `false` when `defaultValue` is `null`.
   static bool toBool(
     dynamic object, {
     dynamic mapKey,
@@ -222,8 +266,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [bool] and returns [defaultValue] or `null` when
-  /// coercion fails.
+  /// Converts [object] to [bool] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when coercion fails.
   static bool? tryToBool(
     dynamic object, {
     dynamic mapKey,
@@ -238,12 +283,15 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to a [DateTime], respecting [format] or automatic
-  /// detection rules. Calendar-like inputs (e.g. `yyyyMMdd`, `MM/dd/yyyy`,
-  /// long month names) return a value in the local time zone unless [utc] is
-  /// `true`. Instant-style inputs (ISO strings with offsets, HTTP dates, Unix
-  /// epochs) preserve their UTC meaning but are converted back to local time if
-  /// [utc] is `false`.
+  /// Converts [object] to a [DateTime], respecting [DateOptions] defaults.
+  ///
+  /// Calendar-like inputs (e.g. `yyyyMMdd`, `MM/dd/yyyy`, long month names)
+  /// return a value in the local time zone unless `utc` is `true`. Instant
+  /// inputs (ISO strings with offsets, HTTP dates, Unix epochs) preserve their
+  /// UTC meaning but are converted back to local time if `utc` is `false`.
+  ///
+  /// `format`, `locale`, and flags override [DateOptions] for this call.
+  /// Numeric inputs are treated as seconds or milliseconds since epoch.
   static DateTime toDateTime(
     dynamic object, {
     dynamic mapKey,
@@ -268,8 +316,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Like [toDateTime] but never throws, returning [defaultValue] (if
-  /// provided) or `null` when conversion fails.
+  /// Like [toDateTime] but never throws.
+  ///
+  /// Returns `defaultValue` when provided, or `null` when conversion fails.
   static DateTime? tryToDateTime(
     dynamic object, {
     dynamic mapKey,
@@ -294,7 +343,11 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [Uri], allowing custom parsing via [converter].
+  /// Converts [object] to [Uri], honoring [UriOptions] from [ConvertConfig].
+  ///
+  /// Email addresses and phone numbers are coerced to `mailto:` and `tel:`
+  /// URIs. Throws `ConversionException` when parsing fails and `defaultValue`
+  /// is `null`.
   static Uri toUri(
     dynamic object, {
     dynamic mapKey,
@@ -309,8 +362,9 @@ abstract class Convert {
     converter: converter,
   );
 
-  /// Converts [object] to [Uri] returning `null` or [defaultValue] when parsing
-  /// fails.
+  /// Converts [object] to [Uri] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when parsing fails.
   static Uri? tryToUri(
     dynamic object, {
     dynamic mapKey,
@@ -326,7 +380,10 @@ abstract class Convert {
   );
 
   /// Converts [object] to a strongly-typed [Map], optionally transforming keys
-  /// and values with [keyConverter] and [valueConverter].
+  /// and values with `keyConverter` and `valueConverter`.
+  ///
+  /// JSON strings are decoded before conversion. Throws `ConversionException`
+  /// when mapping fails and `defaultValue` is `null`.
   static Map<K, V> toMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -343,8 +400,9 @@ abstract class Convert {
     valueConverter: valueConverter,
   );
 
-  /// Converts [object] to [Map] while returning `null` or [defaultValue] when
-  /// conversion fails.
+  /// Converts [object] to [Map] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when conversion fails.
   static Map<K, V>? tryToMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -361,7 +419,12 @@ abstract class Convert {
     valueConverter: valueConverter,
   );
 
-  /// Converts [object] to [Set], applying [elementConverter] to every entry.
+  /// Converts [object] to [Set], applying `elementConverter` to each entry.
+  ///
+  /// JSON strings are decoded before conversion. Single values are wrapped
+  /// into a one-element set, and map inputs use their values. Throws
+  /// `ConversionException` with element context when conversion fails and
+  /// `defaultValue` is `null`.
   static Set<T> toSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -376,8 +439,9 @@ abstract class Convert {
     elementConverter: elementConverter,
   );
 
-  /// Converts [object] to [Set] returning `null` or [defaultValue] when
-  /// coercion is not possible.
+  /// Converts [object] to [Set] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when coercion is not possible.
   static Set<T>? tryToSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -393,7 +457,12 @@ abstract class Convert {
   );
 
   /// Converts [object] to [List], optionally mapping each element through
-  /// [elementConverter].
+  /// `elementConverter`.
+  ///
+  /// JSON strings are decoded before conversion. Single values are wrapped
+  /// into a one-element list, and sets or maps are converted to their values.
+  /// Throws `ConversionException` with element context when conversion fails
+  /// and `defaultValue` is `null`.
   static List<T> toList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -408,8 +477,9 @@ abstract class Convert {
     elementConverter: elementConverter,
   );
 
-  /// Converts [object] to [List] returning [defaultValue] or `null` when
-  /// conversion fails.
+  /// Converts [object] to [List] without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when conversion fails.
   static List<T>? tryToList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -424,7 +494,10 @@ abstract class Convert {
     elementConverter: elementConverter,
   );
 
-  /// Converts [object] to an enum using the supplied [parser].
+  /// Converts [object] to an enum using the supplied `parser`.
+  ///
+  /// `debugInfo` is merged into the failure context. Throws
+  /// `ConversionException` when parsing fails and `defaultValue` is `null`.
   static T toEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -441,8 +514,9 @@ abstract class Convert {
     debugInfo: debugInfo,
   );
 
-  /// Converts [object] to an enum using [parser] and returns `null` or
-  /// [defaultValue] when parsing fails.
+  /// Converts [object] to an enum using `parser` without throwing.
+  ///
+  /// Returns `defaultValue` or `null` when parsing fails.
   static T? tryToEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -461,11 +535,16 @@ abstract class Convert {
 
   // Top-level generic
 
-  /// Converts [object] to the requested type [T], throwing if conversion fails.
+  /// Converts [object] to the requested type [T].
+  ///
+  /// Custom parsers from [TypeRegistry] in [ConvertConfig] are tried first,
+  /// then built-in conversions. Throws `ConversionException` when conversion
+  /// fails or when [T] is unsupported.
   static T toType<T>(dynamic object) => ConvertObjectImpl.toType<T>(object);
 
-  /// Converts [object] to type [T] returning `null` when conversion is
-  /// unsuccessful.
+  /// Converts [object] to type [T] without throwing.
+  ///
+  /// Returns `null` when conversion is unsuccessful or [T] is unsupported.
   static T? tryToType<T>(dynamic object) =>
       ConvertObjectImpl.tryToType<T>(object);
 

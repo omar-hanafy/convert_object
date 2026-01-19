@@ -1,8 +1,26 @@
 import 'package:convert_object/src/core/convert_object.dart';
 
+// --------------------------------------------------------------------------
+// Top-Level Convenience Functions
+// --------------------------------------------------------------------------
+//
+// These functions provide a functional programming style alternative to
+// the static [Convert] methods. They have identical signatures and behavior.
+//
+// Use these when you prefer top-level function syntax:
+//   final age = convertToInt(json['age']);
+//
+// Instead of:
+//   final age = Convert.toInt(json['age']);
+//
+// See [Convert] for detailed documentation of each method's behavior.
+// --------------------------------------------------------------------------
+
 // Strings
 
 /// Top-level convenience alias for [Convert.string].
+///
+/// See [Convert.string] for full documentation.
 String convertToString(
   dynamic object, {
   Object? mapKey,

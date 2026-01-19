@@ -17,12 +17,26 @@ const int _kMaxDateFormatCacheSize = 32;
 final LinkedHashMap<String, DateFormat> _dateFormatCache =
     LinkedHashMap<String, DateFormat>();
 
-/// Extension methods for parsing `String` values into [DateTime] instances.
+/// Extension methods for parsing [String] values into [DateTime] instances.
+///
+/// Provides multiple parsing strategies:
+/// * [toDateTime] - Strict ISO 8601 / RFC 3339 parsing.
+/// * [toDateFormatted] - Custom pattern parsing via [DateFormat].
+/// * [toDateAutoFormat] - Heuristic auto-detection for diverse formats.
+///
+/// Used internally by `Convert.toDateTime` to implement date conversion.
+///
+/// See also: `DateOptions` for configuring default parsing behavior.
 extension DateParsingTextX on String {
-  /// Parses this string using [DateTime.parse] after trimming.
+  /// Parses this string into a [DateTime] using standard ISO 8601 or RFC 3339 formats.
+  ///
+  /// Delegates to [DateTime.parse] after trimming whitespace. Supports timezone
+  /// offsets (e.g., `+05:30`, `Z`) and fractional seconds.
+  ///
+  /// Throws [FormatException] if the input is invalid.
   DateTime toDateTime() => DateTime.parse(trim());
 
-  /// Attempts to parse this string returning `null` when parsing fails.
+  /// Attempts to parse this string into a [DateTime], returning `null` on failure.
   DateTime? tryToDateTime() {
     try {
       return toDateTime();
@@ -32,6 +46,9 @@ extension DateParsingTextX on String {
   }
 
   /// Parses this string using the supplied [format] and [locale].
+  ///
+  /// The [format] string should follow the [DateFormat] patterns (e.g., "MM/dd/yyyy").
+  /// If [utc] is true, the result will be in UTC.
   DateTime toDateFormatted(String format, String? locale, {bool utc = false}) {
     final df = _createDateFormat(format, locale);
     final input = trim();
@@ -39,7 +56,7 @@ extension DateParsingTextX on String {
     return utc ? dt.toUtc() : dt;
   }
 
-  /// Attempts to parse this string using the supplied [format] and [locale].
+  /// Attempts to parse this string using [format] and [locale], returning `null` on failure.
   DateTime? tryToDateFormatted(
     String format,
     String? locale, {
@@ -52,25 +69,24 @@ extension DateParsingTextX on String {
     }
   }
 
-  /// Auto-detect date parser with stable, round-trip behavior for numeric/locale forms.
+  /// Attempts to parse the date using a variety of known formats.
   ///
   /// Returns a local [DateTime] for calendar-style inputs (e.g. `yyyyMMdd`,
   /// `MM/dd/yyyy`, long month names) unless [utc] is `true`, in which case the
-  /// parsed value is converted to UTC. Inputs that describe an instant (ISO
-  /// strings with offsets/`Z`, HTTP-date with `GMT`, or Unix epochs) preserve
-  /// their UTC meaning; if [utc] is `false` the result is converted back to the
-  /// local time zone to match common expectations.
+  /// parsed value is converted to UTC.
   ///
-  /// Priority:
-  ///  0) Unix epoch (9–10 digits = sec, 12–13 digits = ms) with 12-digit guard for yyyyMMddHHmm
-  ///  1) ISO-8601 / RFC3339 via DateTime.parse
-  ///  2) HTTP-date (IMF-fixdate, GMT) → UTC
-  ///  3) Slashed ambiguous numeric (MM/dd[/HH:mm:ss] vs dd/MM[/...]) by locale using intl
-  ///  4) Compact numeric calendar (yyyyMMdd[HHmm[ss]]) including underscore/space variants
-  ///     - 8 digits use intl('yyyyMMdd')
-  ///     - 12/14 digits parsed manually
-  ///  5) Long name formats via intl
-  ///  6) Time-only → today (local)
+  /// Inputs that describe an instant (ISO strings with offsets/`Z`, HTTP-date with `GMT`,
+  /// or Unix epochs) preserve their UTC meaning. If [utc] is `false`, the result is
+  /// converted back to the local time zone.
+  ///
+  /// ### Parsing Priority
+  /// 1. **Unix Epoch:** 9–10 digits (seconds) or 12–13 digits (milliseconds).
+  /// 2. **ISO-8601 / RFC3339:** Standard `DateTime.parse`.
+  /// 3. **HTTP Date:** RFC 7231 (e.g., `EEE, dd MMM yyyy HH:mm:ss 'GMT'`).
+  /// 4. **Ambiguous Numeric:** Slashed dates (e.g., `MM/dd/yyyy`) resolved by locale.
+  /// 5. **Compact Numeric:** `yyyyMMdd` (8 digits), `yyyyMMddHHmm` (12 digits), etc.
+  /// 6. **Long Form:** `MMMM d, yyyy`, etc.
+  /// 7. **Time Only:** `HH:mm:ss` (defaults to today's date).
   DateTime toDateAutoFormat({
     String? locale,
     bool useCurrentLocale = false,
@@ -200,8 +216,7 @@ extension DateParsingTextX on String {
   }
 }
 
-// --- Helpers ---------------------------------------------------------------
-
+// Parses RFC 7231 HTTP-date format (used in HTTP headers like Last-Modified).
 DateTime? _tryParseHttpDate(String s) {
   try {
     final dt = _httpDateFmt.parseUtc(s);
@@ -211,8 +226,8 @@ DateTime? _tryParseHttpDate(String s) {
   }
 }
 
-/// Decide whether a 12-digit string is plausibly a calendar timestamp
-/// in the form yyyyMMddHHmm (year 1800..2500 etc.).
+// Distinguishes 12-digit calendar timestamps (yyyyMMddHHmm) from Unix milliseconds.
+// Without this check, dates like "202501191430" would be misinterpreted as epochs.
 bool _looksLikeYYYYMMDDHHMM(String digits12) {
   if (digits12.length != 12) return false;
   final y = int.tryParse(digits12.substring(0, 4));
@@ -231,6 +246,8 @@ bool _looksLikeYYYYMMDDHHMM(String digits12) {
   return true;
 }
 
+// Parses Unix timestamps: 9-10 digits as seconds, 12-13 digits as milliseconds.
+// Returns UTC DateTime; caller converts to local if needed.
 DateTime? _tryParseUnix(String s) {
   final trimmed = s.trim();
   if (!RegExp(r'^[+-]?\d+$').hasMatch(trimmed)) return null;
@@ -262,13 +279,15 @@ DateTime? _tryParseUnix(String s) {
   return null;
 }
 
+// Normalizes date strings by replacing underscores with spaces and stripping
+// English ordinals (1st, 2nd, 3rd) that would otherwise cause parsing failures.
 String _normalize(String s) {
   var out = s.replaceAll('_', ' ');
-  // Remove English ordinals: 1st, 2nd, 3rd, 4th, ...
   out = out.replaceAll(_ordinalsRe, r'$1');
   return out.trim();
 }
 
+// Attempts to parse a date string with a specific format pattern.
 DateTime? _tryParseWith(String fmt, String s, String? locale) {
   try {
     final f = _createDateFormat(fmt, locale);
@@ -278,12 +297,8 @@ DateTime? _tryParseWith(String fmt, String s, String? locale) {
   }
 }
 
-/// Parses compact calendar forms by stripping non-digits and reading:
-/// - 8  digits: yyyyMMdd  (parsed manually)
-/// - 12 digits: yyyyMMddHHmm (manual)
-/// - 14 digits: yyyyMMddHHmmss (manual)
-///
-/// Returns local DateTime (or UTC if [utc] is true).
+// Parses compact numeric date formats (yyyyMMdd, yyyyMMddHHmm, yyyyMMddHHmmss).
+// We parse manually instead of using intl because intl is too lenient with these patterns.
 DateTime? _tryParseCompactDate(String input, {bool utc = false}) {
   if (_alphaRe.hasMatch(input)) return null;
 
@@ -338,6 +353,8 @@ DateTime? _tryParseCompactDate(String input, {bool utc = false}) {
   }
 }
 
+// Creates a DateFormat with LRU caching. Falls back through locale variants
+// (full -> language only -> default) to handle unsupported locales gracefully.
 DateFormat _createDateFormat(String pattern, String? locale) {
   final key = '$pattern|${locale ?? ''}';
   final cached = _dateFormatCache.remove(key);

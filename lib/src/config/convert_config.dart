@@ -5,14 +5,19 @@ import 'package:meta/meta.dart';
 
 /// Signature for a callback that is invoked when a conversion fails.
 ///
-/// If [ConvertConfig.onException] is provided, the hook is called with the
+/// If `ConvertConfig.onException` is provided, the hook is called with the
 /// thrown [ConversionException] just before it is rethrown. Use this to log
 /// errors or collect metrics; do not modify control flow.
 typedef ExceptionHook = void Function(ConversionException error);
 
+// Default string tokens recognized as boolean `true` by [BoolOptions].
 const Set<String> _kDefaultTruthy = {'true', '1', 'yes', 'y', 'on', 'ok', 't'};
+
+// Default string tokens recognized as boolean `false` by [BoolOptions].
 const Set<String> _kDefaultFalsy = {'false', '0', 'no', 'n', 'off', 'f'};
 
+// Bitmask flags tracking which fields were explicitly set in `ConvertConfig.overrides`.
+// We need to distinguish "explicitly set to null" vs "not provided" during merging.
 const int _overrideLocale = 1 << 0;
 const int _overrideNumbers = 1 << 1;
 const int _overrideDates = 1 << 2;
@@ -21,8 +26,10 @@ const int _overrideUri = 1 << 4;
 const int _overrideRegistry = 1 << 5;
 const int _overrideOnException = 1 << 6;
 
+// Checks if a specific override flag is set in the bitmask.
 bool _hasOverride(int mask, int flag) => (mask & flag) != 0;
 
+// Value-based set equality check (const sets may not be identical across locations).
 bool _setEquals(Set<String> a, Set<String> b) {
   if (a.length != b.length) return false;
   for (final value in a) {
@@ -30,6 +37,8 @@ bool _setEquals(Set<String> a, Set<String> b) {
   }
   return true;
 }
+
+// Checks if options match defaults - used to skip merging unchanged options.
 
 bool _isDefaultNumberOptions(NumberOptions options) =>
     options.defaultFormat == null &&
@@ -56,13 +65,45 @@ bool _isDefaultUriOptions(UriOptions options) =>
 
 bool _isDefaultRegistry(TypeRegistry registry) => registry._parsers.isEmpty;
 
-/// Global and scoped configuration used by the `convert_object` APIs.
-@immutable
+/// Global and scoped configuration bundle for all `convert_object` APIs.
 ///
-/// A single global instance is used by default. You can:
-///  * replace it via [configure],
-///  * update it immutably via [update], or
-///  * apply temporary overrides for a call tree via [runScoped].
+/// `ConvertConfig` controls parsing behavior for numbers, dates, booleans,
+/// URIs, and custom types. A single global instance is active by default,
+/// but you can customize behavior in several ways:
+///
+/// * [configure] - Replace the global configuration entirely.
+/// * [update] - Modify the global configuration incrementally.
+/// * [runScoped] - Apply temporary overrides for a call tree (zone-scoped).
+///
+/// ### Example: Global Configuration
+/// ```dart
+/// // Set locale globally
+/// ConvertConfig.configure(ConvertConfig(locale: 'de_DE'));
+///
+/// // Update specific options
+/// ConvertConfig.update((c) => c.copyWith(
+///   dates: c.dates.copyWith(autoDetectFormat: true),
+/// ));
+/// ```
+///
+/// ### Example: Scoped Configuration
+/// ```dart
+/// ConvertConfig.runScoped(
+///   ConvertConfig.overrides(locale: 'fr_FR'),
+///   () {
+///     // All conversions in this block use French locale
+///     final date = Convert.toDateTime('15/03/2024', autoDetectFormat: true);
+///   },
+/// );
+/// ```
+///
+/// See also:
+/// * [NumberOptions] for numeric parsing configuration.
+/// * [DateOptions] for date/time parsing configuration.
+/// * [BoolOptions] for boolean parsing configuration.
+/// * [UriOptions] for URI parsing and coercion.
+/// * [TypeRegistry] for custom type parsers.
+@immutable
 class ConvertConfig {
   /// Creates a new configuration bundle.
   const ConvertConfig({
@@ -128,28 +169,32 @@ class ConvertConfig {
     );
   }
 
-  /// Default locale used by number/date parsing when no explicit locale is
-  /// supplied at call sites or per-option.
+  /// The default locale identifier (e.g., 'en_US') used for parsing operations
+  /// when no specific locale is provided in [numbers] or [dates].
   final String? locale;
 
-  /// Numeric parsing/formatting behavior.
+  /// Configuration for parsing and formatting numeric values.
   final NumberOptions numbers;
 
-  /// Date/time parsing behavior.
+  /// Configuration for date and time parsing and formatting.
   final DateOptions dates;
 
-  /// Boolean parsing behavior.
+  /// Configuration for boolean parsing.
   final BoolOptions bools;
 
-  /// URI parsing behavior.
+  /// Configuration for URI parsing.
   final UriOptions uri;
 
-  /// Custom parsers that can handle additional types in `Convert.toType`.
+  /// A registry of custom parsers for handling additional types in `Convert.toType`.
   final TypeRegistry registry;
 
-  /// Optional hook invoked whenever a [ConversionException] is thrown.
+  /// An optional hook that is invoked whenever a [ConversionException] is thrown.
+  ///
+  /// Use this to log errors or collect metrics without interrupting the control flow.
   final ExceptionHook? onException;
 
+  // Bitmask tracking which fields were explicitly set via `ConvertConfig.overrides`.
+  // Used by [_merge] to distinguish "explicitly set to null" from "not provided".
   final int _overrideMask;
 
   /// Returns a copy of this config with the provided fields replaced.
@@ -201,6 +246,8 @@ class ConvertConfig {
     return runZoned(body, zoneValues: {_zoneKey: merged});
   }
 
+  // Merges [overrides] on top of this config. Checks both the override bitmask
+  // and whether values differ from defaults to handle explicit nulls correctly.
   ConvertConfig _merge(ConvertConfig overrides) {
     final onExceptionHook =
         _hasOverride(overrides._overrideMask, _overrideOnException)
@@ -260,13 +307,22 @@ class NumberOptions {
     this.tryFormattedFirst = true,
   });
 
-  /// Default `NumberFormat` pattern to try when parsing formatted numbers.
+  /// The default [NumberFormat] pattern to use when parsing formatted numbers
+  /// if no explicit format is provided.
+  ///
+  /// Example: `#,##0.00` for currency-like inputs.
   final String? defaultFormat;
 
-  /// Default locale passed to `NumberFormat` when [defaultFormat] is used.
+  /// The locale identifier to use when [defaultFormat] is applied.
+  ///
+  /// If `null`, defaults to `ConvertConfig.locale`.
   final String? defaultLocale;
 
-  /// If `true`, attempt formatted parsing before lenient plain parsing.
+  /// Controls the priority of formatted parsing versus standard parsing.
+  ///
+  /// If `true`, the parser attempts to use [defaultFormat] first. If that fails,
+  /// it falls back to standard `num.parse`.
+  /// If `false`, standard `num.parse` is attempted first.
   final bool tryFormattedFirst;
 
   /// Returns a new [NumberOptions] that prefers [other]'s non-null settings.
@@ -301,22 +357,35 @@ class DateOptions {
     this.extraAutoDetectPatterns = const [],
   });
 
-  /// Default `intl` pattern to parse calendar-style inputs.
+  /// The default [DateFormat] pattern to use for parsing calendar-style inputs.
+  ///
+  /// Used when [autoDetectFormat] is `false` or as a fallback.
   final String? defaultFormat;
 
-  /// Preferred locale used by date parsing when a format requires it.
+  /// The locale identifier to use for date parsing when a format is applied.
+  ///
+  /// If `null`, defaults to `ConvertConfig.locale`.
   final String? locale;
 
-  /// If `true`, treat parsed values as UTC and return UTC `DateTime`s.
+  /// Determines whether parsed dates should be converted to UTC.
+  ///
+  /// If `true`, the resulting [DateTime] will be in UTC.
   final bool utc;
 
-  /// If `true`, attempt a series of known formats automatically.
+  /// Enables heuristic parsing to attempt multiple known date formats.
+  ///
+  /// If `true`, the parser tries various standard patterns (ISO, HTTP, etc.)
+  /// before failing.
   final bool autoDetectFormat;
 
-  /// If `true`, fall back to the current process locale when needed.
+  /// Determines whether to use [Intl.getCurrentLocale()] as a fallback.
+  ///
+  /// If `true` and no specific locale is provided, the system locale is used.
   final bool useCurrentLocale;
 
-  /// Additional patterns that [autoDetectFormat] should try first.
+  /// A list of additional date patterns to attempt when [autoDetectFormat] is enabled.
+  ///
+  /// These patterns are tried before the built-in heuristic patterns.
   final List<String> extraAutoDetectPatterns;
 
   /// Returns a new [DateOptions] that prefers [other]'s non-null settings.
@@ -360,13 +429,20 @@ class BoolOptions {
     this.numericPositiveIsTrue = true,
   });
 
-  /// Case-insensitive string tokens that should be treated as `true`.
+  /// A set of case-insensitive string tokens that resolve to `true`.
+  ///
+  /// Defaults include 'true', '1', 'yes', 'y', 'on', 'ok', 't'.
   final Set<String> truthy;
 
-  /// Case-insensitive string tokens that should be treated as `false`.
+  /// A set of case-insensitive string tokens that resolve to `false`.
+  ///
+  /// Defaults include 'false', '0', 'no', 'n', 'off', 'f'.
   final Set<String> falsy;
 
-  /// If `true`, numeric values > 0 are considered `true` (else != 0).
+  /// Determines how numeric values are converted to booleans.
+  ///
+  /// If `true`, only values > 0 are considered `true`.
+  /// If `false`, any non-zero value is considered `true`.
   final bool numericPositiveIsTrue;
 
   /// Returns a new [BoolOptions] that prefers [other]'s settings.
@@ -398,13 +474,19 @@ class UriOptions {
     this.allowRelative = true,
   });
 
-  /// Default scheme to apply to bare domains when coercion is enabled.
+  /// The scheme to prepend to bare domains if [coerceBareDomainsToDefaultScheme] is enabled.
+  ///
+  /// Example: 'https'.
   final String? defaultScheme;
 
-  /// If `true`, add [defaultScheme] to inputs like `example.com`.
+  /// Enables strict coercion of bare domains to [defaultScheme].
+  ///
+  /// If `true`, inputs like `example.com` become `https://example.com` (assuming defaultScheme is 'https').
   final bool coerceBareDomainsToDefaultScheme;
 
-  /// If `false`, reject relative URIs.
+  /// Determines whether relative URIs are accepted.
+  ///
+  /// If `false`, parsing throws a [FormatException] for relative inputs.
   final bool allowRelative;
 
   /// Returns a new [UriOptions] that prefers [other]'s settings.
@@ -428,24 +510,53 @@ class UriOptions {
   );
 }
 
-/// Registry of custom parsers used by `Convert.toType` / `Convert.tryToType`.
+/// Registry of custom parsers for application-specific types.
+///
+/// Use [TypeRegistry] to extend `Convert.toType` and `Convert.tryToType` with
+/// support for your own domain models. Each registered parser receives the raw
+/// input and should return an instance of the target type.
+///
+/// ### Example
+/// ```dart
+/// class Money {
+///   final int cents;
+///   Money(this.cents);
+///   factory Money.parse(Object? o) => Money(Convert.toInt(o));
+/// }
+///
+/// final config = ConvertConfig(
+///   registry: const TypeRegistry.empty().register<Money>(Money.parse),
+/// );
+///
+/// ConvertConfig.configure(config);
+/// final money = Convert.toType<Money>('42'); // Money(42)
+/// ```
+///
+/// Parsers should throw to signal failure. The exception is wrapped in
+/// [ConversionException] with full context.
 @immutable
 class TypeRegistry {
-  /// Creates an empty registry (no custom parsers).
+  /// Creates an empty registry with no custom parsers.
   const TypeRegistry.empty() : this._const(const {});
 
   const TypeRegistry._const(this._parsers);
 
   final Map<Type, dynamic Function(Object?)> _parsers;
 
-  /// Returns a new registry registering [parser] for type [T].
+  /// Returns a new registry with [parser] registered for type [T].
+  ///
+  /// The parser is invoked by `Convert.toType` when [T] is requested.
+  /// Existing parsers in this registry are preserved; the new parser
+  /// is added (or replaces an existing parser for the same type).
   TypeRegistry register<T>(T Function(Object?) parser) {
     final next = Map<Type, dynamic Function(Object?)>.from(_parsers);
     next[T] = parser;
     return TypeRegistry._const(next);
   }
 
-  /// Combines this registry with [other], with [other] taking precedence.
+  /// Merges this registry with [other], returning a new registry.
+  ///
+  /// Parsers in [other] take precedence over parsers in this registry for the same type.
   TypeRegistry merge(TypeRegistry other) {
     if (other._parsers.isEmpty) return this;
     final next = Map<Type, dynamic Function(Object?)>.from(_parsers)
@@ -453,8 +564,9 @@ class TypeRegistry {
     return TypeRegistry._const(next);
   }
 
-  /// Attempts to parse [value] into [T] using a registered parser, returning
-  /// `null` when no parser exists or the parser returns `null`.
+  /// Attempts to parse [value] into [T] using a registered custom parser.
+  ///
+  /// Returns `null` if no parser is registered for [T] or if the parser itself returns `null`.
   T? tryParse<T>(Object? value) {
     final parser = _parsers[T] as T Function(Object?)?;
     return parser == null ? null : parser(value);
