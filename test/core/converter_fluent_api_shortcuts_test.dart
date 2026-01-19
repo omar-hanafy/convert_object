@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 
 import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
+import '../helpers/test_enums.dart';
 
 void main() {
   late ConvertConfig prev;
@@ -34,6 +35,14 @@ void main() {
         () => const Converter('abc').toInt(),
         throwsConversionException(method: 'toInt'),
       );
+    });
+
+    test('toInt should support mapKey, listIndex, and defaultValue', () {
+      final map = <String, Object?>{'v': '7'};
+      expect(Converter(map).toInt(mapKey: 'v'), equals(7));
+      final list = <Object?>['1', '2'];
+      expect(Converter(list).toInt(listIndex: 1), equals(2));
+      expect(const Converter('abc').toInt(defaultValue: 9), equals(9));
     });
 
     test('toDouble / tryToDouble / toDoubleOr', () {
@@ -69,6 +78,8 @@ void main() {
       expect(const Converter(123).toString(), equals('123'));
       expect(const Converter(null).tryToString(), isNull);
       expect(const Converter(null).toStringOr('fallback'), equals('fallback'));
+      final map = <String, Object?>{'v': 5};
+      expect(Converter(map).string(mapKey: 'v'), equals('5'));
       expect(
         () => const Converter(null).toString(),
         throwsConversionException(method: 'string'),
@@ -102,11 +113,30 @@ void main() {
     });
   });
 
+  group('Converter shortcut enums', () {
+    test('toEnum / tryToEnum', () {
+      final map = <String, Object?>{'status': 'active'};
+      final parser = TestStatus.values.parser;
+      expect(
+        Converter(map).toEnum<TestStatus>(parser: parser, mapKey: 'status'),
+        equals(TestStatus.active),
+      );
+      expect(
+        const Converter('unknown').tryToEnum<TestStatus>(parser: parser),
+        isNull,
+      );
+    });
+  });
+
   group('Converter shortcut collections', () {
     test('toList / tryToList', () {
       final input = <dynamic>['1', '2', '3'];
       expect(Converter(input).toList<int>(), equals(<int>[1, 2, 3]));
       expect(const Converter('not-list').tryToList<int>(), isNull);
+      expect(
+        const Converter('not-list').toList<int>(defaultValue: <int>[7]),
+        equals(<int>[7]),
+      );
       expect(
         Converter(input).toList<int>(elementConverter: (e) => Convert.toInt(e) * 2),
         equals(<int>[2, 4, 6]),

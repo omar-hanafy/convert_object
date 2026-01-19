@@ -1,3 +1,10 @@
+## 1.0.3
+
+- Align Converter fluent shortcuts with Convert optional arguments, including mapKey, listIndex, defaultValue, and formatting flags.
+- Add Converter enum helpers and a named Converter.string to expose full string options.
+- Add top level convertToEnum and tryConvertToEnum helpers.
+- Allow enum extensions to forward debugInfo without losing key or index context.
+
 ## 1.0.2
 
 - Add Kotlin-style scope helpers: `also`, `takeIf`, and `takeUnless`.

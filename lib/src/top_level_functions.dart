@@ -392,6 +392,42 @@ List<T>? tryConvertToList<T>(
   elementConverter: elementConverter,
 );
 
+// Enum
+
+/// Top-level convenience alias for [Convert.toEnum].
+T convertToEnum<T extends Enum>(
+  dynamic object, {
+  required T Function(dynamic) parser,
+  Object? mapKey,
+  int? listIndex,
+  T? defaultValue,
+  Map<String, dynamic>? debugInfo,
+}) => Convert.toEnum<T>(
+  object,
+  parser: parser,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  debugInfo: debugInfo,
+);
+
+/// Top-level convenience alias for [Convert.tryToEnum].
+T? tryConvertToEnum<T extends Enum>(
+  dynamic object, {
+  required T Function(dynamic) parser,
+  Object? mapKey,
+  int? listIndex,
+  T? defaultValue,
+  Map<String, dynamic>? debugInfo,
+}) => Convert.tryToEnum<T>(
+  object,
+  parser: parser,
+  mapKey: mapKey,
+  listIndex: listIndex,
+  defaultValue: defaultValue,
+  debugInfo: debugInfo,
+);
+
 // Generic
 
 /// Top-level convenience alias for [Convert.toType].

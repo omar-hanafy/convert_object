@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 
 import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
+import '../helpers/test_enums.dart';
 
 void main() {
   late ConvertConfig prev;
@@ -305,6 +306,34 @@ void main() {
       // Act
       final result = tryConvertToSet<int>(input);
       final expected = Convert.tryToSet<int>(input);
+
+      // Assert
+      expect(result, equals(expected));
+    });
+  });
+
+  group('Top-level enum functions', () {
+    test('convertToEnum should match Convert.toEnum', () {
+      // Arrange
+      const input = 'active';
+      final parser = TestStatus.values.parser;
+
+      // Act
+      final result = convertToEnum<TestStatus>(input, parser: parser);
+      final expected = Convert.toEnum<TestStatus>(input, parser: parser);
+
+      // Assert
+      expect(result, equals(expected));
+    });
+
+    test('tryConvertToEnum should match Convert.tryToEnum', () {
+      // Arrange
+      const input = 'unknown';
+      final parser = TestStatus.values.parser;
+
+      // Act
+      final result = tryConvertToEnum<TestStatus>(input, parser: parser);
+      final expected = Convert.tryToEnum<TestStatus>(input, parser: parser);
 
       // Assert
       expect(result, equals(expected));

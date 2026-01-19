@@ -30,11 +30,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     String? defaultValue,
+    ElementConverter<String>? converter,
   }) => ConvertObjectImpl.string(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -51,6 +53,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     int? defaultValue,
     String? format,
     String? locale,
+    ElementConverter<int>? converter,
   }) => ConvertObjectImpl.toInt(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -58,6 +61,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     defaultValue: defaultValue,
     format: format,
     locale: locale,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -74,6 +78,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     double? defaultValue,
     String? format,
     String? locale,
+    ElementConverter<double>? converter,
   }) => ConvertObjectImpl.toDouble(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -81,6 +86,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     defaultValue: defaultValue,
     format: format,
     locale: locale,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -120,11 +126,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     bool? defaultValue,
+    ElementConverter<bool>? converter,
   }) => ConvertObjectImpl.toBool(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -139,11 +147,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     List<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.toList<T>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -158,11 +168,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     Set<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.toSet<T>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -177,11 +189,15 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     Map<K2, V2>? defaultValue,
+    ElementConverter<K2>? keyConverter,
+    ElementConverter<V2>? valueConverter,
   }) => ConvertObjectImpl.toMap<K2, V2>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -196,11 +212,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     BigInt? defaultValue,
+    ElementConverter<BigInt>? converter,
   }) => ConvertObjectImpl.toBigInt(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -220,6 +238,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     bool useCurrentLocale = false,
     bool utc = false,
     DateTime? defaultValue,
+    ElementConverter<DateTime>? converter,
   }) => ConvertObjectImpl.toDateTime(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -230,6 +249,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     useCurrentLocale: useCurrentLocale,
     utc: utc,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -244,11 +264,13 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     Uri? defaultValue,
+    ElementConverter<Uri>? converter,
   }) => ConvertObjectImpl.toUri(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -264,18 +286,25 @@ extension MapConversionX<K, V> on Map<K, V> {
     dynamic innerKey,
     int? innerListIndex,
     T? defaultValue,
-  }) => ConvertObjectImpl.toEnum<T>(
-    _firstValueForKeys(key, alternativeKeys: alternativeKeys),
-    parser: parser,
-    mapKey: innerKey,
-    listIndex: innerListIndex,
-    defaultValue: defaultValue,
-    debugInfo: {
-      'key': key,
-      if (alternativeKeys != null && alternativeKeys.isNotEmpty)
-        'altKeys': alternativeKeys,
-    },
-  );
+    Map<String, dynamic>? debugInfo,
+  }) {
+    final info = <String, dynamic>{};
+    if (debugInfo != null && debugInfo.isNotEmpty) {
+      info.addAll(debugInfo);
+    }
+    info['key'] = key;
+    if (alternativeKeys != null && alternativeKeys.isNotEmpty) {
+      info['altKeys'] = alternativeKeys;
+    }
+    return ConvertObjectImpl.toEnum<T>(
+      _firstValueForKeys(key, alternativeKeys: alternativeKeys),
+      parser: parser,
+      mapKey: innerKey,
+      listIndex: innerListIndex,
+      defaultValue: defaultValue,
+      debugInfo: info,
+    );
+  }
 
   /// Returns a list containing all the values in the map.
   List<V> get valuesList => ConvertObjectImpl.toList<V>(
@@ -341,11 +370,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     String? defaultValue,
+    ElementConverter<String>? converter,
   }) => ConvertObjectImpl.tryToString(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -362,6 +393,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     int? defaultValue,
     String? format,
     String? locale,
+    ElementConverter<int>? converter,
   }) => ConvertObjectImpl.tryToInt(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -369,6 +401,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     defaultValue: defaultValue,
     format: format,
     locale: locale,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -385,6 +418,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     double? defaultValue,
     String? format,
     String? locale,
+    ElementConverter<double>? converter,
   }) => ConvertObjectImpl.tryToDouble(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -392,6 +426,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     defaultValue: defaultValue,
     format: format,
     locale: locale,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -431,11 +466,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     bool? defaultValue,
+    ElementConverter<bool>? converter,
   }) => ConvertObjectImpl.tryToBool(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -450,11 +487,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     List<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.tryToList<T>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -469,11 +508,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     Set<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.tryToSet<T>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -488,11 +529,15 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     Map<K2, V2>? defaultValue,
+    ElementConverter<K2>? keyConverter,
+    ElementConverter<V2>? valueConverter,
   }) => ConvertObjectImpl.tryToMap<K2, V2>(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -507,11 +552,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     BigInt? defaultValue,
+    ElementConverter<BigInt>? converter,
   }) => ConvertObjectImpl.tryToBigInt(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -531,6 +578,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     bool useCurrentLocale = false,
     bool utc = false,
     DateTime? defaultValue,
+    ElementConverter<DateTime>? converter,
   }) => ConvertObjectImpl.tryToDateTime(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
@@ -541,6 +589,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     useCurrentLocale: useCurrentLocale,
     utc: utc,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -555,11 +604,13 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     Uri? defaultValue,
+    ElementConverter<Uri>? converter,
   }) => ConvertObjectImpl.tryToUri(
     _firstValueForKeys(key, alternativeKeys: alternativeKeys),
     mapKey: innerKey,
     listIndex: innerListIndex,
     defaultValue: defaultValue,
+    converter: converter,
     debugInfo: {
       'key': key,
       if (alternativeKeys != null && alternativeKeys.isNotEmpty)
@@ -575,16 +626,23 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     dynamic innerKey,
     int? innerListIndex,
     T? defaultValue,
-  }) => ConvertObjectImpl.tryToEnum<T>(
-    _firstValueForKeys(key, alternativeKeys: alternativeKeys),
-    parser: parser,
-    mapKey: innerKey,
-    listIndex: innerListIndex,
-    defaultValue: defaultValue,
-    debugInfo: {
-      'key': key,
-      if (alternativeKeys != null && alternativeKeys.isNotEmpty)
-        'altKeys': alternativeKeys,
-    },
-  );
+    Map<String, dynamic>? debugInfo,
+  }) {
+    final info = <String, dynamic>{};
+    if (debugInfo != null && debugInfo.isNotEmpty) {
+      info.addAll(debugInfo);
+    }
+    info['key'] = key;
+    if (alternativeKeys != null && alternativeKeys.isNotEmpty) {
+      info['altKeys'] = alternativeKeys;
+    }
+    return ConvertObjectImpl.tryToEnum<T>(
+      _firstValueForKeys(key, alternativeKeys: alternativeKeys),
+      parser: parser,
+      mapKey: innerKey,
+      listIndex: innerListIndex,
+      defaultValue: defaultValue,
+      debugInfo: info,
+    );
+  }
 }

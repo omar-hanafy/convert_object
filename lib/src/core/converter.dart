@@ -145,150 +145,534 @@ class Converter {
   }
 
   // Primitive shortcuts ----------------------------------------------
-  /// Converts to [String], mirroring [Convert.toString].
+  /// Converts to [String], mirroring [Convert.string].
+  String string({
+    dynamic mapKey,
+    int? listIndex,
+    String? defaultValue,
+    DynamicConverter<String>? converter,
+  }) => ConvertObjectImpl.string(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as String?,
+    converter: converter,
+  );
+
+  /// Overrides [Object.toString] using the conversion logic.
   @override
-  String toString() =>
-      ConvertObjectImpl.string(_value, defaultValue: _defaultValue as String?);
+  String toString() => string();
 
   /// Converts to [String] without throwing, mirroring [Convert.tryToString].
-  String? tryToString() => ConvertObjectImpl.tryToString(
+  String? tryToString({
+    dynamic mapKey,
+    int? listIndex,
+    String? defaultValue,
+    DynamicConverter<String>? converter,
+  }) => ConvertObjectImpl.tryToString(
     _value,
-    defaultValue: _defaultValue as String?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as String?,
+    converter: converter,
   );
 
   /// Converts to [String], falling back to [defaultValue] when conversion fails.
-  String toStringOr(String defaultValue) => tryToString() ?? defaultValue;
+  String toStringOr(
+    String defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    DynamicConverter<String>? converter,
+  }) => tryToString(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [num], mirroring [Convert.toNum].
-  num toNum() =>
-      ConvertObjectImpl.toNum(_value, defaultValue: _defaultValue as num?);
+  num toNum({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    num? defaultValue,
+    DynamicConverter<num>? converter,
+  }) => ConvertObjectImpl.toNum(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as num?,
+    converter: converter,
+  );
 
   /// Converts to [num] without throwing, mirroring [Convert.tryToNum].
-  num? tryToNum() =>
-      ConvertObjectImpl.tryToNum(_value, defaultValue: _defaultValue as num?);
+  num? tryToNum({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    num? defaultValue,
+    DynamicConverter<num>? converter,
+  }) => ConvertObjectImpl.tryToNum(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as num?,
+    converter: converter,
+  );
 
   /// Converts to [num], falling back to [defaultValue] on conversion failure.
-  num toNumOr(num defaultValue) => tryToNum() ?? defaultValue;
+  num toNumOr(
+    num defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    DynamicConverter<num>? converter,
+  }) => tryToNum(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [int], mirroring [Convert.toInt].
-  int toInt() =>
-      ConvertObjectImpl.toInt(_value, defaultValue: _defaultValue as int?);
+  int toInt({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    int? defaultValue,
+    DynamicConverter<int>? converter,
+  }) => ConvertObjectImpl.toInt(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as int?,
+    converter: converter,
+  );
 
   /// Converts to [int] without throwing, mirroring [Convert.tryToInt].
-  int? tryToInt() =>
-      ConvertObjectImpl.tryToInt(_value, defaultValue: _defaultValue as int?);
+  int? tryToInt({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    int? defaultValue,
+    DynamicConverter<int>? converter,
+  }) => ConvertObjectImpl.tryToInt(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as int?,
+    converter: converter,
+  );
 
   /// Converts to [int], falling back to [defaultValue] when conversion fails.
-  int toIntOr(int defaultValue) => tryToInt() ?? defaultValue;
+  int toIntOr(
+    int defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    DynamicConverter<int>? converter,
+  }) => tryToInt(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [double], mirroring [Convert.toDouble].
-  double toDouble() => ConvertObjectImpl.toDouble(
+  double toDouble({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    double? defaultValue,
+    DynamicConverter<double>? converter,
+  }) => ConvertObjectImpl.toDouble(
     _value,
-    defaultValue: _defaultValue as double?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as double?,
+    converter: converter,
   );
 
   /// Converts to [double] without throwing, mirroring
   /// [Convert.tryToDouble].
-  double? tryToDouble() => ConvertObjectImpl.tryToDouble(
+  double? tryToDouble({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    double? defaultValue,
+    DynamicConverter<double>? converter,
+  }) => ConvertObjectImpl.tryToDouble(
     _value,
-    defaultValue: _defaultValue as double?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue ?? _defaultValue as double?,
+    converter: converter,
   );
 
   /// Converts to [double], falling back to [defaultValue] on failure.
-  double toDoubleOr(double defaultValue) => tryToDouble() ?? defaultValue;
+  double toDoubleOr(
+    double defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    DynamicConverter<double>? converter,
+  }) => tryToDouble(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [bool], mirroring [Convert.toBool].
-  bool toBool() =>
-      ConvertObjectImpl.toBool(_value, defaultValue: _defaultValue as bool?);
+  bool toBool({
+    dynamic mapKey,
+    int? listIndex,
+    bool? defaultValue,
+    DynamicConverter<bool>? converter,
+  }) => ConvertObjectImpl.toBool(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as bool?,
+    converter: converter,
+  );
 
   /// Converts to [bool] without throwing, mirroring [Convert.tryToBool].
-  bool? tryToBool() =>
-      ConvertObjectImpl.tryToBool(_value, defaultValue: _defaultValue as bool?);
+  bool? tryToBool({
+    dynamic mapKey,
+    int? listIndex,
+    bool? defaultValue,
+    DynamicConverter<bool>? converter,
+  }) => ConvertObjectImpl.tryToBool(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as bool?,
+    converter: converter,
+  );
 
   /// Converts to [bool], falling back to [defaultValue] on failure.
-  bool toBoolOr(bool defaultValue) => tryToBool() ?? defaultValue;
+  bool toBoolOr(
+    bool defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    DynamicConverter<bool>? converter,
+  }) => tryToBool(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [BigInt], mirroring [Convert.toBigInt].
-  BigInt toBigInt() => ConvertObjectImpl.toBigInt(
+  BigInt toBigInt({
+    dynamic mapKey,
+    int? listIndex,
+    BigInt? defaultValue,
+    DynamicConverter<BigInt>? converter,
+  }) => ConvertObjectImpl.toBigInt(
     _value,
-    defaultValue: _defaultValue as BigInt?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as BigInt?,
+    converter: converter,
   );
 
   /// Converts to [BigInt] without throwing, mirroring
   /// [Convert.tryToBigInt].
-  BigInt? tryToBigInt() => ConvertObjectImpl.tryToBigInt(
+  BigInt? tryToBigInt({
+    dynamic mapKey,
+    int? listIndex,
+    BigInt? defaultValue,
+    DynamicConverter<BigInt>? converter,
+  }) => ConvertObjectImpl.tryToBigInt(
     _value,
-    defaultValue: _defaultValue as BigInt?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as BigInt?,
+    converter: converter,
   );
 
   /// Converts to [BigInt], falling back to [defaultValue] on failure.
-  BigInt toBigIntOr(BigInt defaultValue) => tryToBigInt() ?? defaultValue;
+  BigInt toBigIntOr(
+    BigInt defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    DynamicConverter<BigInt>? converter,
+  }) => tryToBigInt(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [DateTime], mirroring [Convert.toDateTime].
-  DateTime toDateTime() => ConvertObjectImpl.toDateTime(
+  DateTime toDateTime({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    bool autoDetectFormat = false,
+    bool useCurrentLocale = false,
+    bool utc = false,
+    DateTime? defaultValue,
+    DynamicConverter<DateTime>? converter,
+  }) => ConvertObjectImpl.toDateTime(
     _value,
-    defaultValue: _defaultValue as DateTime?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue ?? _defaultValue as DateTime?,
+    converter: converter,
   );
 
   /// Converts to [DateTime] without throwing, mirroring
   /// [Convert.tryToDateTime].
-  DateTime? tryToDateTime() => ConvertObjectImpl.tryToDateTime(
+  DateTime? tryToDateTime({
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    bool autoDetectFormat = false,
+    bool useCurrentLocale = false,
+    bool utc = false,
+    DateTime? defaultValue,
+    DynamicConverter<DateTime>? converter,
+  }) => ConvertObjectImpl.tryToDateTime(
     _value,
-    defaultValue: _defaultValue as DateTime?,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue ?? _defaultValue as DateTime?,
+    converter: converter,
   );
 
   /// Converts to [DateTime], falling back to [defaultValue] on failure.
-  DateTime toDateTimeOr(DateTime defaultValue) =>
-      tryToDateTime() ?? defaultValue;
+  DateTime toDateTimeOr(
+    DateTime defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    String? format,
+    String? locale,
+    bool autoDetectFormat = false,
+    bool useCurrentLocale = false,
+    bool utc = false,
+    DynamicConverter<DateTime>? converter,
+  }) => tryToDateTime(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    format: format,
+    locale: locale,
+    autoDetectFormat: autoDetectFormat,
+    useCurrentLocale: useCurrentLocale,
+    utc: utc,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
 
   /// Converts to [Uri], mirroring [Convert.toUri].
-  Uri toUri() =>
-      ConvertObjectImpl.toUri(_value, defaultValue: _defaultValue as Uri?);
+  Uri toUri({
+    dynamic mapKey,
+    int? listIndex,
+    Uri? defaultValue,
+    DynamicConverter<Uri>? converter,
+  }) => ConvertObjectImpl.toUri(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Uri?,
+    converter: converter,
+  );
 
   /// Converts to [Uri] without throwing, mirroring [Convert.tryToUri].
-  Uri? tryToUri() =>
-      ConvertObjectImpl.tryToUri(_value, defaultValue: _defaultValue as Uri?);
+  Uri? tryToUri({
+    dynamic mapKey,
+    int? listIndex,
+    Uri? defaultValue,
+    DynamicConverter<Uri>? converter,
+  }) => ConvertObjectImpl.tryToUri(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Uri?,
+    converter: converter,
+  );
 
   /// Converts to [Uri], falling back to [defaultValue] on failure.
-  Uri toUriOr(Uri defaultValue) => tryToUri() ?? defaultValue;
+  Uri toUriOr(
+    Uri defaultValue, {
+    dynamic mapKey,
+    int? listIndex,
+    DynamicConverter<Uri>? converter,
+  }) => tryToUri(
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue,
+    converter: converter,
+  ) ??
+      defaultValue;
+
+  // Enums -------------------------------------------------------------
+  /// Converts to [T] using [parser], mirroring [Convert.toEnum].
+  T toEnum<T extends Enum>({
+    required T Function(dynamic) parser,
+    dynamic mapKey,
+    int? listIndex,
+    T? defaultValue,
+    Map<String, dynamic>? debugInfo,
+  }) => ConvertObjectImpl.toEnum<T>(
+    _value,
+    parser: parser,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as T?,
+    debugInfo: debugInfo,
+  );
+
+  /// Converts to [T] without throwing, mirroring [Convert.tryToEnum].
+  T? tryToEnum<T extends Enum>({
+    required T Function(dynamic) parser,
+    dynamic mapKey,
+    int? listIndex,
+    T? defaultValue,
+    Map<String, dynamic>? debugInfo,
+  }) => ConvertObjectImpl.tryToEnum<T>(
+    _value,
+    parser: parser,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as T?,
+    debugInfo: debugInfo,
+  );
 
   // Collections -------------------------------------------------------
   /// Converts to [List], optionally transforming each item.
-  List<T> toList<T>({DynamicConverter<T>? elementConverter}) =>
-      ConvertObjectImpl.toList<T>(_value, elementConverter: elementConverter);
+  List<T> toList<T>({
+    dynamic mapKey,
+    int? listIndex,
+    List<T>? defaultValue,
+    DynamicConverter<T>? elementConverter,
+  }) => ConvertObjectImpl.toList<T>(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as List<T>?,
+    elementConverter: elementConverter,
+  );
 
   /// Converts to [List] without throwing, returning `null` when conversion
   /// fails.
-  List<T>? tryToList<T>({DynamicConverter<T>? elementConverter}) =>
-      ConvertObjectImpl.tryToList<T>(
-        _value,
-        elementConverter: elementConverter,
-      );
+  List<T>? tryToList<T>({
+    dynamic mapKey,
+    int? listIndex,
+    List<T>? defaultValue,
+    DynamicConverter<T>? elementConverter,
+  }) => ConvertObjectImpl.tryToList<T>(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as List<T>?,
+    elementConverter: elementConverter,
+  );
 
   /// Converts to [Set], optionally transforming each item.
-  Set<T> toSet<T>({DynamicConverter<T>? elementConverter}) =>
-      ConvertObjectImpl.toSet<T>(_value, elementConverter: elementConverter);
+  Set<T> toSet<T>({
+    dynamic mapKey,
+    int? listIndex,
+    Set<T>? defaultValue,
+    DynamicConverter<T>? elementConverter,
+  }) => ConvertObjectImpl.toSet<T>(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Set<T>?,
+    elementConverter: elementConverter,
+  );
 
   /// Converts to [Set] without throwing, returning `null` on failure.
-  Set<T>? tryToSet<T>({DynamicConverter<T>? elementConverter}) =>
-      ConvertObjectImpl.tryToSet<T>(_value, elementConverter: elementConverter);
+  Set<T>? tryToSet<T>({
+    dynamic mapKey,
+    int? listIndex,
+    Set<T>? defaultValue,
+    DynamicConverter<T>? elementConverter,
+  }) => ConvertObjectImpl.tryToSet<T>(
+    _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Set<T>?,
+    elementConverter: elementConverter,
+  );
 
   /// Converts to [Map], allowing converters for keys and values.
   Map<K, V> toMap<K, V>({
+    dynamic mapKey,
+    int? listIndex,
+    Map<K, V>? defaultValue,
     DynamicConverter<K>? keyConverter,
     DynamicConverter<V>? valueConverter,
   }) => ConvertObjectImpl.toMap<K, V>(
     _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Map<K, V>?,
     keyConverter: keyConverter,
     valueConverter: valueConverter,
   );
 
   /// Converts to [Map] without throwing, returning `null` on failure.
   Map<K, V>? tryToMap<K, V>({
+    dynamic mapKey,
+    int? listIndex,
+    Map<K, V>? defaultValue,
     DynamicConverter<K>? keyConverter,
     DynamicConverter<V>? valueConverter,
   }) => ConvertObjectImpl.tryToMap<K, V>(
     _value,
+    mapKey: mapKey,
+    listIndex: listIndex,
+    defaultValue: defaultValue ?? _defaultValue as Map<K, V>?,
     keyConverter: keyConverter,
     valueConverter: valueConverter,
   );
