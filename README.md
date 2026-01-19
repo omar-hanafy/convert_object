@@ -9,23 +9,23 @@
 
 ---
 
-## Table of contents
+<details>
+<summary><b>Table of contents</b></summary>
 
 * [Why convert_object?](#why-convert_object)
 * [Install](#install)
 * [Quick start](#quick-start)
 * [Core APIs](#core-apis)
-
   * [Static facade: `Convert`](#static-facade-convertobject)
   * [Fluent API: `Converter` + `.convert` extension](#fluent-api-converter--convert-extension)
-  * [Top‑level functions (`toInt`, `tryToDateTime`, …)](#top-level-functions)
+  * [Top-level functions (`toInt`, `tryToDateTime`, ...)](#top-level-functions)
   * [Global configuration (`ConvertConfig`)](#global-configuration-convertconfig)
   * [Map/Iterable/Object extensions](#mapiterableobject-extensions)
   * [Strict vs try vs default](#strict-vs-try-vs-default)
   * [Low-token usage patterns](#low-token-usage-patterns)
   * [Enum helpers: `EnumParsers`](#enum-helpers-enumparsers)
   * [Results: `ConversionResult<T>`](#results-conversionresultt)
-* [Deep‑dive: Date & time parsing](#deep-dive-date--time-parsing)
+* [Deep-dive: Date & time parsing](#deep-dive-date--time-parsing)
 * [Numbers & booleans](#numbers--booleans)
 * [URIs (http/mail/phone)](#uris-httpmailphone)
 * [JSON + pretty utilities](#json--pretty-utilities)
@@ -37,6 +37,8 @@
 * [FAQ](#faq)
 * [Contributing](#contributing)
 * [License](#license)
+
+</details>
 
 ---
 
