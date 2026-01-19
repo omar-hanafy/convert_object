@@ -138,7 +138,9 @@ void main() {
         equals(<int>[7]),
       );
       expect(
-        Converter(input).toList<int>(elementConverter: (e) => Convert.toInt(e) * 2),
+        Converter(
+          input,
+        ).toList<int>(elementConverter: (e) => Convert.toInt(e) * 2),
         equals(<int>[2, 4, 6]),
       );
     });
@@ -148,7 +150,9 @@ void main() {
       expect(Converter(input).toSet<int>(), equals(<int>{1, 2}));
       expect(const Converter('not-set').tryToSet<int>(), isNull);
       expect(
-        Converter(input).toSet<int>(elementConverter: (e) => Convert.toInt(e) + 1),
+        Converter(
+          input,
+        ).toSet<int>(elementConverter: (e) => Convert.toInt(e) + 1),
         equals(<int>{2, 3}),
       );
     });

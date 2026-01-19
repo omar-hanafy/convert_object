@@ -53,9 +53,7 @@ void main() {
       const value = '10';
 
       // Act
-      final result = value
-          .let((it) => int.parse(it))
-          .takeIf((it) => it > 5);
+      final result = value.let((it) => int.parse(it)).takeIf((it) => it > 5);
 
       // Assert
       expect(result, equals(10));
@@ -66,9 +64,7 @@ void main() {
       const value = '3';
 
       // Act
-      final result = value
-          .let((it) => int.parse(it))
-          .takeIf((it) => it > 5);
+      final result = value.let((it) => int.parse(it)).takeIf((it) => it > 5);
 
       // Assert
       expect(result, isNull);
@@ -216,12 +212,10 @@ void main() {
       var blockCalled = false;
 
       // Act
-      final result = value
-          .let((it) => it.toUpperCase())
-          ?.let((it) {
-            blockCalled = true;
-            return it.length;
-          });
+      final result = value.let((it) => it.toUpperCase())?.let((it) {
+        blockCalled = true;
+        return it.length;
+      });
 
       // Assert
       expect(result, isNull);
@@ -276,10 +270,7 @@ void main() {
       String? value = '123';
 
       // Act
-      final result = value.letOr(
-        (it) => int.parse(it) * 2,
-        defaultValue: -1,
-      );
+      final result = value.letOr((it) => int.parse(it) * 2, defaultValue: -1);
 
       // Assert
       expect(result, equals(246));
@@ -290,10 +281,7 @@ void main() {
       String? value;
 
       // Act
-      final result = value.letOr(
-        (it) => int.parse(it) * 2,
-        defaultValue: -1,
-      );
+      final result = value.letOr((it) => int.parse(it) * 2, defaultValue: -1);
 
       // Assert
       expect(result, equals(-1));
@@ -305,13 +293,10 @@ void main() {
       var blockCalled = false;
 
       // Act
-      final result = value.letOr(
-        (it) {
-          blockCalled = true;
-          throw Exception('Should not be called');
-        },
-        defaultValue: 'safe',
-      );
+      final result = value.letOr((it) {
+        blockCalled = true;
+        throw Exception('Should not be called');
+      }, defaultValue: 'safe');
 
       // Assert
       expect(result, equals('safe'));
@@ -385,10 +370,7 @@ void main() {
 
       // Assert
       expect(result, equals('important_data'));
-      expect(logs, equals([
-        'Processing: important_data',
-        'Length: 14',
-      ]));
+      expect(logs, equals(['Processing: important_data', 'Length: 14']));
     });
 
     test('also should not modify immutable receiver', () {
@@ -445,20 +427,23 @@ void main() {
   });
 
   group('LetExtensionNullable non-null branches', () {
-    test('also should execute block and return value for non-null receiver', () {
-      // Arrange
-      String? valueProvider() => 'hello';
-      var sideEffect = '';
+    test(
+      'also should execute block and return value for non-null receiver',
+      () {
+        // Arrange
+        String? valueProvider() => 'hello';
+        var sideEffect = '';
 
-      // Act
-      final result = valueProvider().also((it) {
-        sideEffect = it;
-      });
+        // Act
+        final result = valueProvider().also((it) {
+          sideEffect = it;
+        });
 
-      // Assert
-      expect(result, equals('hello'));
-      expect(sideEffect, equals('hello'));
-    });
+        // Assert
+        expect(result, equals('hello'));
+        expect(sideEffect, equals('hello'));
+      },
+    );
 
     test('takeIf should return value when predicate is true', () {
       // Arrange

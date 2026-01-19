@@ -665,35 +665,37 @@ void main() {
             // Assert
             expect(before, equals(const UserId(1)));
             expect(inside, equals(const UserId(2)));
-          expect(after, equals(const UserId(1)));
-        });
-      },
+            expect(after, equals(const UserId(1)));
+          });
+        },
       );
 
-      test('should apply registry overrides when using ConvertConfig.overrides',
-          () {
-        // Arrange
-        final baseRegistry = const TypeRegistry.empty().register<UserId>(
-          (_) => const UserId(1),
-        );
-        final baseConfig = makeTestConfig(registry: baseRegistry);
-
-        final overrideRegistry = const TypeRegistry.empty().register<UserId>(
-          (_) => const UserId(2),
-        );
-        final overrides = ConvertConfig.overrides(registry: overrideRegistry);
-
-        // Act
-        withGlobalConfig(baseConfig, () {
-          final result = Convert.runScopedConfig(
-            overrides,
-            () => Convert.toType<UserId>('anything'),
+      test(
+        'should apply registry overrides when using ConvertConfig.overrides',
+        () {
+          // Arrange
+          final baseRegistry = const TypeRegistry.empty().register<UserId>(
+            (_) => const UserId(1),
           );
+          final baseConfig = makeTestConfig(registry: baseRegistry);
 
-          // Assert
-          expect(result, equals(const UserId(2)));
-        });
-      });
+          final overrideRegistry = const TypeRegistry.empty().register<UserId>(
+            (_) => const UserId(2),
+          );
+          final overrides = ConvertConfig.overrides(registry: overrideRegistry);
+
+          // Act
+          withGlobalConfig(baseConfig, () {
+            final result = Convert.runScopedConfig(
+              overrides,
+              () => Convert.toType<UserId>('anything'),
+            );
+
+            // Assert
+            expect(result, equals(const UserId(2)));
+          });
+        },
+      );
     });
   });
 

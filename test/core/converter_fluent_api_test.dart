@@ -49,8 +49,8 @@ void main() {
         final result = const Converter(source).fromMap('x').tryToString();
 
         // Assert
-      expect(result, isNull);
-    },
+        expect(result, isNull);
+      },
     );
 
     test('should return a Converter(null) for invalid JSON strings', () {
@@ -177,10 +177,7 @@ void main() {
       final c = const Converter('abc').withDefault(99);
 
       // Act + Assert
-      expect(
-        () => c.to<int>(),
-        throwsConversionException(method: 'toInt'),
-      );
+      expect(() => c.to<int>(), throwsConversionException(method: 'toInt'));
     });
 
     test(
@@ -193,8 +190,8 @@ void main() {
         final result = c.toOr<int>(123);
 
         // Assert
-      expect(result, equals(123));
-    },
+        expect(result, equals(123));
+      },
     );
 
     test('toIntOr should return fallback when conversion fails', () {
@@ -243,8 +240,8 @@ void main() {
         final result = c.to<int>();
 
         // Assert
-      expect(result, equals(6));
-    },
+        expect(result, equals(6));
+      },
     );
 
     test('withConverter should not affect primitive shortcut methods', () {
@@ -252,10 +249,7 @@ void main() {
       final c = const Converter('abc').withConverter((_) => '6');
 
       // Act + Assert
-      expect(
-        () => c.toInt(),
-        throwsConversionException(method: 'toInt'),
-      );
+      expect(() => c.toInt(), throwsConversionException(method: 'toInt'));
     });
 
     test(

@@ -70,12 +70,14 @@ void main() {
 
       // Act
       final result = success
-          .flatMap((v) => ConversionResult<int>.failure(
-                ConversionException(
-                  error: 'First failure',
-                  context: <String, dynamic>{'step': 1},
-                ),
-              ))
+          .flatMap(
+            (v) => ConversionResult<int>.failure(
+              ConversionException(
+                error: 'First failure',
+                context: <String, dynamic>{'step': 1},
+              ),
+            ),
+          )
           .flatMap((v) {
             secondCallCount++;
             return ConversionResult.success(v * 2);
@@ -154,10 +156,7 @@ void main() {
       );
 
       // Assert
-      expect(
-        failure.error?.stackTrace.toString(),
-        contains('ORIGINAL_TRACE'),
-      );
+      expect(failure.error?.stackTrace.toString(), contains('ORIGINAL_TRACE'));
     });
   });
 
@@ -216,12 +215,14 @@ void main() {
       // Act
       final text = initial
           .map((v) => v * 2)
-          .flatMap<int>((v) => ConversionResult.failure(
-                ConversionException(
-                  error: 'Operation failed',
-                  context: <String, dynamic>{'value': v},
-                ),
-              ))
+          .flatMap<int>(
+            (v) => ConversionResult.failure(
+              ConversionException(
+                error: 'Operation failed',
+                context: <String, dynamic>{'value': v},
+              ),
+            ),
+          )
           .fold(
             onSuccess: (v) => 'Success: $v',
             onFailure: (e) => 'Error: ${e.error}',
@@ -289,10 +290,7 @@ void main() {
     test('fold with exception in onFailure callback should propagate', () {
       // Arrange
       final failure = ConversionResult<int>.failure(
-        ConversionException(
-          error: 'original',
-          context: <String, dynamic>{},
-        ),
+        ConversionException(error: 'original', context: <String, dynamic>{}),
       );
 
       // Act / Assert
@@ -321,16 +319,19 @@ void main() {
   });
 
   group('ConversionResult valueOr and valueOrNull', () {
-    test('valueOr should return value on success even when it equals default', () {
-      // Arrange
-      final result = ConversionResult.success(0);
+    test(
+      'valueOr should return value on success even when it equals default',
+      () {
+        // Arrange
+        final result = ConversionResult.success(0);
 
-      // Act
-      final value = result.valueOr(999);
+        // Act
+        final value = result.valueOr(999);
 
-      // Assert
-      expect(value, equals(0));
-    });
+        // Assert
+        expect(value, equals(0));
+      },
+    );
 
     test('valueOrNull should return value on success even when null-like', () {
       // Arrange
@@ -346,10 +347,7 @@ void main() {
     test('valueOr with complex default should work correctly', () {
       // Arrange
       final failure = ConversionResult<Map<String, int>>.failure(
-        ConversionException(
-          error: 'failed',
-          context: <String, dynamic>{},
-        ),
+        ConversionException(error: 'failed', context: <String, dynamic>{}),
       );
       final defaultMap = <String, int>{'default': 1};
 

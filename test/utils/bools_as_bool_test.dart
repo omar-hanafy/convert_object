@@ -111,8 +111,8 @@ void main() {
         final result = value.asBool;
 
         // Assert
-      expect(result, isFalse);
-    },
+        expect(result, isFalse);
+      },
     );
 
     test('should treat NaN as false when parsing numeric strings', () {

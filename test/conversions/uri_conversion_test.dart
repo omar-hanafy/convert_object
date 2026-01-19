@@ -119,17 +119,19 @@ void main() {
       );
     });
 
-    test('should reject http URIs missing a host when allowRelative is false',
-        () {
-      // Arrange
-      const overrides = ConvertConfig(uri: UriOptions(allowRelative: false));
+    test(
+      'should reject http URIs missing a host when allowRelative is false',
+      () {
+        // Arrange
+        const overrides = ConvertConfig(uri: UriOptions(allowRelative: false));
 
-      // Act + Assert
-      expect(
-        () => withScopedConfig(overrides, () => Convert.toUri('http://')),
-        throwsConversionException(method: 'toUri'),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => withScopedConfig(overrides, () => Convert.toUri('http://')),
+          throwsConversionException(method: 'toUri'),
+        );
+      },
+    );
 
     test('should reject mailto or tel URIs missing a path', () {
       // Arrange
@@ -168,8 +170,8 @@ void main() {
         final result = Convert.toUri('   ', defaultValue: fallback);
 
         // Assert
-      expect(result, equals(fallback));
-    },
+        expect(result, equals(fallback));
+      },
     );
 
     test('should rethrow ConversionException from converter', () {

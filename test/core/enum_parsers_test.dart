@@ -241,10 +241,10 @@ void main() {
     test('Convert.toEnum should rethrow ConversionException from parser', () {
       // Arrange
       TestColor parser(dynamic _) => throw ConversionException(
-            error: 'boom',
-            context: {'method': 'toEnum<TestColor>'},
-            stackTrace: StackTrace.current,
-          );
+        error: 'boom',
+        context: {'method': 'toEnum<TestColor>'},
+        stackTrace: StackTrace.current,
+      );
 
       // Act / Assert
       expect(

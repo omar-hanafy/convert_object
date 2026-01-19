@@ -89,8 +89,7 @@ void main() {
   group('Convert.toDateTime numeric threshold', () {
     test('should treat values at or above 100000000000 as milliseconds', () {
       const millis = 100000000000;
-      final expected =
-          DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
+      final expected = DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
 
       final result = Convert.toDateTime(millis, utc: true);
 
@@ -171,10 +170,8 @@ void main() {
 
     test('should rethrow ConversionException from converter', () {
       expect(
-        () => Convert.toNum(
-          '1',
-          converter: (_) => throw _testException('toNum'),
-        ),
+        () =>
+            Convert.toNum('1', converter: (_) => throw _testException('toNum')),
         throwsConversionException(method: 'toNum'),
       );
     });
@@ -244,10 +241,8 @@ void main() {
 
     test('should rethrow ConversionException from converter', () {
       expect(
-        () => Convert.toInt(
-          '1',
-          converter: (_) => throw _testException('toInt'),
-        ),
+        () =>
+            Convert.toInt('1', converter: (_) => throw _testException('toInt')),
         throwsConversionException(method: 'toInt'),
       );
     });
@@ -465,10 +460,7 @@ void main() {
 
     test('should interpret numeric milliseconds as epoch milliseconds', () {
       const millis = 1700000000000;
-      final expected = DateTime.fromMillisecondsSinceEpoch(
-        millis,
-        isUtc: true,
-      );
+      final expected = DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
 
       final result = Convert.tryToDateTime(millis, utc: true);
 
@@ -476,10 +468,7 @@ void main() {
     });
 
     test('should parse using explicit format when provided', () {
-      final result = Convert.tryToDateTime(
-        '2025-01-31',
-        format: 'yyyy-MM-dd',
-      );
+      final result = Convert.tryToDateTime('2025-01-31', format: 'yyyy-MM-dd');
 
       expect(result, isA<DateTime>());
       expect(result!.year, equals(2025));

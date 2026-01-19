@@ -86,9 +86,9 @@ void main() {
         );
 
         // Assert
-      expect(result, isA<Map<int, int>>());
-      expect(result, equals(<int, int>{1: 2, 3: 4}));
-    },
+        expect(result, isA<Map<int, int>>());
+        expect(result, equals(<int, int>{1: 2, 3: 4}));
+      },
     );
 
     test('should wrap keyConverter errors in ConversionException', () {
@@ -190,8 +190,8 @@ void main() {
         );
 
         // Assert
-      expect(result, equals(fallback));
-    },
+        expect(result, equals(fallback));
+      },
     );
 
     test('should rethrow ConversionException from keyConverter', () {

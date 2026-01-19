@@ -58,46 +58,37 @@ void main() {
         );
 
         // Assert
-        expect(
-          merged.dates.extraAutoDetectPatterns,
-          equals(['yyyy.MM.dd']),
-        );
+        expect(merged.dates.extraAutoDetectPatterns, equals(['yyyy.MM.dd']));
       },
     );
 
-    test(
-      'should keep base patterns when override patterns are empty',
-      () {
-        // Arrange
-        final baseConfig = makeTestConfig(
-          dates: const DateOptions(
-            autoDetectFormat: true,
-            extraAutoDetectPatterns: ['MM/dd/yyyy'],
-          ),
-        );
-        final overrideConfig = ConvertConfig.overrides(
-          dates: const DateOptions(
-            autoDetectFormat: true,
-            extraAutoDetectPatterns: [],
-          ),
-        );
+    test('should keep base patterns when override patterns are empty', () {
+      // Arrange
+      final baseConfig = makeTestConfig(
+        dates: const DateOptions(
+          autoDetectFormat: true,
+          extraAutoDetectPatterns: ['MM/dd/yyyy'],
+        ),
+      );
+      final overrideConfig = ConvertConfig.overrides(
+        dates: const DateOptions(
+          autoDetectFormat: true,
+          extraAutoDetectPatterns: [],
+        ),
+      );
 
-        // Act
-        final merged = withGlobalConfig(
-          baseConfig,
-          () => Convert.runScopedConfig(
-            overrideConfig,
-            () => ConvertConfig.effective,
-          ),
-        );
+      // Act
+      final merged = withGlobalConfig(
+        baseConfig,
+        () => Convert.runScopedConfig(
+          overrideConfig,
+          () => ConvertConfig.effective,
+        ),
+      );
 
-        // Assert
-        expect(
-          merged.dates.extraAutoDetectPatterns,
-          equals(['MM/dd/yyyy']),
-        );
-      },
-    );
+      // Assert
+      expect(merged.dates.extraAutoDetectPatterns, equals(['MM/dd/yyyy']));
+    });
   });
 
   group('BoolOptions empty set behavior', () {
@@ -169,22 +160,25 @@ void main() {
   });
 
   group('Options copyWith edge cases', () {
-    test('NumberOptions copyWith with all nulls returns equivalent options', () {
-      // Arrange
-      const original = NumberOptions(
-        defaultFormat: '#,##0.00',
-        defaultLocale: 'de_DE',
-        tryFormattedFirst: false,
-      );
+    test(
+      'NumberOptions copyWith with all nulls returns equivalent options',
+      () {
+        // Arrange
+        const original = NumberOptions(
+          defaultFormat: '#,##0.00',
+          defaultLocale: 'de_DE',
+          tryFormattedFirst: false,
+        );
 
-      // Act
-      final copied = original.copyWith();
+        // Act
+        final copied = original.copyWith();
 
-      // Assert
-      expect(copied.defaultFormat, equals('#,##0.00'));
-      expect(copied.defaultLocale, equals('de_DE'));
-      expect(copied.tryFormattedFirst, isFalse);
-    });
+        // Assert
+        expect(copied.defaultFormat, equals('#,##0.00'));
+        expect(copied.defaultLocale, equals('de_DE'));
+        expect(copied.tryFormattedFirst, isFalse);
+      },
+    );
 
     test('DateOptions copyWith with all nulls returns equivalent options', () {
       // Arrange
@@ -285,9 +279,7 @@ void main() {
 
     test('clearOnException should clear inherited exception hook', () {
       // Arrange
-      final baseConfig = makeTestConfig(
-        onException: (_) {},
-      );
+      final baseConfig = makeTestConfig(onException: (_) {});
 
       // Act
       final merged = withGlobalConfig(

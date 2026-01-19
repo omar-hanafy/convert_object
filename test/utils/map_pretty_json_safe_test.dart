@@ -297,8 +297,8 @@ void main() {
         // Assert
         expect(out, isA<Map>());
         final map = out as Map;
-      expect(map['self'], equals('<cycle>'));
-    },
+        expect(map['self'], equals('<cycle>'));
+      },
     );
 
     test('should replace cycles inside lists when detectCycles is true', () {

@@ -122,8 +122,8 @@ void main() {
 
         // Assert
         expect(value, isA<int>());
-      expect(value, equals(999));
-    },
+        expect(value, equals(999));
+      },
     );
 
     test('should surface registry parser errors without wrapping', () {

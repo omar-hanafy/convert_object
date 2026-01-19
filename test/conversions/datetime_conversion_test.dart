@@ -237,8 +237,8 @@ void main() {
         // en_GB -> dd/MM/yyyy => Feb 1, 2025
         expect(result.year, equals(2025));
         expect(result.month, equals(2));
-      expect(result.day, equals(1));
-    },
+        expect(result.day, equals(1));
+      },
     );
 
     test('should honor useCurrentLocale when enabled', () {

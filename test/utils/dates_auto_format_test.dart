@@ -108,22 +108,22 @@ void main() {
         expect(result.day, equals(2));
       });
 
-      test('should parse slashed dates via intl patterns when DateTime.parse fails', () {
-        // Arrange
-        const input = '12/31/2025';
+      test(
+        'should parse slashed dates via intl patterns when DateTime.parse fails',
+        () {
+          // Arrange
+          const input = '12/31/2025';
 
-        // Act
-        expect(
-          () => DateTime.parse(input),
-          throwsA(isA<FormatException>()),
-        );
-        final result = input.toDateAutoFormat(locale: 'en_US');
+          // Act
+          expect(() => DateTime.parse(input), throwsA(isA<FormatException>()));
+          final result = input.toDateAutoFormat(locale: 'en_US');
 
-        // Assert
-        expect(result.year, equals(2025));
-        expect(result.month, equals(12));
-        expect(result.day, equals(31));
-      });
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(12));
+          expect(result.day, equals(31));
+        },
+      );
 
       test('should interpret dd/MM/yyyy first when locale is not en_US', () {
         // Arrange
@@ -153,25 +153,22 @@ void main() {
           expect(us.month, equals(1));
           expect(us.day, equals(2));
           expect(gb.month, equals(2));
-        expect(gb.day, equals(1));
-      },
-      );
-
-      test(
-        'should honor useCurrentLocale when locale is not provided',
-        () {
-          // Arrange
-          Intl.defaultLocale = 'en_GB';
-          const input = '01/02/2025';
-
-          // Act
-          final result = input.toDateAutoFormat(useCurrentLocale: true);
-
-          // Assert
-          expect(result.month, equals(2));
-          expect(result.day, equals(1));
+          expect(gb.day, equals(1));
         },
       );
+
+      test('should honor useCurrentLocale when locale is not provided', () {
+        // Arrange
+        Intl.defaultLocale = 'en_GB';
+        const input = '01/02/2025';
+
+        // Act
+        final result = input.toDateAutoFormat(useCurrentLocale: true);
+
+        // Assert
+        expect(result.month, equals(2));
+        expect(result.day, equals(1));
+      });
     });
 
     group('compact numeric forms', () {
@@ -264,18 +261,21 @@ void main() {
         }
       });
 
-      test('should parse long month names without skipping when intl data is available', () {
-        // Arrange
-        const input = 'March 5, 2025';
+      test(
+        'should parse long month names without skipping when intl data is available',
+        () {
+          // Arrange
+          const input = 'March 5, 2025';
 
-        // Act
-        final result = input.toDateAutoFormat(locale: 'en_US');
+          // Act
+          final result = input.toDateAutoFormat(locale: 'en_US');
 
-        // Assert
-        expect(result.year, equals(2025));
-        expect(result.month, equals(3));
-        expect(result.day, equals(5));
-      });
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(3));
+          expect(result.day, equals(5));
+        },
+      );
     });
 
     group('long name formats and ordinals', () {

@@ -63,10 +63,7 @@ void main() {
 
       // Assert - tryParse does NOT catch exceptions, they propagate
       // This documents the actual behavior: only missing parser returns null
-      expect(
-        () => registry.tryParse<UserId>('42'),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => registry.tryParse<UserId>('42'), throwsA(isA<StateError>()));
     });
   });
 
@@ -75,7 +72,9 @@ void main() {
       // Arrange
       final level1 = const TypeRegistry.empty().register<int>((_) => 1);
       final level2 = const TypeRegistry.empty().register<double>((_) => 2.0);
-      final level3 = const TypeRegistry.empty().register<String>((_) => 'three');
+      final level3 = const TypeRegistry.empty().register<String>(
+        (_) => 'three',
+      );
 
       // Act
       final merged = level1.merge(level2).merge(level3);
@@ -189,7 +188,9 @@ void main() {
   group('TypeRegistry edge cases', () {
     test('should handle parser that always returns null', () {
       // Arrange
-      final registry = const TypeRegistry.empty().register<UserId?>((_) => null);
+      final registry = const TypeRegistry.empty().register<UserId?>(
+        (_) => null,
+      );
 
       // Act
       final result = registry.tryParse<UserId?>('42');

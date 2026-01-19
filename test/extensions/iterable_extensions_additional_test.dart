@@ -159,11 +159,7 @@ void main() {
       ];
 
       // Act
-      final result = data.getDateTime(
-        0,
-        innerMapKey: 'dates',
-        innerIndex: 1,
-      );
+      final result = data.getDateTime(0, innerMapKey: 'dates', innerIndex: 1);
 
       // Assert
       expect(result, sameInstantAs(kKnownUtcInstant));
@@ -566,10 +562,7 @@ void main() {
       List<String>? data;
 
       // Act
-      final result = data.tryGetEnum<TestColor>(
-        0,
-        parser: kTestColors.parser,
-      );
+      final result = data.tryGetEnum<TestColor>(0, parser: kTestColors.parser);
 
       // Assert
       expect(result, isNull);
@@ -580,10 +573,7 @@ void main() {
       final List<String> data = <String>['green'];
 
       // Act
-      final result = data.tryGetEnum<TestColor>(
-        0,
-        parser: kTestColors.parser,
-      );
+      final result = data.tryGetEnum<TestColor>(0, parser: kTestColors.parser);
 
       // Assert
       expect(result, equals(TestColor.green));
@@ -678,10 +668,11 @@ void main() {
       final asUri = data.tryGetUri(99, alternativeIndices: const [5]);
       final asList = data.tryGetList<int>(99, alternativeIndices: const [6]);
       final asSet = data.tryGetSet<int>(99, alternativeIndices: const [6]);
-      final asMap =
-          data.tryGetMap<String, int>(99, alternativeIndices: const [7]);
-      final asBigInt =
-          data.tryGetBigInt(99, alternativeIndices: const [8]);
+      final asMap = data.tryGetMap<String, int>(
+        99,
+        alternativeIndices: const [7],
+      );
+      final asBigInt = data.tryGetBigInt(99, alternativeIndices: const [8]);
       final asEnum = data.tryGetEnum<TestColor>(
         99,
         alternativeIndices: const [9],

@@ -326,10 +326,7 @@ void main() {
       // Arrange
       final ex = ConversionException(
         error: const FormatException('invalid format'),
-        context: <String, dynamic>{
-          'method': 'toInt',
-          'targetType': 'int',
-        },
+        context: <String, dynamic>{'method': 'toInt', 'targetType': 'int'},
       );
 
       // Assert
@@ -351,38 +348,35 @@ void main() {
       );
 
       // Assert
-      expect(
-        ex,
-        isNot(isConversionException(method: 'toDouble')),
-      );
+      expect(ex, isNot(isConversionException(method: 'toDouble')));
     });
 
-    test('isConversionException should fail on empty context when required', () {
-      // Arrange
-      final ex = ConversionException(
-        error: 'error',
-        context: <String, dynamic>{},
-      );
+    test(
+      'isConversionException should fail on empty context when required',
+      () {
+        // Arrange
+        final ex = ConversionException(
+          error: 'error',
+          context: <String, dynamic>{},
+        );
 
-      // Assert
-      expect(
-        ex,
-        isNot(isConversionException(requireContext: true)),
-      );
-    });
+        // Assert
+        expect(ex, isNot(isConversionException(requireContext: true)));
+      },
+    );
 
-    test('isConversionException should pass on empty context when not required', () {
-      // Arrange
-      final ex = ConversionException(
-        error: 'error',
-        context: <String, dynamic>{},
-      );
+    test(
+      'isConversionException should pass on empty context when not required',
+      () {
+        // Arrange
+        final ex = ConversionException(
+          error: 'error',
+          context: <String, dynamic>{},
+        );
 
-      // Assert
-      expect(
-        ex,
-        isConversionException(requireContext: false),
-      );
-    });
+        // Assert
+        expect(ex, isConversionException(requireContext: false));
+      },
+    );
   });
 }

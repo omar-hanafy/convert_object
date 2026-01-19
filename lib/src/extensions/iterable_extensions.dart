@@ -16,7 +16,6 @@ extension _IterableIndexing<E> on Iterable<E> {
   }
 }
 
-
 /// Conversion helpers for non-null [Iterable] collections.
 extension IterableConversionX<E> on Iterable<E> {
   E? _valueAt(int index) => _elementAtOrNull(index);

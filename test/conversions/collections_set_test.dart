@@ -129,8 +129,8 @@ void main() {
         final result = Convert.toSet<int>(input, defaultValue: fallback);
 
         // Assert
-      expect(result, equals(fallback));
-    },
+        expect(result, equals(fallback));
+      },
     );
 
     test('should include elementIndex in ConversionException context', () {

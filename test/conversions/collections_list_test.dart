@@ -233,8 +233,8 @@ void main() {
         final result = Convert.toList<int>(input, defaultValue: fallback);
 
         // Assert
-      expect(result, equals(fallback));
-    },
+        expect(result, equals(fallback));
+      },
     );
 
     test('should throw null object when input is null', () {

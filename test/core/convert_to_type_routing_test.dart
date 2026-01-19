@@ -21,10 +21,10 @@ class ThrowingUriConfig extends ConvertConfig {
 
   @override
   UriOptions get uri => throw ConversionException(
-        error: 'boom',
-        context: const {'method': 'tryToType<Uri>'},
-        stackTrace: StackTrace.current,
-      );
+    error: 'boom',
+    context: const {'method': 'tryToType<Uri>'},
+    stackTrace: StackTrace.current,
+  );
 }
 
 void main() {

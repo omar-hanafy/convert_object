@@ -297,8 +297,8 @@ void main() {
         );
 
         // Assert
-      expect(result, equals(30));
-    },
+        expect(result, equals(30));
+      },
     );
 
     test('tryGetNum should return null when iterable is null', () {

@@ -121,8 +121,8 @@ void main() {
         final result = withScopedConfig(overrides, () => Convert.toNum(input));
 
         // Assert
-      expect(result, equals(1234.5));
-    },
+        expect(result, equals(1234.5));
+      },
     );
 
     test(

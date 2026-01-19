@@ -57,7 +57,10 @@ void main() {
       final map = <String, dynamic>{'bigNum': '99999999999999'};
 
       // Act
-      final result = map.getBigInt('missing', alternativeKeys: const ['bigNum']);
+      final result = map.getBigInt(
+        'missing',
+        alternativeKeys: const ['bigNum'],
+      );
 
       // Assert
       expect(result, equals(BigInt.parse('99999999999999')));
@@ -68,10 +71,7 @@ void main() {
       final map = <String, dynamic>{'value': 'not-a-number'};
 
       // Act
-      final result = map.getBigInt(
-        'value',
-        defaultValue: BigInt.from(-1),
-      );
+      final result = map.getBigInt('value', defaultValue: BigInt.from(-1));
 
       // Assert
       expect(result, equals(BigInt.from(-1)));
@@ -687,18 +687,21 @@ void main() {
         'missing',
         alternativeKeys: const ['altString'],
       );
-      final asInt =
-          map.getInt('missing', alternativeKeys: const ['altInt']);
-      final asDouble =
-          map.getDouble('missing', alternativeKeys: const ['altDouble']);
-      final asNum =
-          map.getNum('missing', alternativeKeys: const ['altNum']);
-      final asBool =
-          map.getBool('missing', alternativeKeys: const ['altBool']);
-      final asList =
-          map.getList<int>('missing', alternativeKeys: const ['altList']);
-      final asSet =
-          map.getSet<int>('missing', alternativeKeys: const ['altSet']);
+      final asInt = map.getInt('missing', alternativeKeys: const ['altInt']);
+      final asDouble = map.getDouble(
+        'missing',
+        alternativeKeys: const ['altDouble'],
+      );
+      final asNum = map.getNum('missing', alternativeKeys: const ['altNum']);
+      final asBool = map.getBool('missing', alternativeKeys: const ['altBool']);
+      final asList = map.getList<int>(
+        'missing',
+        alternativeKeys: const ['altList'],
+      );
+      final asSet = map.getSet<int>(
+        'missing',
+        alternativeKeys: const ['altSet'],
+      );
       final asMap = map.getMap<String, int>(
         'missing',
         alternativeKeys: const ['altMap'],
@@ -711,8 +714,7 @@ void main() {
         'missing',
         alternativeKeys: const ['altDate'],
       );
-      final asUri =
-          map.getUri('missing', alternativeKeys: const ['altUri']);
+      final asUri = map.getUri('missing', alternativeKeys: const ['altUri']);
       final asEnum = map.getEnum<TestColor>(
         'missing',
         alternativeKeys: const ['altEnum'],
@@ -736,7 +738,9 @@ void main() {
 
     test('tryParse should convert nested map and invoke converter', () {
       // Arrange
-      final map = <String, dynamic>{'payload': <String, int>{'a': 1}};
+      final map = <String, dynamic>{
+        'payload': <String, int>{'a': 1},
+      };
 
       // Act
       final parsed = map.tryParse<int, String, int>(
@@ -766,16 +770,20 @@ void main() {
       };
 
       // Act
-      final asString =
-          map.tryGetString('missing', alternativeKeys: const ['altString']);
-      final asInt =
-          map.tryGetInt('missing', alternativeKeys: const ['altInt']);
-      final asDouble =
-          map.tryGetDouble('missing', alternativeKeys: const ['altDouble']);
-      final asNum =
-          map.tryGetNum('missing', alternativeKeys: const ['altNum']);
-      final asBool =
-          map.tryGetBool('missing', alternativeKeys: const ['altBool']);
+      final asString = map.tryGetString(
+        'missing',
+        alternativeKeys: const ['altString'],
+      );
+      final asInt = map.tryGetInt('missing', alternativeKeys: const ['altInt']);
+      final asDouble = map.tryGetDouble(
+        'missing',
+        alternativeKeys: const ['altDouble'],
+      );
+      final asNum = map.tryGetNum('missing', alternativeKeys: const ['altNum']);
+      final asBool = map.tryGetBool(
+        'missing',
+        alternativeKeys: const ['altBool'],
+      );
       final asList = map.tryGetList<int>(
         'missing',
         alternativeKeys: const ['altList'],
@@ -796,8 +804,7 @@ void main() {
         'missing',
         alternativeKeys: const ['altDate'],
       );
-      final asUri =
-          map.tryGetUri('missing', alternativeKeys: const ['altUri']);
+      final asUri = map.tryGetUri('missing', alternativeKeys: const ['altUri']);
       final asEnum = map.tryGetEnum<TestColor>(
         'missing',
         alternativeKeys: const ['altEnum'],

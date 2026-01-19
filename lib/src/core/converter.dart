@@ -183,12 +183,13 @@ class Converter {
     dynamic mapKey,
     int? listIndex,
     DynamicConverter<String>? converter,
-  }) => tryToString(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToString(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [num], mirroring [Convert.toNum].
@@ -235,14 +236,15 @@ class Converter {
     String? format,
     String? locale,
     DynamicConverter<num>? converter,
-  }) => tryToNum(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    format: format,
-    locale: locale,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToNum(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        format: format,
+        locale: locale,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [int], mirroring [Convert.toInt].
@@ -289,14 +291,15 @@ class Converter {
     String? format,
     String? locale,
     DynamicConverter<int>? converter,
-  }) => tryToInt(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    format: format,
-    locale: locale,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToInt(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        format: format,
+        locale: locale,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [double], mirroring [Convert.toDouble].
@@ -344,14 +347,15 @@ class Converter {
     String? format,
     String? locale,
     DynamicConverter<double>? converter,
-  }) => tryToDouble(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    format: format,
-    locale: locale,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToDouble(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        format: format,
+        locale: locale,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [bool], mirroring [Convert.toBool].
@@ -388,12 +392,13 @@ class Converter {
     dynamic mapKey,
     int? listIndex,
     DynamicConverter<bool>? converter,
-  }) => tryToBool(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToBool(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [BigInt], mirroring [Convert.toBigInt].
@@ -431,12 +436,13 @@ class Converter {
     dynamic mapKey,
     int? listIndex,
     DynamicConverter<BigInt>? converter,
-  }) => tryToBigInt(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToBigInt(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [DateTime], mirroring [Convert.toDateTime].
@@ -499,17 +505,18 @@ class Converter {
     bool useCurrentLocale = false,
     bool utc = false,
     DynamicConverter<DateTime>? converter,
-  }) => tryToDateTime(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    format: format,
-    locale: locale,
-    autoDetectFormat: autoDetectFormat,
-    useCurrentLocale: useCurrentLocale,
-    utc: utc,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToDateTime(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        format: format,
+        locale: locale,
+        autoDetectFormat: autoDetectFormat,
+        useCurrentLocale: useCurrentLocale,
+        utc: utc,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   /// Converts to [Uri], mirroring [Convert.toUri].
@@ -546,12 +553,13 @@ class Converter {
     dynamic mapKey,
     int? listIndex,
     DynamicConverter<Uri>? converter,
-  }) => tryToUri(
-    mapKey: mapKey,
-    listIndex: listIndex,
-    defaultValue: defaultValue,
-    converter: converter,
-  ) ??
+  }) =>
+      tryToUri(
+        mapKey: mapKey,
+        listIndex: listIndex,
+        defaultValue: defaultValue,
+        converter: converter,
+      ) ??
       defaultValue;
 
   // Enums -------------------------------------------------------------
