@@ -126,6 +126,27 @@ void main() {
     );
 
     test(
+      'should attempt formatted parsing after plain parsing when tryFormattedFirst is false',
+      () {
+        // Arrange
+        const input = '1.234,5';
+        const overrides = ConvertConfig(
+          numbers: NumberOptions(
+            defaultFormat: '#,##0.###',
+            defaultLocale: 'de_DE',
+            tryFormattedFirst: false,
+          ),
+        );
+
+        // Act
+        final result = withScopedConfig(overrides, () => Convert.toNum(input));
+
+        // Assert
+        expect(result, equals(1234.5));
+      },
+    );
+
+    test(
       'should throw ConversionException when input is malformed and no defaultValue is provided',
       () {
         // Arrange

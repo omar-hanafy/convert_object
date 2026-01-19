@@ -357,4 +357,59 @@ void main() {
       },
     );
   });
+
+  group('Convert.buildParsingInfo', () {
+    test('should include provided fields and debug info', () {
+      // Arrange
+      final debug = <String, dynamic>{'note': 'x'};
+
+      // Act
+      final ctx = Convert.buildParsingInfo(
+        method: 'test',
+        object: '1',
+        mapKey: 'a',
+        listIndex: 2,
+        format: '#,##0.0',
+        locale: 'en_US',
+        autoDetectFormat: true,
+        useCurrentLocale: true,
+        utc: true,
+        defaultValue: 7,
+        converter: (v) => v,
+        targetType: int,
+        debugInfo: debug,
+      );
+
+      // Assert
+      expect(ctx['method'], equals('test'));
+      expect(ctx['object'], equals('1'));
+      expect(ctx['mapKey'], equals('a'));
+      expect(ctx['listIndex'], equals(2));
+      expect(ctx['format'], equals('#,##0.0'));
+      expect(ctx['locale'], equals('en_US'));
+      expect(ctx['autoDetectFormat'], equals(true));
+      expect(ctx['useCurrentLocale'], equals(true));
+      expect(ctx['utc'], equals(true));
+      expect(ctx['defaultValue'], equals(7));
+      expect(ctx['converter'], allOf(isA<String>(), contains('=>')));
+      expect(ctx['targetType'], equals('int'));
+      expect(ctx['note'], equals('x'));
+    });
+  });
+
+  group('Convert selection order', () {
+    test('should apply listIndex before mapKey', () {
+      // Arrange
+      final input = <dynamic>[
+        <String, dynamic>{'id': '1'},
+        <String, dynamic>{'id': '2'},
+      ];
+
+      // Act
+      final result = Convert.toInt(input, listIndex: 1, mapKey: 'id');
+
+      // Assert
+      expect(result, equals(2));
+    });
+  });
 }

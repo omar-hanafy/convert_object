@@ -9,6 +9,24 @@ class UnsupportedThing {
   const UnsupportedThing();
 }
 
+class ThrowingDatesConfig extends ConvertConfig {
+  ThrowingDatesConfig() : super();
+
+  @override
+  DateOptions get dates => throw StateError('boom');
+}
+
+class ThrowingUriConfig extends ConvertConfig {
+  ThrowingUriConfig() : super();
+
+  @override
+  UriOptions get uri => throw ConversionException(
+    error: 'boom',
+    context: const {'method': 'tryToType<Uri>'},
+    stackTrace: StackTrace.current,
+  );
+}
+
 void main() {
   late ConvertConfig prev;
 
@@ -129,6 +147,32 @@ void main() {
       expect(result, equals(7));
     });
 
+    test('should return same instance for matching collection types', () {
+      // Arrange
+      final input = <int>[1, 2, 3];
+
+      // Act
+      final result = Convert.toType<List<int>>(input);
+
+      // Assert
+      expect(identical(result, input), isTrue);
+      expect(result, equals(input));
+    });
+
+    test('should throw for incompatible collection targets', () {
+      // Arrange
+      final input = <Object?>[1, '2'];
+
+      // Act + Assert
+      expect(
+        () => Convert.toType<List<int>>(input),
+        throwsConversionException(
+          method: 'toType<List<int>>',
+          targetType: 'List<int>',
+        ),
+      );
+    });
+
     test('should throw ConversionException when input is null', () {
       // Arrange
       const Object? input = null;
@@ -218,6 +262,18 @@ void main() {
       expect(result.usingGlobal, equals(111));
       expect(result.usingScoped, equals(222));
     });
+
+    test('should wrap non-ConversionException thrown during routing', () {
+      // Arrange
+      final scopedPrev = Convert.configure(ThrowingDatesConfig());
+      addTearDown(() => Convert.configure(scopedPrev));
+
+      // Act + Assert
+      expect(
+        () => Convert.toType<DateTime>('2025-01-01'),
+        throwsConversionException(method: 'toType<DateTime>'),
+      );
+    });
   });
 
   group('Convert.tryToType<T>', () {
@@ -230,6 +286,17 @@ void main() {
 
       // Assert
       expect(result, isNull);
+    });
+
+    test('should convert to String using tryToType', () {
+      // Arrange
+      const input = 123;
+
+      // Act
+      final result = Convert.tryToType<String>(input);
+
+      // Assert
+      expect(result, equals('123'));
     });
 
     test(
@@ -252,6 +319,29 @@ void main() {
 
       // Act
       final result = Convert.tryToType<UnsupportedThing>(input);
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('should return null for incompatible collection targets', () {
+      // Arrange
+      final input = <Object?>[1, '2'];
+
+      // Act
+      final result = Convert.tryToType<List<int>>(input);
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('should return null when ConversionException is thrown', () {
+      // Arrange
+      final scopedPrev = Convert.configure(ThrowingUriConfig());
+      addTearDown(() => Convert.configure(scopedPrev));
+
+      // Act
+      final result = Convert.tryToType<Uri>('https://example.com');
 
       // Assert
       expect(result, isNull);

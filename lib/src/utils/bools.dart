@@ -1,16 +1,23 @@
 /// Adds boolean parsing helpers to dynamic values.
+///
+/// This extension is used internally by `Convert.toBool` but can also be used
+/// directly when you want a simple, non-throwing conversion with default rules.
+///
+/// See also: `BoolOptions` for configurable parsing via `ConvertConfig`.
 extension BoolParsingX on Object? {
-  /// Convert any value to a boolean with explicit, predictable semantics.
+  /// Converts any value to a boolean with predictable, conservative semantics.
   ///
-  /// Rules (merged from legacy DHU + this package):
-  /// - null -> false
-  /// - bool -> value
-  /// - num -> value > 0
-  /// - `String`: case-insensitive
-  ///   - truthy: 'true', '1', 'yes', 'y', 'on', 'ok', 't'
-  ///   - falsy:  'false', '0', 'no',  'n', 'off', 'f'
-  ///   - numeric `String` values -> parsed and treated like numbers
-  ///   - anything else -> false (be conservative)
+  /// ### Conversion Rules:
+  /// * `null` returns `false`.
+  /// * [bool] values pass through unchanged.
+  /// * [num] values: positive numbers (`> 0`) are `true`, others `false`.
+  /// * [String] values (case-insensitive after trimming):
+  ///   - Truthy tokens: `'true'`, `'1'`, `'yes'`, `'y'`, `'on'`, `'ok'`, `'t'`
+  ///   - Falsy tokens: `'false'`, `'0'`, `'no'`, `'n'`, `'off'`, `'f'`
+  ///   - Numeric strings are parsed and treated as numbers.
+  ///   - Unrecognized strings return `false` (conservative default).
+  ///
+  /// This getter never throws - unrecognized inputs silently return `false`.
   bool get asBool {
     final v = this;
     if (v == null) return false;

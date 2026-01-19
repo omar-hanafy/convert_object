@@ -4,6 +4,27 @@ import 'package:test/test.dart';
 import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
+class ThrowingIterable<T> extends Iterable<T> {
+  @override
+  Iterator<T> get iterator => _ThrowingIterator<T>();
+}
+
+class _ThrowingIterator<T> implements Iterator<T> {
+  @override
+  T get current => throw StateError('boom');
+
+  @override
+  bool moveNext() => throw StateError('boom');
+}
+
+class _IntLike {
+  const _IntLike(this.value);
+  final String value;
+
+  @override
+  String toString() => value;
+}
+
 void main() {
   late ConvertConfig prev;
 
@@ -78,6 +99,17 @@ void main() {
       expect(result, equals(<int>[1, 2]));
     });
 
+    test('should convert a Map<K, V> directly to a List<V>', () {
+      // Arrange
+      final map = <String, int>{'a': 1, 'b': 2};
+
+      // Act
+      final result = Convert.toList<int>(map);
+
+      // Assert
+      expect(result, equals(<int>[1, 2]));
+    });
+
     test('should wrap and convert a scalar input into a one-element list', () {
       // Arrange
       const input = '5';
@@ -128,6 +160,39 @@ void main() {
       expect(result, equals(<int>[1, 2, 3]));
     });
 
+    test('should wrap single scalar values via toType', () {
+      // Arrange
+      const input = '42';
+
+      // Act
+      final result = Convert.toList<int>(input);
+
+      // Assert
+      expect(result, equals(<int>[42]));
+    });
+
+    test('should wrap non-iterable custom values via toType', () {
+      // Arrange
+      const input = _IntLike('7');
+
+      // Act
+      final result = Convert.toList<int>(input);
+
+      // Assert
+      expect(result, equals(<int>[7]));
+    });
+
+    test('should wrap iterator errors in ConversionException', () {
+      // Arrange
+      final input = ThrowingIterable<int>();
+
+      // Act / Assert
+      expect(
+        () => Convert.toList<int>(input),
+        throwsConversionException(method: 'toList<int>'),
+      );
+    });
+
     test('should throw ConversionException when element conversion fails', () {
       // Arrange
       final input = <dynamic>['a'];
@@ -138,6 +203,23 @@ void main() {
         () => Convert.toList<int>(input),
         throwsConversionException(method: 'toList<int>'),
       );
+    });
+
+    test('should include elementIndex in ConversionException context', () {
+      // Arrange
+      final input = <dynamic>['1', 'x', '3'];
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toList<int>(input);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.context['elementIndex'], equals(1));
     });
 
     test(
@@ -154,6 +236,13 @@ void main() {
         expect(result, equals(fallback));
       },
     );
+
+    test('should throw null object when input is null', () {
+      expect(
+        () => Convert.toList<int>(null),
+        throwsConversionException(method: 'toList<int>'),
+      );
+    });
   });
 
   group('Convert.tryToList', () {
@@ -218,6 +307,20 @@ void main() {
       // Assert
       expect(result, isA<List<int>>());
       expect(result, equals(<int>[]));
+    });
+
+    test('should apply elementConverter when provided', () {
+      // Arrange
+      final input = <dynamic>['1', '2'];
+
+      // Act
+      final result = Convert.tryToList<int>(
+        input,
+        elementConverter: (e) => int.parse(e as String),
+      );
+
+      // Assert
+      expect(result, equals(<int>[1, 2]));
     });
   });
 }

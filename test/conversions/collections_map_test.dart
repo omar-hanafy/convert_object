@@ -31,6 +31,18 @@ void main() {
       expect(identical(result, input), isTrue);
     });
 
+    test('should return an empty typed map when input map is empty', () {
+      // Arrange
+      final input = <String, int>{};
+
+      // Act
+      final result = Convert.toMap<String, int>(input);
+
+      // Assert
+      expect(result, isA<Map<String, int>>());
+      expect(result, isEmpty);
+    });
+
     test('should honor mapKey even when input already matches Map<K, V>', () {
       // Arrange
       final input = <String, dynamic>{
@@ -78,6 +90,21 @@ void main() {
         expect(result, equals(<int, int>{1: 2, 3: 4}));
       },
     );
+
+    test('should wrap keyConverter errors in ConversionException', () {
+      // Arrange
+      final input = <String, String>{'a': '1'};
+
+      // Act + Assert
+      expect(
+        () => Convert.toMap<int, int>(
+          input,
+          keyConverter: (_) => throw StateError('boom'),
+          valueConverter: (v) => Convert.toInt(v),
+        ),
+        throwsConversionException(method: 'toMap<int, int>'),
+      );
+    });
 
     test(
       'should decode JSON string input into a map when decodeInput is enabled',
@@ -166,6 +193,32 @@ void main() {
         expect(result, equals(fallback));
       },
     );
+
+    test('should rethrow ConversionException from keyConverter', () {
+      // Arrange
+      final input = <String, dynamic>{'a': '1'};
+
+      // Act / Assert
+      expect(
+        () => Convert.toMap<String, int>(
+          input,
+          keyConverter: (_) => throw ConversionException(
+            error: 'boom',
+            context: {'method': 'toMap<String, int>'},
+            stackTrace: StackTrace.current,
+          ),
+        ),
+        throwsA(isA<ConversionException>()),
+      );
+    });
+
+    test('should throw when input is null and no defaultValue is provided', () {
+      // Act / Assert
+      expect(
+        () => Convert.toMap<String, int>(null),
+        throwsConversionException(method: 'toMap<String, int>'),
+      );
+    });
   });
 
   group('Convert.tryToMap', () {
@@ -213,6 +266,21 @@ void main() {
       expect(result, isA<Map<String, dynamic>>());
       expect(result!['a'], equals('1'));
       expect(result['b'], equals('2'));
+    });
+
+    test('should apply key and value converters when provided', () {
+      // Arrange
+      final input = <String, dynamic>{'1': '2'};
+
+      // Act
+      final result = Convert.tryToMap<int, int>(
+        input,
+        keyConverter: (k) => int.parse(k as String),
+        valueConverter: (v) => int.parse(v as String),
+      );
+
+      // Assert
+      expect(result, equals(<int, int>{1: 2}));
     });
   });
 }

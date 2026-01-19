@@ -2,9 +2,30 @@ import 'dart:convert';
 
 import 'package:convert_object/src/utils/map_pretty.dart';
 
-/// Exception thrown when a conversion fails.
+/// Exception thrown when a type conversion fails.
+///
+/// [ConversionException] captures rich diagnostic context including:
+/// * The original error or message that triggered the failure.
+/// * A [context] map with method name, input/output types, and parameters.
+/// * A [stackTrace] for debugging.
+///
+/// Use [fullReport] to generate detailed JSON output for logging or debugging.
+///
+/// ### Example
+/// ```dart
+/// try {
+///   Convert.toInt('not-a-number');
+/// } on ConversionException catch (e) {
+///   print(e.fullReport()); // Detailed diagnostic output
+/// }
+/// ```
+///
+/// See also: `ConvertConfig.onException` for global error hooks.
 class ConversionException implements Exception {
-  /// Creates a conversion error with the originating [error] and [context].
+  /// Creates a conversion exception with the originating [error] and diagnostic [context].
+  ///
+  /// The [context] map is defensively copied and made unmodifiable.
+  /// If [stackTrace] is not provided, the current stack trace is captured.
   ConversionException({
     required this.error,
     required Map<String, dynamic> context,
@@ -12,7 +33,9 @@ class ConversionException implements Exception {
   }) : context = Map.unmodifiable(context),
        stackTrace = stackTrace ?? StackTrace.current;
 
-  /// Convenience factory used when the source object is `null` or unsupported.
+  /// Creates an exception for `null` or unsupported source objects.
+  ///
+  /// Used internally when conversion receives a value that cannot be processed.
   factory ConversionException.nullObject({
     required Map<String, dynamic> context,
     required StackTrace stackTrace,

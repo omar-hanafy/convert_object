@@ -86,6 +86,19 @@ void main() {
         // Assert
         expect(result, isNull);
       });
+
+      test('should return null for empty or whitespace strings', () {
+        // Arrange
+        const inputs = <String>['', '   '];
+
+        for (final input in inputs) {
+          // Act
+          final result = input.tryToNum();
+
+          // Assert
+          expect(result, isNull, reason: 'Input: "$input"');
+        }
+      });
     });
 
     group('toInt / toDouble helpers', () {
@@ -111,6 +124,34 @@ void main() {
         // Assert
         expect(result, isA<double>());
         expect(result, equals(1234.5));
+      });
+    });
+
+    group('tryToInt / tryToDouble helpers', () {
+      test('should return null for invalid input', () {
+        // Arrange
+        const input = 'not-a-number';
+
+        // Act
+        final asInt = input.tryToInt();
+        final asDouble = input.tryToDouble();
+
+        // Assert
+        expect(asInt, isNull);
+        expect(asDouble, isNull);
+      });
+
+      test('should parse valid inputs', () {
+        // Arrange
+        const input = '1,234.50';
+
+        // Act
+        final asInt = input.tryToInt();
+        final asDouble = input.tryToDouble();
+
+        // Assert
+        expect(asInt, equals(1234));
+        expect(asDouble, equals(1234.5));
       });
     });
 
@@ -160,6 +201,23 @@ void main() {
       });
 
       test(
+        'tryToIntFormatted/tryToDoubleFormatted should return null on failure',
+        () {
+          // Arrange
+          const input = 'invalid';
+          const format = '#,##0.00';
+
+          // Act
+          final asInt = input.tryToIntFormatted(format, 'en_US');
+          final asDouble = input.tryToDoubleFormatted(format, 'en_US');
+
+          // Assert
+          expect(asInt, isNull);
+          expect(asDouble, isNull);
+        },
+      );
+
+      test(
         'should parse de_DE formatted numbers when locale data is available',
         () {
           // Arrange
@@ -190,6 +248,77 @@ void main() {
         final result = s.toNum();
         expect(result, isA<num>(), reason: 'Input: "$s"');
       }
+    });
+  });
+
+  group('NumberFormat cache behavior', () {
+    test('should evict oldest entry when cache exceeds max size', () {
+      // Arrange
+      const input = '123';
+
+      // Act
+      for (var i = 0; i < 35; i++) {
+        final format = i == 0 ? '0' : '0.${'0' * i}';
+        final parsed = input.toNumFormatted(format, 'en_US');
+        expect(parsed, isA<num>());
+      }
+    });
+  });
+
+  group('Roman numeral helpers', () {
+    test('intToRomanNumeral should encode standard values', () {
+      for (final entry in kRomanNumerals.entries) {
+        expect(
+          intToRomanNumeral(entry.key),
+          equals(entry.value),
+          reason: 'Input: ${entry.key}',
+        );
+      }
+    });
+
+    test('intToRomanNumeral should throw outside 1 to 3999', () {
+      expect(() => intToRomanNumeral(0), throwsA(isA<ArgumentError>()));
+      expect(() => intToRomanNumeral(-1), throwsA(isA<ArgumentError>()));
+      expect(() => intToRomanNumeral(4000), throwsA(isA<ArgumentError>()));
+    });
+
+    test('romanNumeralToInt should decode standard values', () {
+      for (final entry in kRomanNumerals.entries) {
+        expect(
+          romanNumeralToInt(entry.value),
+          equals(entry.key),
+          reason: 'Input: ${entry.value}',
+        );
+      }
+    });
+
+    test('romanNumeralToInt should decode nonstandard tokens in map', () {
+      expect(romanNumeralToInt('IC'), equals(99));
+      expect(romanNumeralToInt('XM'), equals(990));
+    });
+
+    test('romanNumeralToInt should return 0 for empty string', () {
+      expect(romanNumeralToInt(''), equals(0));
+    });
+
+    test('romanNumeralToInt should throw on invalid input', () {
+      expect(() => romanNumeralToInt('abc'), throwsA(isA<TypeError>()));
+      expect(() => romanNumeralToInt('iv'), throwsA(isA<TypeError>()));
+      expect(() => romanNumeralToInt('I?'), throwsA(isA<TypeError>()));
+    });
+
+    test('Roman numeral extensions should expose conversion helpers', () {
+      expect(5.toRomanNumeral(), equals('V'));
+      expect('X'.asRomanNumeralToInt, equals(10));
+
+      String? nullable;
+      expect(nullable.asRomanNumeralToInt, isNull);
+    });
+
+    test('nullable roman numeral getter should parse non-null values', () {
+      String? valueProvider() => 'IV';
+
+      expect(valueProvider().asRomanNumeralToInt, equals(4));
     });
   });
 }

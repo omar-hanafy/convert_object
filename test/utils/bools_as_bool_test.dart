@@ -73,6 +73,10 @@ void main() {
         '-1': false,
         ' 10 ': true,
         '  -2  ': false,
+        '0.0': false,
+        '0.1': true,
+        '1e2': true,
+        '0e0': false,
       };
 
       for (final entry in cases.entries) {
@@ -86,7 +90,7 @@ void main() {
 
     test('should return false for unknown or empty strings', () {
       // Arrange
-      const cases = <String>['maybe', 'unknown', '', '   '];
+      const cases = <String>['maybe', 'unknown', '', '   ', '1.2.3'];
 
       for (final input in cases) {
         // Act
@@ -110,5 +114,16 @@ void main() {
         expect(result, isFalse);
       },
     );
+
+    test('should treat NaN as false when parsing numeric strings', () {
+      // Arrange
+      const input = 'NaN';
+
+      // Act
+      final result = input.asBool;
+
+      // Assert
+      expect(result, isFalse);
+    });
   });
 }

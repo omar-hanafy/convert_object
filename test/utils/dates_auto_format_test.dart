@@ -51,6 +51,20 @@ void main() {
         expect(result.toUtc(), sameInstantAs(kKnownUtcInstant));
       });
 
+      test('should parse local ISO timestamps when utc is false', () {
+        // Arrange
+        const input = '2025-11-11T10:15:30';
+
+        // Act
+        final result = input.toDateAutoFormat(utc: false);
+
+        // Assert
+        expect(result.isUtc, isFalse);
+        expect(result.year, equals(2025));
+        expect(result.month, equals(11));
+        expect(result.day, equals(11));
+      });
+
       test('should parse HTTP-date (IMF-fixdate) as UTC', () {
         // Arrange
         const input = 'Tue, 03 Jun 2008 11:05:30 GMT';
@@ -62,6 +76,20 @@ void main() {
         // Assert
         expect(result, isUtcDateTime);
         expect(result, sameInstantAs(expected));
+      });
+
+      test('should parse HTTP-date when utc is false', () {
+        // Arrange
+        const input = 'Tue, 03 Jun 2008 11:05:30 GMT';
+
+        // Act
+        final result = input.toDateAutoFormat(utc: false);
+
+        // Assert
+        expect(result, isUtcDateTime);
+        expect(result.year, equals(2008));
+        expect(result.month, equals(6));
+        expect(result.day, equals(3));
       });
     });
 
@@ -79,6 +107,23 @@ void main() {
         expect(result.month, equals(1));
         expect(result.day, equals(2));
       });
+
+      test(
+        'should parse slashed dates via intl patterns when DateTime.parse fails',
+        () {
+          // Arrange
+          const input = '12/31/2025';
+
+          // Act
+          expect(() => DateTime.parse(input), throwsA(isA<FormatException>()));
+          final result = input.toDateAutoFormat(locale: 'en_US');
+
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(12));
+          expect(result.day, equals(31));
+        },
+      );
 
       test('should interpret dd/MM/yyyy first when locale is not en_US', () {
         // Arrange
@@ -111,6 +156,19 @@ void main() {
           expect(gb.day, equals(1));
         },
       );
+
+      test('should honor useCurrentLocale when locale is not provided', () {
+        // Arrange
+        Intl.defaultLocale = 'en_GB';
+        const input = '01/02/2025';
+
+        // Act
+        final result = input.toDateAutoFormat(useCurrentLocale: true);
+
+        // Assert
+        expect(result.month, equals(2));
+        expect(result.day, equals(1));
+      });
     });
 
     group('compact numeric forms', () {
@@ -184,6 +242,42 @@ void main() {
       );
     });
 
+    group('long name formats', () {
+      test('should parse long month name formats', () {
+        // Arrange
+        const input = 'January 2, 2025';
+        try {
+          // Act
+          final result = input.toDateAutoFormat(utc: false);
+
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(1));
+          expect(result.day, equals(2));
+        } catch (e) {
+          markTestSkipped(
+            'Intl date symbols for month names may be unavailable: $e',
+          );
+        }
+      });
+
+      test(
+        'should parse long month names without skipping when intl data is available',
+        () {
+          // Arrange
+          const input = 'March 5, 2025';
+
+          // Act
+          final result = input.toDateAutoFormat(locale: 'en_US');
+
+          // Assert
+          expect(result.year, equals(2025));
+          expect(result.month, equals(3));
+          expect(result.day, equals(5));
+        },
+      );
+    });
+
     group('long name formats and ordinals', () {
       test(
         'should parse month-name dates and remove ordinals when supported by intl data',
@@ -234,6 +328,19 @@ void main() {
         expect(result.hour, equals(14));
         expect(result.minute, equals(30));
       });
+
+      test('should return a UTC DateTime when utc is true', () {
+        // Arrange
+        const input = '14:30';
+
+        // Act
+        final result = input.toDateAutoFormat(utc: true);
+
+        // Assert
+        expect(result.isUtc, isTrue);
+        expect(result.toLocal().hour, equals(14));
+        expect(result.toLocal().minute, equals(30));
+      });
     });
 
     group('utc parameter behavior', () {
@@ -270,6 +377,27 @@ void main() {
 
         // Assert
         expect(result, isNull);
+      });
+
+      test('should return null when input is empty', () {
+        // Arrange
+        const input = '';
+
+        // Act
+        final result = input.tryToDateAutoFormat();
+
+        // Assert
+        expect(result, isNull);
+      });
+    });
+
+    group('invalid numeric lengths', () {
+      test('should throw for 11 digit numeric strings', () {
+        // Arrange
+        const input = '17000000000';
+
+        // Act + Assert
+        expect(() => input.toDateAutoFormat(), throwsA(isA<FormatException>()));
       });
     });
   });

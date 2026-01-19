@@ -86,6 +86,21 @@ void main() {
     });
   });
 
+  group('EnumParsers.fromString', () {
+    test('should wrap a String parser for dynamic inputs', () {
+      // Arrange
+      TestColor parseColor(String input) =>
+          TestColor.values.firstWhere((e) => e.name == input);
+      final parser = EnumParsers.fromString<TestColor>(parseColor);
+
+      // Act
+      final result = parser('blue');
+
+      // Assert
+      expect(result, equals(TestColor.blue));
+    });
+  });
+
   group('EnumParsers.byIndex', () {
     test('should resolve enum values by index', () {
       // Arrange
@@ -222,5 +237,85 @@ void main() {
         );
       },
     );
+
+    test('Convert.toEnum should rethrow ConversionException from parser', () {
+      // Arrange
+      TestColor parser(dynamic _) => throw ConversionException(
+        error: 'boom',
+        context: {'method': 'toEnum<TestColor>'},
+        stackTrace: StackTrace.current,
+      );
+
+      // Act / Assert
+      expect(
+        () => Convert.toEnum<TestColor>('x', parser: parser),
+        throwsA(isA<ConversionException>()),
+      );
+    });
+
+    test('Convert.toEnum should include debug info on parser errors', () {
+      // Arrange
+      TestColor parser(dynamic _) => throw StateError('boom');
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toEnum<TestColor>('x', parser: parser);
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.context['reason'], equals('enum parse failed'));
+      expect(thrown.context['enumType'], equals('TestColor'));
+    });
+
+    test('Convert.toEnum should preserve supplied debugInfo on error', () {
+      // Arrange
+      TestColor parser(dynamic _) => throw StateError('boom');
+      ConversionException? thrown;
+
+      // Act
+      try {
+        Convert.toEnum<TestColor>(
+          'x',
+          parser: parser,
+          debugInfo: const {'source': 'unit-test'},
+        );
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      // Assert
+      expect(thrown, isNotNull);
+      expect(thrown!.context['source'], equals('unit-test'));
+    });
+
+    test('Convert.toEnum should throw null object when input is null', () {
+      // Act / Assert
+      expect(
+        () => Convert.toEnum<TestColor>(null, parser: TestColor.values.parser),
+        throwsConversionException(method: 'toEnum<TestColor>'),
+      );
+    });
+
+    test('Convert.toEnum should include debugInfo when input is null', () {
+      ConversionException? thrown;
+
+      try {
+        Convert.toEnum<TestColor>(
+          null,
+          parser: TestColor.values.parser,
+          debugInfo: const {'case': 'null-input'},
+        );
+      } catch (e) {
+        thrown = e as ConversionException;
+      }
+
+      expect(thrown, isNotNull);
+      expect(thrown!.context['case'], equals('null-input'));
+      expect(thrown.context['reason'], equals('enum parse failed'));
+    });
   });
 }

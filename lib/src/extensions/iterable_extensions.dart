@@ -1,5 +1,7 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
 
+// Provides bounds-safe element access without throwing RangeError.
+// Optimized for List to use direct indexing instead of iteration.
 extension _IterableIndexing<E> on Iterable<E> {
   E? _elementAtOrNull(int index) {
     if (index < 0) return null;
@@ -16,7 +18,24 @@ extension _IterableIndexing<E> on Iterable<E> {
   }
 }
 
-/// Conversion helpers for non-null [Iterable] collections.
+/// Type conversion helpers for non-null [Iterable] collections.
+///
+/// Provides index-based element access with automatic type conversion.
+/// Each method extracts the element at the specified index and converts
+/// it to the target type using the convert_object infrastructure.
+///
+/// ### Example
+/// ```dart
+/// final data = ['42', '3.14', 'true'];
+/// final intVal = data.getInt(0);       // 42
+/// final doubleVal = data.getDouble(1); // 3.14
+/// final boolVal = data.getBool(2);     // true
+/// ```
+///
+/// All methods support nested navigation via [innerMapKey] and [innerIndex]
+/// for complex structures like `List<Map<String, dynamic>>`.
+///
+/// See also: [NullableIterableConversionX] for nullable-safe variants.
 extension IterableConversionX<E> on Iterable<E> {
   E? _valueAt(int index) => _elementAtOrNull(index);
 
@@ -177,11 +196,13 @@ extension IterableConversionX<E> on Iterable<E> {
     dynamic innerMapKey,
     int? innerIndex,
     List<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.toList<T>(
     _valueAt(index),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {'index': index},
   );
 
@@ -191,11 +212,13 @@ extension IterableConversionX<E> on Iterable<E> {
     dynamic innerMapKey,
     int? innerIndex,
     Set<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.toSet<T>(
     _valueAt(index),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {'index': index},
   );
 
@@ -205,11 +228,15 @@ extension IterableConversionX<E> on Iterable<E> {
     dynamic innerMapKey,
     int? innerIndex,
     Map<K2, V2>? defaultValue,
+    ElementConverter<K2>? keyConverter,
+    ElementConverter<V2>? valueConverter,
   }) => ConvertObjectImpl.toMap<K2, V2>(
     _valueAt(index),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
     debugInfo: {'index': index},
   );
 
@@ -220,14 +247,22 @@ extension IterableConversionX<E> on Iterable<E> {
     dynamic innerMapKey,
     int? innerIndex,
     T? defaultValue,
-  }) => ConvertObjectImpl.toEnum<T>(
-    _valueAt(index),
-    parser: parser,
-    mapKey: innerMapKey,
-    listIndex: innerIndex,
-    defaultValue: defaultValue,
-    debugInfo: {'index': index},
-  );
+    Map<String, dynamic>? debugInfo,
+  }) {
+    final info = <String, dynamic>{};
+    if (debugInfo != null && debugInfo.isNotEmpty) {
+      info.addAll(debugInfo);
+    }
+    info['index'] = index;
+    return ConvertObjectImpl.toEnum<T>(
+      _valueAt(index),
+      parser: parser,
+      mapKey: innerMapKey,
+      listIndex: innerIndex,
+      defaultValue: defaultValue,
+      debugInfo: info,
+    );
+  }
 
   // Convert all
   /// Converts every element in this iterable to [T].
@@ -495,11 +530,13 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     dynamic innerMapKey,
     int? innerIndex,
     List<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.tryToList<T>(
     _firstForIndices(index, alternativeIndices: alternativeIndices),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'index': index,
       if (alternativeIndices != null && alternativeIndices.isNotEmpty)
@@ -514,11 +551,13 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     dynamic innerMapKey,
     int? innerIndex,
     Set<T>? defaultValue,
+    ElementConverter<T>? elementConverter,
   }) => ConvertObjectImpl.tryToSet<T>(
     _firstForIndices(index, alternativeIndices: alternativeIndices),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    elementConverter: elementConverter,
     debugInfo: {
       'index': index,
       if (alternativeIndices != null && alternativeIndices.isNotEmpty)
@@ -533,11 +572,15 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     dynamic innerMapKey,
     int? innerIndex,
     Map<K2, V2>? defaultValue,
+    ElementConverter<K2>? keyConverter,
+    ElementConverter<V2>? valueConverter,
   }) => ConvertObjectImpl.tryToMap<K2, V2>(
     _firstForIndices(index, alternativeIndices: alternativeIndices),
     mapKey: innerMapKey,
     listIndex: innerIndex,
     defaultValue: defaultValue,
+    keyConverter: keyConverter,
+    valueConverter: valueConverter,
     debugInfo: {
       'index': index,
       if (alternativeIndices != null && alternativeIndices.isNotEmpty)
@@ -553,18 +596,25 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
     dynamic innerMapKey,
     int? innerIndex,
     T? defaultValue,
-  }) => ConvertObjectImpl.tryToEnum<T>(
-    _firstForIndices(index, alternativeIndices: alternativeIndices),
-    parser: parser,
-    mapKey: innerMapKey,
-    listIndex: innerIndex,
-    defaultValue: defaultValue,
-    debugInfo: {
-      'index': index,
-      if (alternativeIndices != null && alternativeIndices.isNotEmpty)
-        'altIndexes': alternativeIndices,
-    },
-  );
+    Map<String, dynamic>? debugInfo,
+  }) {
+    final info = <String, dynamic>{};
+    if (debugInfo != null && debugInfo.isNotEmpty) {
+      info.addAll(debugInfo);
+    }
+    info['index'] = index;
+    if (alternativeIndices != null && alternativeIndices.isNotEmpty) {
+      info['altIndexes'] = alternativeIndices;
+    }
+    return ConvertObjectImpl.tryToEnum<T>(
+      _firstForIndices(index, alternativeIndices: alternativeIndices),
+      parser: parser,
+      mapKey: innerMapKey,
+      listIndex: innerIndex,
+      defaultValue: defaultValue,
+      debugInfo: info,
+    );
+  }
 }
 
 /// Converts nullable sets into a [Set] of a different type.

@@ -126,6 +126,20 @@ void main() {
       },
     );
 
+    test('should surface registry parser errors without wrapping', () {
+      // Arrange
+      final registry = const TypeRegistry.empty().register<int>(
+        (_) => throw StateError('boom'),
+      );
+      final config = makeTestConfig(registry: registry);
+
+      // Act + Assert
+      expect(
+        () => withGlobalConfig(config, () => Convert.toType<int>('5')),
+        throwsA(isA<StateError>()),
+      );
+    });
+
     test('should allow scoped registry to override global registry', () {
       // Arrange
       final globalRegistry = const TypeRegistry.empty().register<int>((_) => 1);

@@ -2,43 +2,70 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
-/// Strategy for encoding DateTime values.
+/// Strategy for encoding [DateTime] values to JSON.
+///
+/// Used by [JsonOptions.dateTimeStrategy] to control how dates are serialized.
 enum DateTimeStrategy {
-  /// Example: "2025-11-11T10:15:30.123Z"
+  /// ISO 8601 string format (e.g., `"2025-11-11T10:15:30.123Z"`).
+  ///
+  /// This is the most portable format and preserves timezone information.
   iso8601String,
 
-  /// Milliseconds since Unix epoch (UTC).
+  /// Milliseconds since Unix epoch (1970-01-01T00:00:00Z) as an integer.
+  ///
+  /// Compact but loses sub-millisecond precision.
   millisecondsSinceEpoch,
 
-  /// Microseconds since Unix epoch (UTC).
+  /// Microseconds since Unix epoch as an integer.
+  ///
+  /// Preserves full [DateTime] precision but produces large numbers.
   microsecondsSinceEpoch,
 }
 
-/// Strategy for encoding Duration values.
+/// Strategy for encoding [Duration] values to JSON.
+///
+/// Used by [JsonOptions.durationStrategy] to control how durations are serialized.
 enum DurationStrategy {
   /// Integer milliseconds.
   milliseconds,
 
-  /// Integer microseconds.
+  /// Integer microseconds (preserves full precision).
   microseconds,
 
-  /// ISO-8601 duration, e.g. "PT1H2M3.5S"
+  /// ISO 8601 duration format (e.g., `"PT1H2M3.5S"` for 1 hour, 2 minutes, 3.5 seconds).
   iso8601,
 }
 
-/// Strategy for non-finite doubles (`NaN`, `Infinity`, `-Infinity`).
+/// Strategy for handling non-finite doubles (`NaN`, `Infinity`, `-Infinity`) in JSON.
+///
+/// Standard JSON does not support non-finite values. This enum controls the fallback behavior.
 enum NonFiniteDoubleStrategy {
-  /// Encode as strings: "NaN", "Infinity", "-Infinity".
+  /// Encode as strings: `"NaN"`, `"Infinity"`, `"-Infinity"`.
+  ///
+  /// Preserves information but requires special handling on the receiving end.
   string,
 
-  /// Replace with `null`.
+  /// Replace non-finite values with `null`.
   nullValue,
 
-  /// Throw during encoding.
+  /// Throw [UnsupportedError] when a non-finite value is encountered.
   error,
 }
 
-/// Options controlling how values are normalized into JSON-safe forms.
+/// Configuration for JSON normalization via [jsonSafe] and related helpers.
+///
+/// Controls how Dart-specific types like [DateTime], [Duration], [Enum], and
+/// non-finite doubles are converted to JSON-compatible representations.
+///
+/// ### Example
+/// ```dart
+/// final options = JsonOptions(
+///   dropNulls: true,
+///   sortKeys: true,
+///   dateTimeStrategy: DateTimeStrategy.millisecondsSinceEpoch,
+/// );
+/// final json = myMap.toJsonString(options: options);
+/// ```
 class JsonOptions {
   /// Creates a new configuration bundle for JSON normalization.
   const JsonOptions({

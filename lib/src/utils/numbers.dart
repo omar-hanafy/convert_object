@@ -2,13 +2,20 @@ import 'dart:collection';
 
 import 'package:intl/intl.dart';
 
+/// Maximum entries in the [NumberFormat] LRU cache.
+///
+/// Caching avoids repeated construction of [NumberFormat] objects for the same
+/// format/locale combination, which can be expensive.
 const int _kMaxNumberFormatCacheSize = 32;
+
+/// LRU cache for [NumberFormat] instances keyed by `'$format|$locale'`.
 final LinkedHashMap<String, NumberFormat> _numberFormatCache =
     LinkedHashMap<String, NumberFormat>();
 
-/// A map of integers to Roman numeral representations.
+/// Lookup table mapping integers to their Roman numeral representations.
 ///
-/// This map is used to convert integers into their corresponding Roman numeral forms.
+/// Includes common values up to 1000. For arbitrary conversions, use
+/// [intToRomanNumeral] which handles values from 1 to 3999.
 const romanNumerals = <int, String>{
   1: 'I', // One
   2: 'II', // Two
@@ -59,6 +66,7 @@ const _romanNumeralParts = <int, String>{
   1: 'I',
 };
 
+// LRU-cached NumberFormat lookup to avoid repeated construction overhead.
 NumberFormat _getNumberFormat(String format, String? locale) {
   final key = '$format|${locale ?? ''}';
   final cached = _numberFormatCache.remove(key);
@@ -75,7 +83,15 @@ NumberFormat _getNumberFormat(String format, String? locale) {
 }
 
 /// Extension methods for parsing numeric strings with lenient formatting.
+///
+/// These methods strip common grouping characters (commas, spaces, underscores,
+/// non-breaking spaces) before parsing. Accounting-style negatives like `(123)`
+/// are converted to `-123`.
+///
+/// Used internally by `Convert.toInt`, `Convert.toDouble`, etc.
 extension NumParsingTextX on String {
+  // Strips grouping separators (commas, spaces, non-breaking spaces, underscores)
+  // and converts accounting-style negatives like "(123)" to "-123".
   String _cleanNumber() {
     var s = replaceAll(
       '\u00A0',
@@ -88,9 +104,11 @@ extension NumParsingTextX on String {
   }
 
   /// Parses this string into a [num] after stripping grouping characters.
+  ///
+  /// Preserves integer precision when possible (returns [int] for whole numbers).
+  /// Throws [FormatException] if parsing fails.
   num toNum() {
     final cleaned = _cleanNumber();
-    // Keep int if possible
     final n = num.parse(cleaned);
     return n;
   }
@@ -104,19 +122,28 @@ extension NumParsingTextX on String {
     }
   }
 
-  /// Parses an integer from this string.
+  /// Parses this string as an integer, truncating any fractional component.
+  ///
+  /// Throws [FormatException] if the underlying numeric parse fails.
   int toInt() => toNum().toInt();
 
   /// Attempts [toInt], returning `null` on failure.
   int? tryToInt() => tryToNum()?.toInt();
 
-  /// Parses a double from this string.
+  /// Parses this string as a double.
+  ///
+  /// Throws [FormatException] if parsing fails.
   double toDouble() => toNum().toDouble();
 
   /// Attempts [toDouble], returning `null` on failure.
   double? tryToDouble() => tryToNum()?.toDouble();
 
-  /// Parses this string using an [NumberFormat] described by [format] and [locale].
+  /// Parses this string using a [NumberFormat] pattern.
+  ///
+  /// The [format] pattern follows [NumberFormat] conventions (e.g., `'#,##0.00'`).
+  /// Uses [locale] for localized grouping and decimal separators.
+  ///
+  /// Throws if the string does not match the expected format.
   num toNumFormatted(String format, String? locale) {
     final f = _getNumberFormat(format, locale);
     final parsed = f.parse(this);
@@ -132,7 +159,9 @@ extension NumParsingTextX on String {
     }
   }
 
-  /// Parses an integer using the provided numeric [format] and [locale].
+  /// Parses a formatted integer using [NumberFormat].
+  ///
+  /// See [toNumFormatted] for parameter details.
   int toIntFormatted(String format, String? locale) =>
       toNumFormatted(format, locale).toInt();
 
@@ -140,7 +169,9 @@ extension NumParsingTextX on String {
   int? tryToIntFormatted(String format, String? locale) =>
       tryToNumFormatted(format, locale)?.toInt();
 
-  /// Parses a double using the provided numeric [format] and [locale].
+  /// Parses a formatted double using [NumberFormat].
+  ///
+  /// See [toNumFormatted] for parameter details.
   double toDoubleFormatted(String format, String? locale) =>
       toNumFormatted(format, locale).toDouble();
 
@@ -149,7 +180,13 @@ extension NumParsingTextX on String {
       tryToNumFormatted(format, locale)?.toDouble();
 }
 
-/// Converts an integer into a Roman numeral string.
+/// Converts an integer to its Roman numeral representation.
+///
+/// Supports values from `1` to `3999`. Values outside this range throw
+/// [ArgumentError] since Roman numerals cannot represent zero or negatives,
+/// and values 4000+ require special notation.
+///
+/// Example: `intToRomanNumeral(42)` returns `'XLII'`.
 String intToRomanNumeral(int value) {
   if (value <= 0 || value >= 4000) {
     throw ArgumentError('Value must be between 1 and 3999');
@@ -165,7 +202,12 @@ String intToRomanNumeral(int value) {
   return result.toString();
 }
 
-/// Converts a Roman numeral string into an integer.
+/// Parses a Roman numeral string into its integer value.
+///
+/// Expects uppercase Roman numerals (I, V, X, L, C, D, M). Handles subtractive
+/// notation (e.g., `'IV'` = 4, `'IX'` = 9).
+///
+/// Throws if the string contains unrecognized characters.
 int romanNumeralToInt(String romanNumeral) {
   final romanMap = romanNumerals.map((key, value) => MapEntry(value, key));
   var i = 0;
@@ -183,21 +225,28 @@ int romanNumeralToInt(String romanNumeral) {
   return result;
 }
 
-/// Roman numeral helpers for integers.
+/// Adds Roman numeral conversion to numeric types.
 extension RomanNumeralIntX on num {
-  /// Converts this integer to a Roman numeral string.
+  /// Converts this number to a Roman numeral string.
+  ///
+  /// Truncates to integer first. Throws [ArgumentError] if the value is
+  /// outside the range `1-3999`.
   String toRomanNumeral() => intToRomanNumeral(toInt());
 }
 
-/// Roman numeral helpers for strings.
+/// Adds Roman numeral parsing to strings.
 extension RomanNumeralStringX on String {
-  /// Returns the integer value of the Roman numeral string.
+  /// Parses this string as a Roman numeral and returns its integer value.
+  ///
+  /// Throws if the string is not a valid Roman numeral.
   int get asRomanNumeralToInt => romanNumeralToInt(this);
 }
 
-/// Roman numeral helpers for nullable strings.
+/// Adds nullable-safe Roman numeral parsing to strings.
 extension RomanNumeralNullableStringX on String? {
-  /// Returns the integer value of the Roman numeral string, or `null`.
+  /// Parses this string as a Roman numeral, returning `null` if the string is `null`.
+  ///
+  /// Throws if the non-null string is not a valid Roman numeral.
   int? get asRomanNumeralToInt =>
       this == null ? null : romanNumeralToInt(this!);
 }

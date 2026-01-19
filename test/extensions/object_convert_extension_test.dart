@@ -1,19 +1,24 @@
 import 'package:convert_object/convert_object.dart';
+import 'package:intl/intl.dart';
 import 'package:test/test.dart';
 
 import '../helpers/fixtures.dart';
 
 void main() {
   late ConvertConfig prev;
+  late String? prevIntlLocale;
 
   setUp(() {
     // Arrange
+    prevIntlLocale = Intl.defaultLocale;
+    Intl.defaultLocale = 'en_US';
     prev = Convert.configure(makeTestConfig(locale: 'en_US'));
   });
 
   tearDown(() {
     // Arrange
     Convert.configure(prev);
+    Intl.defaultLocale = prevIntlLocale;
   });
 
   group('Object?.convert', () {
