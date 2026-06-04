@@ -1,4 +1,5 @@
 import 'package:convert_object/src/core/convert_object.dart';
+import 'package:meta/meta.dart';
 
 // --------------------------------------------------------------------------
 // Top-Level Convenience Functions
@@ -317,6 +318,7 @@ Uri? tryConvertToUri(
 // Collections
 
 /// Top-level convenience alias for [Convert.toMap].
+@optionalTypeArgs
 Map<K, V> convertToMap<K, V>(
   dynamic object, {
   Object? mapKey,
@@ -334,6 +336,7 @@ Map<K, V> convertToMap<K, V>(
 );
 
 /// Top-level convenience alias for [Convert.tryToMap].
+@optionalTypeArgs
 Map<K, V>? tryConvertToMap<K, V>(
   dynamic object, {
   Object? mapKey,
@@ -351,6 +354,7 @@ Map<K, V>? tryConvertToMap<K, V>(
 );
 
 /// Top-level convenience alias for [Convert.toSet].
+@optionalTypeArgs
 Set<T> convertToSet<T>(
   dynamic object, {
   Object? mapKey,
@@ -366,6 +370,7 @@ Set<T> convertToSet<T>(
 );
 
 /// Top-level convenience alias for [Convert.tryToSet].
+@optionalTypeArgs
 Set<T>? tryConvertToSet<T>(
   dynamic object, {
   Object? mapKey,
@@ -381,6 +386,7 @@ Set<T>? tryConvertToSet<T>(
 );
 
 /// Top-level convenience alias for [Convert.toList].
+@optionalTypeArgs
 List<T> convertToList<T>(
   dynamic object, {
   Object? mapKey,
@@ -396,6 +402,7 @@ List<T> convertToList<T>(
 );
 
 /// Top-level convenience alias for [Convert.tryToList].
+@optionalTypeArgs
 List<T>? tryConvertToList<T>(
   dynamic object, {
   Object? mapKey,
@@ -413,6 +420,7 @@ List<T>? tryConvertToList<T>(
 // Enum
 
 /// Top-level convenience alias for [Convert.toEnum].
+@optionalTypeArgs
 T convertToEnum<T extends Enum>(
   dynamic object, {
   required T Function(dynamic) parser,
@@ -430,6 +438,7 @@ T convertToEnum<T extends Enum>(
 );
 
 /// Top-level convenience alias for [Convert.tryToEnum].
+@optionalTypeArgs
 T? tryConvertToEnum<T extends Enum>(
   dynamic object, {
   required T Function(dynamic) parser,
@@ -449,7 +458,9 @@ T? tryConvertToEnum<T extends Enum>(
 // Generic
 
 /// Top-level convenience alias for [Convert.toType].
+@optionalTypeArgs
 T convertToType<T>(dynamic object) => Convert.toType<T>(object);
 
 /// Top-level convenience alias for [Convert.tryToType].
+@optionalTypeArgs
 T? tryConvertToType<T>(dynamic object) => Convert.tryToType<T>(object);
