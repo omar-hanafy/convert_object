@@ -1,0 +1,3 @@
+# Internal planning and design artifacts. Kept in the repo, excluded from the
+# published package (avoids the pub "docs vs doc" layout warning).
+docs/
