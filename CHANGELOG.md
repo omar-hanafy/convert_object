@@ -1,3 +1,10 @@
+## 1.1.0
+
+- Add `Map.tryGetRaw(key, {alternativeKeys})`: returns the selected value with no type conversion, for polymorphic or unknown-typed fields. It preserves the raw value (no coercion, no decoding).
+- `alternativeKeys` now selects the first NON-NULL candidate across all map getters (`getString`/`tryGetString`/etc.). Previously it selected the first key that merely existed, so a present-but-null alternative key short-circuited the lookup.
+- This is a behavior change for the "present-but-null alternative key" edge case and affects every typed map getter that uses `alternativeKeys`.
+- To distinguish an absent key from a key whose value is `null`, use `Map.containsKey` directly; neither `tryGetRaw` nor a `??` chain can express that distinction.
+
 ## 1.0.4
 
 - Consolidate 1.0.0 changelog into organized sections for clarity.
