@@ -43,7 +43,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     if (value == null &&
         alternativeKeys != null &&
         alternativeKeys.isNotEmpty) {
-      final altKey = alternativeKeys.firstWhereOrNull(containsKey);
+      final altKey = alternativeKeys.firstWhereOrNull((k) => this[k] != null);
       if (altKey != null) value = this[altKey];
     }
     return value;
@@ -383,7 +383,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     if (value == null &&
         alternativeKeys != null &&
         alternativeKeys.isNotEmpty) {
-      final altKey = alternativeKeys.firstWhereOrNull(map.containsKey);
+      final altKey = alternativeKeys.firstWhereOrNull((k) => map[k] != null);
       if (altKey != null) value = map[altKey];
     }
     return value;
