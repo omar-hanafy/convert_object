@@ -334,6 +334,22 @@ Available getters on `Map<K,V>` and `Map<K,V>?`:
 `get/tryGetBool`, `get/tryGetBigInt`, `get/tryGetDateTime`, `get/tryGetUri`,
 `get/tryGetList<T>`, `get/tryGetSet<T>`, `get/tryGetMap<K2,V2>`, `get/tryGetEnum<T>()`.
 
+**Raw escape hatch.** When a field is polymorphic or unknown-typed, `tryGetRaw`
+returns the selected value with **no conversion** (the typed getters would coerce
+or discard it). `alternativeKeys` selects the first key whose value is non-null,
+so it behaves like a null-safe `??` chain:
+
+```dart
+// `errors` may be a Map, a List, or a String depending on the response.
+final raw = json.tryGetRaw('errors', alternativeKeys: ['fields']);
+if (raw is Map) {/* field -> message */}
+else if (raw is List) {/* flat messages */}
+else if (raw is String) {/* single message */}
+
+// Exactly: json['a'] ?? json['b'] ?? json['c']
+json.tryGetRaw('a', alternativeKeys: ['b', 'c']);
+```
+
 Quality‑of‑life:
 `valuesList`, `valuesSet`, `keysList`, `keysSet`, and parsing helpers:
 
@@ -1074,6 +1090,9 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   Set<T>?  tryGetSet<T>(...);
   Map<K2,V2>? tryGetMap<K2,V2>(...);
   T?       tryGetEnum<T extends Enum>(...);
+
+  // Raw value, no conversion; alternativeKeys picks the first non-null match.
+  V?       tryGetRaw(K key, {List<K>? alternativeKeys});
 }
 ```
 
