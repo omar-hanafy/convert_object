@@ -1,4 +1,5 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
+import 'package:meta/meta.dart';
 
 /// Factory methods for building resilient enum parsing callbacks.
 ///
@@ -30,6 +31,7 @@ class EnumParsers {
   /// `Status.active`), only the part after the last dot is used for matching.
   ///
   /// Throws [StateError] if no matching enum value is found.
+  @optionalTypeArgs
   static T Function(dynamic) byName<T extends Enum>(List<T> values) =>
       (dynamic obj) {
         if (obj is T) return obj;
@@ -46,6 +48,7 @@ class EnumParsers {
   ///
   /// Useful for integrating with code generators that produce `fromString`
   /// methods, such as `json_serializable` or `freezed`.
+  @optionalTypeArgs
   static T Function(dynamic) fromString<T>(T Function(String) fromString) =>
       (dynamic obj) => fromString(obj.toString());
 
@@ -53,6 +56,7 @@ class EnumParsers {
   ///
   /// Use this for graceful degradation when the API may return unknown values
   /// (e.g., new enum cases added server-side before the client is updated).
+  @optionalTypeArgs
   static T Function(dynamic) byNameOrFallback<T extends Enum>(
     List<T> values,
     T fallback,
@@ -70,6 +74,7 @@ class EnumParsers {
   /// for APIs that inconsistently return `PENDING`, `Pending`, or `pending`.
   ///
   /// Throws [ArgumentError] if no matching enum value is found.
+  @optionalTypeArgs
   static T Function(dynamic) byNameCaseInsensitive<T extends Enum>(
     List<T> values,
   ) => (dynamic obj) {
@@ -87,6 +92,7 @@ class EnumParsers {
   ///
   /// Throws [ArgumentError] if the index is out of bounds (must be `0` to
   /// `values.length - 1`).
+  @optionalTypeArgs
   static T Function(dynamic) byIndex<T extends Enum>(List<T> values) =>
       (dynamic obj) {
         final index = ConvertObjectImpl.toInt(obj);

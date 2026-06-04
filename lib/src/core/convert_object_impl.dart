@@ -1072,6 +1072,7 @@ abstract class ConvertObjectImpl {
   // Enums -------------------------------------------------------------
 
   /// Internal implementation for `Convert.toEnum`.
+  @optionalTypeArgs
   static T toEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -1139,6 +1140,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.tryToEnum`.
+  @optionalTypeArgs
   static T? tryToEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -1159,6 +1161,7 @@ abstract class ConvertObjectImpl {
   // Collections --------------------------------------------------------
 
   /// Internal implementation for `Convert.toMap`.
+  @optionalTypeArgs
   static Map<K, V> toMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -1233,6 +1236,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.tryToMap`.
+  @optionalTypeArgs
   static Map<K, V>? tryToMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -1262,6 +1266,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.toSet`.
+  @optionalTypeArgs
   static Set<T> toSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -1357,6 +1362,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.tryToSet`.
+  @optionalTypeArgs
   static Set<T>? tryToSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -1388,6 +1394,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.toList`.
+  @optionalTypeArgs
   static List<T> toList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -1489,6 +1496,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.tryToList`.
+  @optionalTypeArgs
   static List<T>? tryToList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -1526,6 +1534,7 @@ abstract class ConvertObjectImpl {
   // Top-level generic routing ----------------------------------------
 
   /// Internal implementation for `Convert.toType`.
+  @optionalTypeArgs
   static T toType<T>(dynamic object) {
     if (object is T) return object;
     if (object == null) {
@@ -1587,6 +1596,7 @@ abstract class ConvertObjectImpl {
   }
 
   /// Internal implementation for `Convert.tryToType`.
+  @optionalTypeArgs
   static T? tryToType<T>(dynamic object) {
     if (object is T) return object;
     if (object == null) return null;

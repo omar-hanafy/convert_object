@@ -1,4 +1,5 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
+import 'package:meta/meta.dart';
 
 // Provides firstWhere without throwing StateError when no match is found.
 extension _I<E> on Iterable<E> {
@@ -167,6 +168,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   );
 
   /// Converts the value at [key] (or [alternativeKeys]) to a [List] of [T].
+  @optionalTypeArgs
   List<T> getList<T>(
     K key, {
     List<K>? alternativeKeys,
@@ -188,6 +190,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   );
 
   /// Converts the value at [key] (or [alternativeKeys]) to a [Set] of [T].
+  @optionalTypeArgs
   Set<T> getSet<T>(
     K key, {
     List<K>? alternativeKeys,
@@ -209,6 +212,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   );
 
   /// Converts the value at [key] (or [alternativeKeys]) to a [Map] of [K2] to [V2].
+  @optionalTypeArgs
   Map<K2, V2> getMap<K2, V2>(
     K key, {
     List<K>? alternativeKeys,
@@ -305,6 +309,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   );
 
   /// Converts the value at [key] (or [alternativeKeys]) to an enum using [parser].
+  @optionalTypeArgs
   T getEnum<T extends Enum>(
     K key, {
     required T Function(dynamic) parser,
@@ -359,6 +364,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   // Parsing helpers (non-nullable map)
 
   /// Parses the nested map at [key] using the provided [converter].
+  @optionalTypeArgs
   T parse<T, K2, V2>(K key, T Function(Map<K2, V2> json) converter) {
     final raw = this[key];
     final map = ConvertObjectImpl.toMap<K2, V2>(raw);
@@ -366,6 +372,7 @@ extension MapConversionX<K, V> on Map<K, V> {
   }
 
   /// Tries to parse the nested map at [key] using the provided [converter].
+  @optionalTypeArgs
   T? tryParse<T, K2, V2>(K key, T Function(Map<K2, V2> json) converter) {
     final raw = this[key];
     final map = ConvertObjectImpl.tryToMap<K2, V2>(raw);
@@ -507,6 +514,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   );
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to a [List] of [T].
+  @optionalTypeArgs
   List<T>? tryGetList<T>(
     K key, {
     List<K>? alternativeKeys,
@@ -528,6 +536,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   );
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to a [Set] of [T].
+  @optionalTypeArgs
   Set<T>? tryGetSet<T>(
     K key, {
     List<K>? alternativeKeys,
@@ -549,6 +558,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   );
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to a [Map] of [K2] to [V2].
+  @optionalTypeArgs
   Map<K2, V2>? tryGetMap<K2, V2>(
     K key, {
     List<K>? alternativeKeys,
@@ -645,6 +655,7 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
   );
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to an enum using [parser].
+  @optionalTypeArgs
   T? tryGetEnum<T extends Enum>(
     K key, {
     required T Function(dynamic) parser,

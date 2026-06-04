@@ -1,6 +1,7 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/json.dart';
+import 'package:meta/meta.dart';
 
 /// Signature for lazily transforming a stored value before conversion.
 ///
@@ -166,6 +167,7 @@ class Converter {
   /// Converts the wrapped value to type [T].
   ///
   /// Throws a [ConversionException] if the conversion fails.
+  @optionalTypeArgs
   T to<T>() {
     final source = _transformValue('Converter.to<$T>');
     return ConvertObjectImpl.toType<T>(source);
@@ -174,6 +176,7 @@ class Converter {
   /// Attempts to convert the wrapped value to type [T].
   ///
   /// Returns `null` if the conversion fails or if the value is `null`.
+  @optionalTypeArgs
   T? tryTo<T>() {
     if (_value == null) return null;
     try {
@@ -186,6 +189,7 @@ class Converter {
   /// Converts the wrapped value to type [T], falling back to [defaultValue] on failure.
   ///
   /// This is equivalent to calling [tryTo] and providing a default.
+  @optionalTypeArgs
   T toOr<T>(T defaultValue) {
     try {
       final v = to<T>();
@@ -613,6 +617,7 @@ class Converter {
       defaultValue;
 
   /// Converts to [T] using [parser], mirroring `Convert.toEnum`.
+  @optionalTypeArgs
   T toEnum<T extends Enum>({
     required T Function(dynamic) parser,
     dynamic mapKey,
@@ -629,6 +634,7 @@ class Converter {
   );
 
   /// Converts to [T] without throwing, mirroring `Convert.tryToEnum`.
+  @optionalTypeArgs
   T? tryToEnum<T extends Enum>({
     required T Function(dynamic) parser,
     dynamic mapKey,
@@ -645,6 +651,7 @@ class Converter {
   );
 
   /// Converts to [List], optionally transforming each item.
+  @optionalTypeArgs
   List<T> toList<T>({
     dynamic mapKey,
     int? listIndex,
@@ -660,6 +667,7 @@ class Converter {
 
   /// Converts to [List] without throwing, returning `null` when conversion
   /// fails.
+  @optionalTypeArgs
   List<T>? tryToList<T>({
     dynamic mapKey,
     int? listIndex,
@@ -674,6 +682,7 @@ class Converter {
   );
 
   /// Converts to [Set], optionally transforming each item.
+  @optionalTypeArgs
   Set<T> toSet<T>({
     dynamic mapKey,
     int? listIndex,
@@ -688,6 +697,7 @@ class Converter {
   );
 
   /// Converts to [Set] without throwing, returning `null` on failure.
+  @optionalTypeArgs
   Set<T>? tryToSet<T>({
     dynamic mapKey,
     int? listIndex,
@@ -702,6 +712,7 @@ class Converter {
   );
 
   /// Converts to [Map], allowing converters for keys and values.
+  @optionalTypeArgs
   Map<K, V> toMap<K, V>({
     dynamic mapKey,
     int? listIndex,
@@ -718,6 +729,7 @@ class Converter {
   );
 
   /// Converts to [Map] without throwing, returning `null` on failure.
+  @optionalTypeArgs
   Map<K, V>? tryToMap<K, V>({
     dynamic mapKey,
     int? listIndex,

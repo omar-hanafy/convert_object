@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// Kotlin-style scope functions for non-nullable types.
 ///
 /// These extensions bring Kotlin's popular scope functions to Dart, enabling
@@ -16,6 +18,7 @@ extension LetExtension<T extends Object> on T {
   /// ```dart
   /// final length = fetchValue().let((v) => v.toString().length);
   /// ```
+  @optionalTypeArgs
   R let<R>(R Function(T it) block) => block(this);
 
   /// Executes [block] with `this` for side effects, then returns `this`.
@@ -55,17 +58,20 @@ extension LetExtension<T extends Object> on T {
 /// ```
 extension LetExtensionNullable<T extends Object> on T? {
   /// Executes [block] when non-null, returning its result or `null` if the receiver is `null`.
+  @optionalTypeArgs
   R? let<R>(R Function(T it) block) => this == null ? null : block(this as T);
 
   /// Executes [block] when non-null, returning [defaultValue] if the receiver is `null`.
   ///
   /// Unlike [let], this always returns a non-null result.
+  @optionalTypeArgs
   R letOr<R>(R Function(T it) block, {required R defaultValue}) =>
       this == null ? defaultValue : block(this as T);
 
   /// Backwards-compatible variant that passes the nullable receiver to [block].
   ///
   /// Prefer [let] for cleaner null handling.
+  @optionalTypeArgs
   R? letNullable<R>(R? Function(T? it) block) =>
       this == null ? null : block(this);
 
