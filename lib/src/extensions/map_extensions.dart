@@ -44,7 +44,7 @@ extension MapConversionX<K, V> on Map<K, V> {
     if (value == null &&
         alternativeKeys != null &&
         alternativeKeys.isNotEmpty) {
-      final altKey = alternativeKeys.firstWhereOrNull(containsKey);
+      final altKey = alternativeKeys.firstWhereOrNull((k) => this[k] != null);
       if (altKey != null) value = this[altKey];
     }
     return value;
@@ -390,11 +390,28 @@ extension NullableMapConversionX<K, V> on Map<K, V>? {
     if (value == null &&
         alternativeKeys != null &&
         alternativeKeys.isNotEmpty) {
-      final altKey = alternativeKeys.firstWhereOrNull(map.containsKey);
+      final altKey = alternativeKeys.firstWhereOrNull((k) => map[k] != null);
       if (altKey != null) value = map[altKey];
     }
     return value;
   }
+
+  /// Returns the value at [key], or the first of [alternativeKeys] whose value
+  /// is non-null, WITHOUT any type conversion.
+  ///
+  /// Use this for polymorphic or unknown-typed fields (for example a payload
+  /// whose `errors` may be a `Map`, `List`, or `String`) where the typed
+  /// `tryGetX` getters would coerce or discard the value. For known types,
+  /// prefer the typed getters.
+  ///
+  /// Returns `null` when neither [key] nor any of [alternativeKeys] has a
+  /// non-null value, or when the receiver is `null`. This cannot distinguish an
+  /// absent key from a key whose value is `null`; use `Map.containsKey` for
+  /// that distinction.
+  ///
+  /// After fallback, this is exactly a null-safe `this[key] ?? this[alt1] ?? ...`.
+  V? tryGetRaw(K key, {List<K>? alternativeKeys}) =>
+      _firstValueForKeys(key, alternativeKeys: alternativeKeys);
 
   /// Tries to convert the value at [key] (or [alternativeKeys]) to [String].
   String? tryGetString(
