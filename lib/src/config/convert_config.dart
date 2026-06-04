@@ -240,6 +240,7 @@ class ConvertConfig {
   ///
   /// Only fields explicitly set in [overrides] are applied; nested option
   /// objects are merged where appropriate.
+  @optionalTypeArgs
   static T runScoped<T>(ConvertConfig overrides, T Function() body) {
     final base = effective;
     final merged = base._merge(overrides);
@@ -548,6 +549,7 @@ class TypeRegistry {
   /// The parser is invoked by `Convert.toType` when [T] is requested.
   /// Existing parsers in this registry are preserved; the new parser
   /// is added (or replaces an existing parser for the same type).
+  @optionalTypeArgs
   TypeRegistry register<T>(T Function(Object?) parser) {
     final next = Map<Type, dynamic Function(Object?)>.from(_parsers);
     next[T] = parser;
@@ -567,6 +569,7 @@ class TypeRegistry {
   /// Attempts to parse [value] into [T] using a registered custom parser.
   ///
   /// Returns `null` if no parser is registered for [T] or if the parser itself returns `null`.
+  @optionalTypeArgs
   T? tryParse<T>(Object? value) {
     final parser = _parsers[T] as T Function(Object?)?;
     return parser == null ? null : parser(value);

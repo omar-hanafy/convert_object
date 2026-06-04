@@ -1,4 +1,5 @@
 import 'package:convert_object/src/core/convert_object_impl.dart';
+import 'package:meta/meta.dart';
 
 // Provides bounds-safe element access without throwing RangeError.
 // Optimized for List to use direct indexing instead of iteration.
@@ -191,6 +192,7 @@ extension IterableConversionX<E> on Iterable<E> {
   );
 
   /// Converts the element at [index] to a [List] of [T].
+  @optionalTypeArgs
   List<T> getList<T>(
     int index, {
     dynamic innerMapKey,
@@ -207,6 +209,7 @@ extension IterableConversionX<E> on Iterable<E> {
   );
 
   /// Converts the element at [index] to a [Set] of [T].
+  @optionalTypeArgs
   Set<T> getSet<T>(
     int index, {
     dynamic innerMapKey,
@@ -223,6 +226,7 @@ extension IterableConversionX<E> on Iterable<E> {
   );
 
   /// Converts the element at [index] to a [Map] of [K2] to [V2].
+  @optionalTypeArgs
   Map<K2, V2> getMap<K2, V2>(
     int index, {
     dynamic innerMapKey,
@@ -241,6 +245,7 @@ extension IterableConversionX<E> on Iterable<E> {
   );
 
   /// Converts the element at [index] to an enum value using [parser].
+  @optionalTypeArgs
   T getEnum<T extends Enum>(
     int index, {
     required T Function(dynamic) parser,
@@ -266,6 +271,7 @@ extension IterableConversionX<E> on Iterable<E> {
 
   // Convert all
   /// Converts every element in this iterable to [T].
+  @optionalTypeArgs
   List<T> convertAll<T>() =>
       map((e) => ConvertObjectImpl.toType<T>(e)).toList();
 
@@ -293,6 +299,7 @@ extension IterableConversionX<E> on Iterable<E> {
   }
 
   /// Maps the elements and eagerly materializes them into a [List] using convert_object.
+  @optionalTypeArgs
   List<R> mapList<R>(
     R Function(E e) mapper, {
     ElementConverter<R>? converter,
@@ -303,6 +310,7 @@ extension IterableConversionX<E> on Iterable<E> {
   );
 
   /// Maps elements with their index and eagerly materializes the result into a [List].
+  @optionalTypeArgs
   List<R> mapIndexedList<R>(
     R Function(int index, E element) mapper, {
     ElementConverter<R>? converter,
@@ -524,6 +532,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
   );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [List] of [T].
+  @optionalTypeArgs
   List<T>? tryGetList<T>(
     int index, {
     List<int>? alternativeIndices,
@@ -545,6 +554,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
   );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [Set] of [T].
+  @optionalTypeArgs
   Set<T>? tryGetSet<T>(
     int index, {
     List<int>? alternativeIndices,
@@ -566,6 +576,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
   );
 
   /// Tries to convert the element at [index] (or fallback indices) to a [Map] of [K2] to [V2].
+  @optionalTypeArgs
   Map<K2, V2>? tryGetMap<K2, V2>(
     int index, {
     List<int>? alternativeIndices,
@@ -589,6 +600,7 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
   );
 
   /// Tries to convert the element at [index] (or fallback indices) to an enum using [parser].
+  @optionalTypeArgs
   T? tryGetEnum<T extends Enum>(
     int index, {
     required T Function(dynamic) parser,
@@ -620,5 +632,6 @@ extension NullableIterableConversionX<E> on Iterable<E>? {
 /// Converts nullable sets into a [Set] of a different type.
 extension SetConvertToX<E> on Set<E>? {
   /// Converts this set into a [Set] of [R] using convert_object.
+  @optionalTypeArgs
   Set<R> convertTo<R>() => ConvertObjectImpl.toSet<R>(this);
 }

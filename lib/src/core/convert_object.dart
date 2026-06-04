@@ -33,6 +33,7 @@ abstract class Convert {
   ) => ConvertConfig.update(updater);
 
   /// Runs [body] with [overrides] applied on top of the current effective config.
+  @optionalTypeArgs
   static T runScopedConfig<T>(ConvertConfig overrides, T Function() body) =>
       ConvertConfig.runScoped(overrides, body);
 
@@ -384,6 +385,7 @@ abstract class Convert {
   ///
   /// JSON strings are decoded before conversion. Throws `ConversionException`
   /// when mapping fails and `defaultValue` is `null`.
+  @optionalTypeArgs
   static Map<K, V> toMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -403,6 +405,7 @@ abstract class Convert {
   /// Converts [object] to [Map] without throwing.
   ///
   /// Returns `defaultValue` or `null` when conversion fails.
+  @optionalTypeArgs
   static Map<K, V>? tryToMap<K, V>(
     dynamic object, {
     dynamic mapKey,
@@ -425,6 +428,7 @@ abstract class Convert {
   /// into a one-element set, and map inputs use their values. Throws
   /// `ConversionException` with element context when conversion fails and
   /// `defaultValue` is `null`.
+  @optionalTypeArgs
   static Set<T> toSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -442,6 +446,7 @@ abstract class Convert {
   /// Converts [object] to [Set] without throwing.
   ///
   /// Returns `defaultValue` or `null` when coercion is not possible.
+  @optionalTypeArgs
   static Set<T>? tryToSet<T>(
     dynamic object, {
     dynamic mapKey,
@@ -463,6 +468,7 @@ abstract class Convert {
   /// into a one-element list, and sets or maps are converted to their values.
   /// Throws `ConversionException` with element context when conversion fails
   /// and `defaultValue` is `null`.
+  @optionalTypeArgs
   static List<T> toList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -480,6 +486,7 @@ abstract class Convert {
   /// Converts [object] to [List] without throwing.
   ///
   /// Returns `defaultValue` or `null` when conversion fails.
+  @optionalTypeArgs
   static List<T>? tryToList<T>(
     dynamic object, {
     dynamic mapKey,
@@ -498,6 +505,7 @@ abstract class Convert {
   ///
   /// `debugInfo` is merged into the failure context. Throws
   /// `ConversionException` when parsing fails and `defaultValue` is `null`.
+  @optionalTypeArgs
   static T toEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -517,6 +525,7 @@ abstract class Convert {
   /// Converts [object] to an enum using `parser` without throwing.
   ///
   /// Returns `defaultValue` or `null` when parsing fails.
+  @optionalTypeArgs
   static T? tryToEnum<T extends Enum>(
     dynamic object, {
     required T Function(dynamic) parser,
@@ -540,11 +549,13 @@ abstract class Convert {
   /// Custom parsers from [TypeRegistry] in [ConvertConfig] are tried first,
   /// then built-in conversions. Throws `ConversionException` when conversion
   /// fails or when [T] is unsupported.
+  @optionalTypeArgs
   static T toType<T>(dynamic object) => ConvertObjectImpl.toType<T>(object);
 
   /// Converts [object] to type [T] without throwing.
   ///
   /// Returns `null` when conversion is unsuccessful or [T] is unsupported.
+  @optionalTypeArgs
   static T? tryToType<T>(dynamic object) =>
       ConvertObjectImpl.tryToType<T>(object);
 

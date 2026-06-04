@@ -1,4 +1,5 @@
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
+import 'package:meta/meta.dart';
 
 /// A monadic wrapper representing the outcome of a type conversion operation.
 ///
@@ -80,6 +81,7 @@ class ConversionResult<T> {
   ///
   /// Failures are forwarded unchanged. Use this for safe value transformations
   /// without manual success/failure checks.
+  @optionalTypeArgs
   ConversionResult<R> map<R>(R Function(T value) transform) {
     if (isSuccess) {
       return ConversionResult.success(transform(_value as T));
@@ -91,6 +93,7 @@ class ConversionResult<T> {
   ///
   /// Unlike [map], the [next] function returns a [ConversionResult], allowing
   /// composition of fallible operations. Failures short-circuit the chain.
+  @optionalTypeArgs
   ConversionResult<R> flatMap<R>(ConversionResult<R> Function(T value) next) {
     if (isSuccess) {
       return next(_value as T);
@@ -102,6 +105,7 @@ class ConversionResult<T> {
   ///
   /// Both callbacks are required, ensuring exhaustive handling. This is the
   /// recommended way to consume results when you need to act on failures.
+  @optionalTypeArgs
   R fold<R>({
     required R Function(T value) onSuccess,
     required R Function(ConversionException error) onFailure,
