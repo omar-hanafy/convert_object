@@ -1,0 +1,27 @@
+{
+  "name": "convert-object",
+  "version": "1.1.1",
+  "description": "Package-specific skills for the convert_object Dart package: model parsing from dynamic data, configuration (ConvertConfig/TypeRegistry), conversion debugging, migration from dart_helper_utils, and version upgrades.",
+  "author": {
+    "name": "Omar Hanafy",
+    "url": "https://github.com/omar-hanafy"
+  },
+  "homepage": "https://github.com/omar-hanafy/convert_object#ai-coding-assistant-support",
+  "repository": "https://github.com/omar-hanafy/convert_object",
+  "license": "MIT",
+  "keywords": [
+    "dart",
+    "flutter",
+    "convert-object",
+    "type-conversion",
+    "json-parsing",
+    "fromjson"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Convert Object",
+    "shortDescription": "Skills for the convert_object Dart type-conversion package",
+    "developerName": "Omar Hanafy",
+    "category": "Developer Tools"
+  }
+}

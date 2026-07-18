@@ -56,6 +56,10 @@ jobs:
         working-directory: ${{ env.PACKAGE_DIR }}
         run: dart analyze .
 
+      - name: Validate agent plugin
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: dart run tool/validate_agent_plugin.dart
+
       - name: Test
         working-directory: ${{ env.PACKAGE_DIR }}
         run: dart test --reporter expanded

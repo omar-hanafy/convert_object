@@ -1,0 +1,19 @@
+{
+  "name": "convert-object-tools",
+  "interface": {
+    "displayName": "Convert Object Tools"
+  },
+  "plugins": [
+    {
+      "name": "convert-object",
+      "source": {
+        "source": "local",
+        "path": "./tooling/ai/convert-object"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

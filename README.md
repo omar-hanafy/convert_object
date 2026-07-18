@@ -9,9 +9,55 @@
 
 ---
 
+## AI coding-assistant support
+
+This repository ships an installable **agent plugin** (`convert-object`) for
+**Claude Code** and **OpenAI Codex** - package-specific skills for model
+parsing, configuration, conversion debugging, and migrations, with API tables
+verified against this source tree. This is tooling for your coding assistant;
+it is **not** a runtime feature of the Dart package, and `dart pub add
+convert_object` does not install it. It installs from this Git repository (the
+pub.dev archive intentionally excludes it).
+
+**Claude Code** (v2 CLI/desktop with plugin support), inside a session:
+
+```
+/plugin marketplace add omar-hanafy/convert_object
+/plugin install convert-object@convert-object-tools
+```
+
+**OpenAI Codex** (codex-cli 0.144+ or ChatGPT desktop Codex mode; the IDE
+extension does not support plugins - see the plugin docs for its
+skill-installer alternative):
+
+```bash
+codex plugin marketplace add omar-hanafy/convert_object
+codex plugin add convert-object@convert-object-tools
+```
+
+Start a **new session** after installing so the bundled skills load. Skills
+trigger automatically on relevant work, or explicitly:
+`/convert-object:parse-with-convert-object` (Claude) or by mentioning
+`$parse-with-convert-object` (Codex). Try prompts like:
+
+- "Write a `fromJson` for this payload with convert_object; ids arrive as
+  strings and `created_at` is epoch seconds."
+- "Why does `Convert.toDateTime('02/03/2024', autoDetectFormat: true)` return
+  a different month on CI than locally?"
+- "Migrate this file from dart_helper_utils `ConvertObject` to
+  convert_object."
+
+The plugin contains instructions and reference documents only - no hooks, no
+MCP servers, no executable code, no telemetry. Compatible with convert_object
+1.x. Full capability list, update/uninstall commands, and troubleshooting:
+[tooling/ai/convert-object/README.md](tooling/ai/convert-object/README.md).
+
+---
+
 <details>
 <summary><b>Table of contents</b></summary>
 
+* [AI coding-assistant support](#ai-coding-assistant-support)
 * [Why convert_object?](#why-convert_object)
 * [Install](#install)
 * [Quick start](#quick-start)
