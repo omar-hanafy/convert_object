@@ -1,3 +1,12 @@
 # Internal planning and design artifacts. Kept in the repo, excluded from the
 # published package (avoids the pub "docs vs doc" layout warning).
 docs/
+
+# AI coding-assistant plugin and maintainer-only tooling. Distributed from the
+# git repository (marketplace install), never through the pub.dev archive:
+# pub strips hidden dirs (.claude-plugin/, .agents/, .claude/), which would
+# leave a broken partial plugin in the archive. Exclude the whole tree.
+tooling/
+tool/
+AGENTS.md
+CLAUDE.md

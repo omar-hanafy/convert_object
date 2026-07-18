@@ -1,3 +1,25 @@
+## 1.1.1
+
+No Dart API changes. This release adds installable AI coding-assistant support
+and maintainer tooling, distributed from the source repository (not the pub.dev
+archive):
+
+- Claude Code and OpenAI Codex plugin (`convert-object`) with five
+  package-specific skills: `parse-with-convert-object` (model/fromJson
+  parsing), `configure-convert-object` (ConvertConfig, BoolOptions,
+  TypeRegistry, onException), `debug-convert-object` (ConversionException
+  forensics plus exact parsing-rule tables), `migrate-from-dart-helper-utils`,
+  and `upgrade-convert-object` (version-aware upgrade audits).
+- Repository marketplaces for both ecosystems; install with
+  `/plugin marketplace add omar-hanafy/convert_object` (Claude Code) or
+  `codex plugin marketplace add omar-hanafy/convert_object` (Codex). See the
+  README "AI coding-assistant support" section.
+- Repo maintainer guidance (`AGENTS.md`/`CLAUDE.md`), an `add-conversion-api`
+  maintainer skill, and `tool/validate_agent_plugin.dart` (CI-enforced
+  version/manifest/skill validation).
+- The plugin tree, maintainer docs, and tooling are excluded from the pub.dev
+  package archive via `.pubignore`.
+
 ## 1.1.0
 
 - Add `Map.tryGetRaw(key, {alternativeKeys})`: returns the selected value with no type conversion, for polymorphic or unknown-typed fields. It preserves the raw value (no coercion, no decoding).
