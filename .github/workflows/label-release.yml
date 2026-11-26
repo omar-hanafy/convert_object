@@ -13,21 +13,19 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Detect version bump
         id: bump
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
-          base_sha="${{ github.event.pull_request.base.sha }}"
-          base_version=$(git show "$base_sha:pubspec.yaml" | awk -F': ' '/^version: /{print $2}')
-          head_version=$(awk -F': ' '/^version: /{print $2}' pubspec.yaml)
-          if [ -z "$base_version" ] || [ -z "$head_version" ]; then
-            echo "Unable to read version from pubspec.yaml."
-            exit 1
-          fi
+          base_version=$(git show "$BASE_SHA:pubspec.yaml" | yq -er '.version')
+          head_version=$(yq -er '.version' pubspec.yaml)
           if [ "$base_version" = "$head_version" ]; then
             echo "bumped=false" >> "$GITHUB_OUTPUT"
           else
@@ -35,11 +33,13 @@ jobs:
           fi
 
       - name: Update release label
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          VERSION_BUMPED: ${{ steps.bump.outputs.bumped }}
         with:
           script: |
             const label = 'release';
-            const shouldAdd = '${{ steps.bump.outputs.bumped }}' === 'true';
+            const shouldAdd = process.env.VERSION_BUMPED === 'true';
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
 

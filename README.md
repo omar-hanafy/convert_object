@@ -244,16 +244,15 @@ Prefer writing code like this:
 
 ```dart
 final value = someDynamic.convert
-    .withDefault(0)
-    .withConverter((v) => v is String ? v.trim() : v) // optional pre-transform
-    .toInt();
+    .withConverter((v) => v is String ? v.trim() : v)
+    .toOr<int>(0);
 ```
 
 Key features:
 
 * `.convert` — extension on `Object?` returning a `Converter`.
 * Navigation helpers: `.fromMap(key)`, `.fromList(index)`, `.decoded` (JSON decode if the source is a `String`).
-* Generic targets: `.to<T>()`, `.tryTo<T>()`, `.toOr(default)`.
+* Use `.withConverter(fn)` before a generic `.to<T>()`, `.tryTo<T>()`, or `.toOr<T>(default)`. Typed shortcuts take their own conversion callbacks.
 * Primitive shortcuts: `.toInt()`, `.tryToDouble()`, `.toDateTimeOr(fallback)`, etc.
 * Collections: `.toList<T>(elementConverter: ...)`, `.toMap<K,V>(keyConverter: ..., valueConverter: ...)`.
 
@@ -266,7 +265,7 @@ final age = jsonText.convert.decoded
     .fromMap('user')
     .fromMap('age')
     .withConverter((v) => v is String ? v.trim() : v)
-    .toInt();                          // 21
+    .to<int>();                        // 21
 
 final emailUri = jsonText.convert.decoded
     .fromMap('user')
@@ -533,18 +532,21 @@ final c = Convert.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
 
 **Auto‑detection priority** (simplified):
 
-0. **Unix epoch** (`9–10` digits = sec, `12–13` digits = ms; `12` digits guarded to avoid `yyyyMMddHHmm`).
+0. **Numeric strings** include compact calendar forms (`yyyyMMdd`, `yyyyMMddHHmm`, `yyyyMMddHHmmss`) and signed or unsigned Unix epochs. Epochs use 9–10 digits for seconds and 12–13 for milliseconds. A valid unsigned `yyyyMMddHHmm` in years 1800–2500 takes precedence.
 1. **ISO‑8601/RFC3339** (via `DateTime.parse`).
 2. **HTTP date** (`IMF-fixdate`, `GMT`) → treated as UTC.
 3. **Slashed ambiguous** (`MM/dd` vs `dd/MM`) by locale (e.g., `en_US` vs `en_GB`).
-4. **Compact numeric** `yyyyMMdd[HHmm[ss]]` (spaces/underscores allowed).
-5. **Long names** via `intl` (e.g., `March 5, 2024`).
-6. **Time‑only** (`HH:mm[:ss]`) → today’s date (local).
+4. **Long names** via `intl` (e.g., `March 5, 2024`).
+5. **Time only** (`HH:mm[:ss]` or a 12-hour time with AM/PM) uses today’s local date.
+
+A Dart `num` takes the epoch path directly. Absolute values below 100,000,000,000 are seconds, and larger magnitudes are milliseconds. For a compact calendar date such as `20240229`, pass a string.
 
 **Time zone rules**
 
-* **Calendar‑like inputs** (no explicit offset) return **local** time by default; set `utc: true` to force UTC.
-* **Instant‑like inputs** (ISO with `Z`/offsets, HTTP date, Unix epoch) preserve their UTC meaning; if `utc: false` we convert back to local for convenience.
+* A value that is already a `DateTime` passes through with its original time zone.
+* A plain ISO string or an automatically detected calendar date without an offset uses local time. With `utc: true`, the result represents the same instant in UTC.
+* ISO strings with an offset or `Z` and HTTP dates marked `GMT` return UTC. Epoch values use local time by default and UTC when requested.
+* With an explicit `format`, `utc: true` interprets the supplied clock fields in UTC. The same rule applies to configured `extraAutoDetectPatterns`.
 
 ---
 
@@ -553,7 +555,8 @@ final c = Convert.toDateTime('Thu, 20 Jun 2024 12:34:56 GMT',
 ### Numbers
 
 * Accepts inputs like `"1234.56"`, `"1,234"`, `"  123_456  "`, `"(2,500)"` (→ `-2500`).
-* Localized parsing via `format` + `locale` (uses `intl:NumberFormat`).
+* Formatted parsing uses `intl.NumberFormat` with the configured locale, falling back to the current `Intl` locale.
+* For arbitrary-precision integers in JSON, send quoted decimal strings. Parse a decoded field with `Convert.toBigInt(decodedMap, mapKey: 'id')`, or pass an entire array of quoted strings to `Convert.toList<BigInt>`. A collection converter decodes a selected string as JSON again, which can round a scalar identifier.
 
 ```dart
 Convert.toInt('1,234');                           // 1234
@@ -605,7 +608,7 @@ Parsing safeguards (invalid host/path) are enforced. Use `tryToUri` or `defaultV
 A few helpers are re‑exported to make JSON‑heavy flows ergonomic:
 
 ```dart
-// Strings -> try to decode JSON else return the original text
+// Invalid JSON returns the original text.
 final dynamic decoded = '{"a":1}'.tryDecode(); // Map<String,dynamic>
 
 // Map/Iterable pretty JSON + normalization options
@@ -657,8 +660,10 @@ try {
 (`mapKey`, `listIndex`), formatting/locale options, and any caller-supplied
 debug info.
 
-Use `onException` for logging/telemetry (fires once per thrown exception; hook
-errors are swallowed):
+Use `onException` for logging or telemetry. A strict collection conversion
+reports an escaping element error once with its index. If a callback catches
+an independent conversion failure, its hook runs in its original scope before
+the collection call finishes.
 
 ```dart
 Convert.configure(Convert.config.copyWith(
@@ -705,6 +710,8 @@ final attrs = Convert.toMap<String, int>(
   valueConverter: (v) => v is int ? v : Convert.toInt(v),
 ); // {'a':1,'b':2,'c':3}
 ```
+
+Maps supplied to list and set conversions can have their values converted to the requested element type. To process a whole map as a single record, pass `[map]` and provide its model converter. A nonempty map or set that is itself assignable to the requested element type can be wrapped as a single item. Already-typed target lists, sets, and maps are returned directly.
 
 ### 2) Model parsing with map extensions
 

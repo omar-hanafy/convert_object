@@ -375,7 +375,7 @@ void main() {
         useCurrentLocale: true,
         utc: true,
         defaultValue: 7,
-        converter: (v) => v,
+        converter: (Object? v) => v,
         targetType: int,
         debugInfo: debug,
       );

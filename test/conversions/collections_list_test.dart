@@ -38,6 +38,22 @@ void main() {
     Convert.configure(prev);
   });
 
+  test('typed collection views report their failing element index', () {
+    final set = <Object>{1, 'bad'}.cast<int>();
+    final map = <String, Object>{
+      'first': 1,
+      'second': 'bad',
+    }.cast<String, int>();
+    final expected = throwsA(
+      isA<ConversionException>()
+          .having((e) => e.context['elementIndex'], 'elementIndex', 1)
+          .having((e) => e.error, 'cause', isA<TypeError>()),
+    );
+    expect(() => Convert.toList<int>(set), expected);
+    expect(() => Convert.toList<int>(map), expected);
+    expect(() => Convert.toSet<int>(map), expected);
+  });
+
   group('Convert.toList', () {
     test('should return the same list when input is already a List<T>', () {
       // Arrange
@@ -88,6 +104,21 @@ void main() {
       expect(result.length, equals(2));
     });
 
+    test('uses the element converter when copying a typed set to a list', () {
+      final set = <int>{1, 2};
+      final seen = <Object?>[];
+      int scale(Object? value) {
+        seen.add(value);
+        return (value as int) * 10;
+      }
+
+      expect(Convert.toList<int>(set, elementConverter: scale), [10, 20]);
+      expect(Convert.tryToList<int>(set, elementConverter: scale), [10, 20]);
+      final list = [1, 2];
+      expect(Convert.toList<int>(list, elementConverter: scale), same(list));
+      expect(seen, [1, 2, 1, 2]);
+    });
+
     test('should convert from map.values (Iterable) into a List<T>', () {
       // Arrange
       final map = <String, String>{'a': '1', 'b': '2'};
@@ -108,6 +139,54 @@ void main() {
 
       // Assert
       expect(result, equals(<int>[1, 2]));
+    });
+
+    test(
+      'converts selected map values in order through strict and try APIs',
+      () {
+        final values = <Object?, Object?>{1: '2', 'second': 1, 'third': '2'};
+        const json = '[{"items":{"first":"2","second":1,"third":"2"}}]';
+
+        expect(Convert.toList<int>(values), [2, 1, 2]);
+        expect(tryConvertToList<int>(json, listIndex: 0, mapKey: 'items'), [
+          2,
+          1,
+          2,
+        ]);
+        expect(
+          {
+            'rows': json,
+          }.getList<int>('rows', innerListIndex: 0, innerKey: 'items'),
+          [2, 1, 2],
+        );
+        expect(
+          Convert.tryToList<int>(json, listIndex: 0, mapKey: 'absent'),
+          isNull,
+        );
+        expect(Convert.toList<String>(values), ['2', '1', '2']);
+        expect(Convert.toList<String>([values]), [values.toString()]);
+      },
+    );
+
+    test('applies an element converter to map values, even when typed', () {
+      final values = <String, int>{'first': 1, 'second': 2};
+      final seen = <Object?>[];
+      final result = values.convert.tryToList<int>(
+        elementConverter: (value) {
+          seen.add(value);
+          return (value as int) * 10;
+        },
+      );
+
+      expect(seen, [1, 2]);
+      expect(result, [10, 20]);
+      expect(values, {'first': 1, 'second': 2});
+    });
+
+    test('keeps a map assignable to the element type as one element', () {
+      final input = <String, int>{'first': 1, 'second': 2};
+      expect(Convert.toList<Map<String, int>>(input).single, same(input));
+      expect(Convert.tryToList<Object?>(input)!.single, same(input));
     });
 
     test('should wrap and convert a scalar input into a one-element list', () {

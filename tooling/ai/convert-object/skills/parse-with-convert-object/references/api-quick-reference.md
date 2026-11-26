@@ -51,7 +51,7 @@ and custom converter):
 
 - `value.convert` -> `Converter`
 - `.withDefault(Object? value)` - chain-wide fallback for later conversions
-- `.withConverter(DynamicConverter<dynamic> fn)` - pre-transform before converting
+- `.withConverter(DynamicConverter<dynamic> fn)` - transform the input to `to<T>()`, `tryTo<T>()`, or `toOr<T>()`
 - `.fromMap(Object? key)` - descend into map key (JSON strings auto-decoded)
 - `.fromList(int index)` - descend into list index (JSON strings auto-decoded)
 - `.decoded` - explicitly JSON-decode a string value
@@ -145,8 +145,8 @@ NOTE: iterable extensions use `innerMapKey`/`innerIndex`; map extensions use
   `.toJsonString({indent, options, toEncodable})`; maps add `.toJsonMap(...)`,
   iterables add `.toJsonList(...)`; `jsonSafe(value, {options, toEncodable})`.
 - `JsonOptions({encodeEnumsAsName = true, dateTimeStrategy = DateTimeStrategy.iso8601String, durationStrategy = DurationStrategy.milliseconds, nonFiniteDoubles = NonFiniteDoubleStrategy.string, stringifyUnknown = true, setsAsLists = true, dropNulls = false, sortKeys = false, detectCycles = false, cyclePlaceholder = '<cycle>'})`.
-  Bytes (`Uint8List`/`ByteBuffer`/`ByteData`) encode as base64; `BigInt` and
-  `Uri` as strings.
+  Bytes encode as base64 using the supplied buffer or view boundaries. `BigInt`
+  and `Uri` encode as strings.
 - Roman numerals: `intToRomanNumeral(int)` (1..3999),
   `romanNumeralToInt(String)`, `num.toRomanNumeral()`,
   `'XLII'.asRomanNumeralToInt`.

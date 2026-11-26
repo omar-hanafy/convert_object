@@ -91,6 +91,41 @@ void main() {
       },
     );
 
+    test('retains null keys and values returned by nullable converters', () {
+      final input = <Object?, Object?>{'one': 4, 2: 'two'};
+      int? keepInts(Object? value) => value is int ? value : null;
+
+      expect(
+        Convert.toMap<int?, int?>(
+          input,
+          keyConverter: keepInts,
+          valueConverter: keepInts,
+        ),
+        {null: 4, 2: null},
+      );
+    });
+
+    test('try conversion retains null even when the original entry fits', () {
+      final input = <Object?, Object?>{1: 2};
+      expect(
+        input.convert.tryToMap<int?, int?>(
+          keyConverter: (_) => null,
+          valueConverter: (_) => null,
+        ),
+        {null: null},
+      );
+
+      final typed = <int, int>{1: 2};
+      expect(
+        Convert.tryToMap<int?, int?>(
+          typed,
+          keyConverter: (_) => null,
+          valueConverter: (_) => null,
+        ),
+        same(typed),
+      );
+    });
+
     test('should wrap keyConverter errors in ConversionException', () {
       // Arrange
       final input = <String, String>{'a': '1'};

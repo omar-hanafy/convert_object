@@ -8,8 +8,8 @@ library;
 import 'dart:async';
 
 import 'package:convert_object/convert_object.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 /// Initializes Intl date formatting data for common locales used in tests.
 ///

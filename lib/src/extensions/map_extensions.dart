@@ -14,8 +14,8 @@ extension _I<E> on Iterable<E> {
 /// Type conversion helpers for non-nullable [Map] instances.
 ///
 /// Provides key-based value extraction with automatic type conversion.
-/// Each method looks up the value for [key] (with optional fallback to
-/// [alternativeKeys]) and converts it to the target type.
+/// Each method looks up the value for `key` (with optional fallback to
+/// `alternativeKeys`) and converts it to the target type.
 ///
 /// ### Example
 /// ```dart
@@ -26,13 +26,13 @@ extension _I<E> on Iterable<E> {
 /// ```
 ///
 /// ### Alternative Keys
-/// When APIs vary in naming conventions, use [alternativeKeys] for resilience:
+/// When APIs vary in naming conventions, use `alternativeKeys` for resilience:
 /// ```dart
 /// final id = json.getInt('id', alternativeKeys: ['ID', '_id', 'userId']);
 /// ```
 ///
 /// ### Nested Navigation
-/// For complex structures, use [innerKey] and [innerListIndex]:
+/// For complex structures, use `innerKey` and `innerListIndex`:
 /// ```dart
 /// final city = json.getString('address', innerKey: 'city');
 /// ```

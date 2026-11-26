@@ -160,7 +160,6 @@ void main() {
       try {
         // Force a type error by calling a method on null
         final dynamic nullValue = null;
-        // ignore: avoid_dynamic_calls
         nullValue.nonExistentMethod();
       } catch (e) {
         error = e;

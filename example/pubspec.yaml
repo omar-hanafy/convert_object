@@ -1,18 +1,14 @@
 name: convert_object_example
-description: A sample command-line application.
+description: Runnable examples of type conversion and model parsing.
 version: 1.0.0
 publish_to: none
-# repository: https://github.com/my_org/my_repo
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.10.0
 
-# Add regular dependencies here.
 dependencies:
   convert_object:
-    path: ../
-  intl: ^0.20.2
+    path: ..
 
 dev_dependencies:
   lints: ^6.0.0
-  test: ^1.25.6

@@ -128,6 +128,12 @@ void main() {
     });
 
     group('tryToInt / tryToDouble helpers', () {
+      test('tryToInt returns null for non-finite numbers', () {
+        for (final input in ['NaN', 'Infinity', '-Infinity', '1e9999']) {
+          expect(input.tryToInt(), isNull, reason: input);
+        }
+      });
+
       test('should return null for invalid input', () {
         // Arrange
         const input = 'not-a-number';
@@ -156,6 +162,10 @@ void main() {
     });
 
     group('formatted parsing', () {
+      test('tryToIntFormatted returns null for a parsed NaN', () {
+        expect('NaN'.tryToIntFormatted('#,##0.00', 'en_US'), isNull);
+      });
+
       test(
         'should parse formatted numbers with NumberFormat when format is provided',
         () {
@@ -252,6 +262,20 @@ void main() {
   });
 
   group('NumberFormat cache behavior', () {
+    test('uses the current Intl locale unless a locale is supplied', () {
+      const input = '1.250';
+      const format = '#,##0.###';
+      Intl.withLocale('en_US', () {
+        expect(input.toNumFormatted(format, null), 1.25);
+        Intl.withLocale('de_DE', () {
+          expect(input.toNumFormatted(format, null), 1250);
+          expect(input.toNumFormatted(format, 'en_US'), 1.25);
+        });
+        expect(input.toNumFormatted(format, null), 1.25);
+        expect(input.toNumFormatted(format, 'de_DE'), 1250);
+      });
+    });
+
     test('should evict oldest entry when cache exceeds max size', () {
       // Arrange
       const input = '123';
@@ -266,6 +290,13 @@ void main() {
   });
 
   group('Roman numeral helpers', () {
+    test('round-trips every supported integer through Roman numerals', () {
+      for (var value = 1; value <= 3999; value++) {
+        final numeral = intToRomanNumeral(value);
+        expect(romanNumeralToInt(numeral), value, reason: numeral);
+      }
+    });
+
     test('intToRomanNumeral should encode standard values', () {
       for (final entry in kRomanNumerals.entries) {
         expect(

@@ -39,7 +39,7 @@ then classify against the rules below.
 
 | Symptom | Likely rule (all exact values in references/parsing-rules.md) |
 |---|---|
-| Date off by hours | Calendar-like input returns LOCAL time unless `utc: true`; instant-like input (ISO with offset/Z, HTTP date, epoch) keeps its UTC meaning and converts to local when `utc: false` |
+| Date off by hours | ISO strings with offsets or Z and HTTP dates with GMT return UTC. Epochs and offset-free calendar input use local time by default. Set `utc: true` to return UTC. |
 | `02/03/2024` flips month/day | Slashed dates resolved by locale: `en_US*` prefers MM/dd, everything else dd/MM. Deterministic fix: explicit `format:` |
 | Epoch seconds parsed as 1970 or year 56xxx | NUMERIC input: abs >= 100000000000 -> milliseconds, else seconds. STRING input via auto-detect: 9-10 digits sec, 12-13 digits ms, with a 12-digit calendar guard. There is NO microseconds tier |
 | `"202501191430"` becomes a weird epoch | It doesn't: 12-digit strings that validate as `yyyyMMddHHmm` (year 1800-2500) are calendar timestamps, not epoch ms |

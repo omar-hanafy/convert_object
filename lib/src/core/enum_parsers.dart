@@ -25,7 +25,7 @@ import 'package:meta/meta.dart';
 ///
 /// See also: [EnumValuesParsing] for convenient extension methods on enum lists.
 class EnumParsers {
-  /// Creates a parser that matches enum values by their [Enum.name] property.
+  /// Creates a parser that matches enum values by their [EnumName.name] property.
   ///
   /// The input is stringified and trimmed. If the input contains a dot (e.g.,
   /// `Status.active`), only the part after the last dot is used for matching.

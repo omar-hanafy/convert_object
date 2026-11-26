@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:convert_object/src/config/convert_config.dart';
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
 import 'package:convert_object/src/utils/dates.dart';
@@ -24,13 +26,27 @@ abstract class ConvertObjectImpl {
     'convert_object_on_exception_called',
   );
 
+  // Shared only for the synchronous construction of a collection. Failures
+  // that escape that operation are handled at its public boundary.
+  static Map<ConversionException, ExceptionHook>? _collectionHooks;
+
+  static void _notify(ConversionException ex, ExceptionHook hook) {
+    if (_hooked[ex] == true) return;
+    _hooked[ex] = true;
+    try {
+      hook(ex);
+    } catch (_) {}
+  }
+
   static Never _fail(ConversionException ex) {
     final hook = ConvertConfig.effective.onException;
-    if (hook != null && _hooked[ex] != true) {
-      _hooked[ex] = true;
-      try {
-        hook(ex);
-      } catch (_) {}
+    if (hook != null) {
+      final pending = _collectionHooks;
+      if (pending == null) {
+        _notify(ex, hook);
+      } else {
+        pending.putIfAbsent(ex, () => Zone.current.bindUnaryCallback(hook));
+      }
     }
     Error.throwWithStackTrace(ex, ex.stackTrace);
   }
@@ -792,6 +808,67 @@ abstract class ConvertObjectImpl {
         defaultValue;
   }
 
+  static ElementConverter<DateTime> _dateTimeParser({
+    required String? format,
+    required String? locale,
+    required bool autoDetectFormat,
+    required bool useCurrentLocale,
+    required bool utc,
+    required ElementConverter<DateTime>? converter,
+  }) {
+    final config = ConvertConfig.effective;
+    final options = config.dates;
+    final pattern = format ?? options.defaultFormat;
+    final dateLocale = locale ?? options.locale ?? config.locale;
+    final autoDetect = autoDetectFormat || options.autoDetectFormat;
+    final useIntlLocale = useCurrentLocale || options.useCurrentLocale;
+    final asUtc = utc || options.utc;
+    final extraPatterns = options.extraAutoDetectPatterns;
+
+    if (converter != null) return converter;
+    return (value) {
+      if (value is num) {
+        final timestamp = value.toInt();
+        // Comparing signed bounds avoids overflowing abs() for the minimum int.
+        const threshold = 100000000000;
+        final milliseconds = timestamp > -threshold && timestamp < threshold
+            ? timestamp * Duration.millisecondsPerSecond
+            : timestamp;
+        return DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: asUtc);
+      }
+      // Extra patterns can include literal whitespace at either end.
+      final text = '$value';
+      if (pattern != null) {
+        return text.toDateFormatted(pattern, dateLocale, utc: asUtc);
+      }
+      if (autoDetect) {
+        if (extraPatterns.isNotEmpty) {
+          // Match literal whitespace first, then allow padding around the input.
+          final inputs = {text, text.trimRight(), text.trimLeft(), text.trim()};
+          for (final input in inputs) {
+            for (final extraPattern in extraPatterns) {
+              try {
+                return DateFormat(
+                  extraPattern,
+                  dateLocale,
+                ).parseStrict(input, asUtc);
+              } catch (_) {
+                continue;
+              }
+            }
+          }
+        }
+        return text.toDateAutoFormat(
+          locale: dateLocale,
+          useCurrentLocale: useIntlLocale,
+          utc: asUtc,
+        );
+      }
+      final parsed = text.toDateTime();
+      return asUtc ? parsed.toUtc() : parsed;
+    };
+  }
+
   /// Internal implementation for `Convert.toDateTime`.
   static DateTime toDateTime(
     dynamic object, {
@@ -806,14 +883,16 @@ abstract class ConvertObjectImpl {
     ElementConverter<DateTime>? converter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final config = ConvertConfig.effective;
-    final dateCfg = config.dates;
-    final effFormat = format ?? dateCfg.defaultFormat;
-    final effLocale = locale ?? dateCfg.locale ?? config.locale;
-    final effAutoDetect = autoDetectFormat || dateCfg.autoDetectFormat;
-    final effUseCurrentLocale = useCurrentLocale || dateCfg.useCurrentLocale;
-    final effUtc = utc || dateCfg.utc;
-    final extraPatterns = dateCfg.extraAutoDetectPatterns;
+    // Configuration failures belong to the caller's route. Only conversion
+    // of the selected value uses the date-specific error and default below.
+    final parse = _dateTimeParser(
+      format: format,
+      locale: locale,
+      autoDetectFormat: autoDetectFormat,
+      useCurrentLocale: useCurrentLocale,
+      utc: utc,
+      converter: converter,
+    );
     DateTime? data;
     try {
       data = _convertObject<DateTime>(
@@ -821,42 +900,7 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter:
-            converter ??
-            ((o) {
-              if (o is num) {
-                // treat as ms or s since epoch
-                final v = o.toInt();
-                final dt = v.abs() >= 100000000000
-                    ? DateTime.fromMillisecondsSinceEpoch(v, isUtc: effUtc)
-                    : DateTime.fromMillisecondsSinceEpoch(
-                        v * 1000,
-                        isUtc: effUtc,
-                      );
-                return effUtc ? dt.toUtc() : dt.toLocal();
-              }
-              if (effFormat != null) {
-                return '$o'.toDateFormatted(effFormat, effLocale, utc: effUtc);
-              }
-              if (effAutoDetect) {
-                final text = '$o';
-                for (final pattern in extraPatterns) {
-                  try {
-                    final df = DateFormat(pattern, effLocale);
-                    final parsed = effUtc ? df.parseUtc(text) : df.parse(text);
-                    return effUtc ? parsed.toUtc() : parsed;
-                  } catch (_) {
-                    continue;
-                  }
-                }
-                return text.toDateAutoFormat(
-                  locale: effLocale,
-                  useCurrentLocale: effUseCurrentLocale,
-                  utc: effUtc,
-                );
-              }
-              return '$o'.toDateTime();
-            }),
+        converter: parse,
       );
     } on ConversionException catch (e) {
       if (defaultValue != null) return defaultValue;
@@ -921,59 +965,18 @@ abstract class ConvertObjectImpl {
     ElementConverter<DateTime>? converter,
     Map<String, dynamic>? debugInfo,
   }) {
-    final config = ConvertConfig.effective;
-    final dateCfg = config.dates;
-    final effFormat = format ?? dateCfg.defaultFormat;
-    final effLocale = locale ?? dateCfg.locale ?? config.locale;
-    final effAutoDetect = autoDetectFormat || dateCfg.autoDetectFormat;
-    final effUseCurrentLocale = useCurrentLocale || dateCfg.useCurrentLocale;
-    final effUtc = utc || dateCfg.utc;
-    final extraPatterns = dateCfg.extraAutoDetectPatterns;
     return _convertObject<DateTime?>(
           object,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter:
-              converter ??
-              ((o) {
-                if (o is num) {
-                  final v = o.toInt();
-                  final dt = v.abs() >= 100000000000
-                      ? DateTime.fromMillisecondsSinceEpoch(v, isUtc: effUtc)
-                      : DateTime.fromMillisecondsSinceEpoch(
-                          v * 1000,
-                          isUtc: effUtc,
-                        );
-                  return effUtc ? dt.toUtc() : dt.toLocal();
-                }
-                final text = '$o';
-                if (effFormat != null) {
-                  return text.tryToDateFormatted(
-                    effFormat,
-                    effLocale,
-                    utc: effUtc,
-                  );
-                }
-                if (effAutoDetect) {
-                  for (final pattern in extraPatterns) {
-                    try {
-                      final df = DateFormat(pattern, effLocale);
-                      final parsed = effUtc
-                          ? df.parseUtc(text)
-                          : df.parse(text);
-                      return effUtc ? parsed.toUtc() : parsed;
-                    } catch (_) {
-                      continue;
-                    }
-                  }
-                  return text.tryToDateAutoFormat(
-                    locale: effLocale,
-                    useCurrentLocale: effUseCurrentLocale,
-                    utc: effUtc,
-                  );
-                }
-                return text.tryToDateTime();
-              }),
+          converter: _dateTimeParser(
+            format: format,
+            locale: locale,
+            autoDetectFormat: autoDetectFormat,
+            useCurrentLocale: useCurrentLocale,
+            utc: utc,
+            converter: converter,
+          ),
         ) ??
         defaultValue;
   }
@@ -1160,6 +1163,100 @@ abstract class ConvertObjectImpl {
 
   // Collections --------------------------------------------------------
 
+  static R _withCollectionHooks<R>(R Function() convert) {
+    final outer = _collectionHooks;
+    final pending = Map<ConversionException, ExceptionHook>.identity();
+    _collectionHooks = pending;
+    try {
+      return convert();
+    } on ConversionException catch (e) {
+      pending.remove(e);
+      rethrow;
+    } finally {
+      _collectionHooks = outer;
+      pending.forEach(_notify);
+    }
+  }
+
+  static Map<K, V> _mapEntries<K, V>(
+    Object? value,
+    ElementConverter<K>? keyConverter,
+    ElementConverter<V>? valueConverter,
+  ) => _withCollectionHooks(() {
+    final map = value as Map<Object?, Object?>;
+    if (map.isEmpty) return <K, V>{};
+    return map.map(
+      (key, value) => MapEntry(
+        keyConverter == null ? key as K : keyConverter(key),
+        valueConverter == null ? value as V : valueConverter(value),
+      ),
+    );
+  });
+
+  static void _addElements<T>(
+    Iterable<Object?> values,
+    void Function(T) add,
+    ElementConverter<T>? converter,
+    Map<String, dynamic> Function(int?)? elementContext,
+  ) {
+    var index = 0;
+    Iterator<Object?>? iterator;
+    try {
+      iterator = values.iterator;
+      while (iterator.moveNext()) {
+        final value = iterator.current;
+        add(converter == null ? toType<T>(value) : converter(value));
+        index++;
+      }
+    } catch (e, s) {
+      if (elementContext == null) rethrow;
+      if (e is ConversionException) _collectionHooks?.remove(e);
+      final trace = e is ConversionException ? e.stackTrace : s;
+      final ex = ConversionException(
+        error: e is ConversionException ? e.error : e,
+        context: elementContext(iterator == null ? null : index),
+        stackTrace: trace,
+      );
+      Error.throwWithStackTrace(ex, trace);
+    }
+  }
+
+  static Set<T> _setFrom<T>(
+    Object? value,
+    ElementConverter<T>? converter, {
+    Map<String, dynamic> Function(int?)? elementContext,
+  }) => _withCollectionHooks(() {
+    if (value is T) {
+      if (value is Iterable<Object?> && value.isEmpty) return <T>{};
+      return <T>{value};
+    }
+    final values = value is Map<Object?, Object?>
+        ? value.values
+        : value as Iterable<Object?>;
+    final result = <T>{};
+    _addElements<T>(values, result.add, converter, elementContext);
+    return result;
+  });
+
+  static List<T>? _listFrom<T>(
+    Object? value,
+    ElementConverter<T>? converter, {
+    bool convertScalar = false,
+    Map<String, dynamic> Function(int?)? elementContext,
+  }) => _withCollectionHooks(() {
+    if (value is T) {
+      if (value is Iterable<Object?> && value.isEmpty) return <T>[];
+      return <T>[value];
+    }
+    final values = value is Map<Object?, Object?> ? value.values : value;
+    if (values is Iterable<Object?>) {
+      final result = <T>[];
+      _addElements<T>(values, result.add, converter, elementContext);
+      return result;
+    }
+    return convertScalar ? <T>[toType<T>(value)] : null;
+  });
+
   /// Internal implementation for `Convert.toMap`.
   @optionalTypeArgs
   static Map<K, V> toMap<K, V>(
@@ -1179,16 +1276,7 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: (o) {
-          if (o is Map && o.isEmpty) return <K, V>{};
-          if (o is Map<K, V>) return o;
-          return (o as Map).map(
-            (key, value) => MapEntry(
-              keyConverter?.call(key) ?? key as K,
-              valueConverter?.call(value) ?? value as V,
-            ),
-          );
-        },
+        converter: (o) => _mapEntries<K, V>(o, keyConverter, valueConverter),
       );
     } on ConversionException catch (e) {
       if (defaultValue != null) return defaultValue;
@@ -1251,16 +1339,7 @@ abstract class ConvertObjectImpl {
           decodeInput: true,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: (o) {
-            if (o is Map && o.isEmpty) return <K, V>{};
-            if (o is Map<K, V>?) return o;
-            return (o as Map).map(
-              (key, value) => MapEntry(
-                keyConverter?.call(key) ?? key as K,
-                valueConverter?.call(value) ?? value as V,
-              ),
-            );
-          },
+          converter: (o) => _mapEntries<K, V>(o, keyConverter, valueConverter),
         ) ??
         defaultValue;
   }
@@ -1283,42 +1362,20 @@ abstract class ConvertObjectImpl {
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: (o) {
-          if (o is Iterable && o.isEmpty) return <T>{};
-          if (o is Set<T>) return o;
-          if (o is T) return <T>{o};
-          if (o is Map<dynamic, T>) return o.values.toSet();
-          var index = 0;
-          final out = <T>{};
-          for (final tmp in o as Iterable) {
-            try {
-              final value = elementConverter != null
-                  ? elementConverter(tmp)
-                  : (tmp is T ? tmp : toType<T>(tmp));
-              out.add(value);
-            } catch (e, s) {
-              final error = e is ConversionException ? e.error : e;
-              final trace = e is ConversionException ? e.stackTrace : s;
-              final ex = ConversionException(
-                error: error,
-                context: buildContext(
-                  method: 'toSet<$T>',
-                  object: object,
-                  mapKey: mapKey,
-                  listIndex: listIndex,
-                  defaultValue: defaultValue,
-                  converter: elementConverter,
-                  targetType: Set<T>,
-                  debugInfo: {...?debugInfo, 'elementIndex': index},
-                ),
-                stackTrace: trace,
-              );
-              Error.throwWithStackTrace(ex, trace);
-            }
-            index++;
-          }
-          return out;
-        },
+        converter: (o) => _setFrom<T>(
+          o,
+          elementConverter,
+          elementContext: (index) => buildContext(
+            method: 'toSet<$T>',
+            object: object,
+            mapKey: mapKey,
+            listIndex: listIndex,
+            defaultValue: defaultValue,
+            converter: elementConverter,
+            targetType: Set<T>,
+            debugInfo: {...?debugInfo, 'elementIndex': ?index},
+          ),
+        ),
       );
     } on ConversionException catch (e) {
       if (defaultValue != null) return defaultValue;
@@ -1376,19 +1433,7 @@ abstract class ConvertObjectImpl {
           decodeInput: true,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: (o) {
-            if (o is Iterable && o.isEmpty) return <T>{};
-            if (o is Set<T>?) return o;
-            if (o is T) return <T>{o};
-            if (o is Map<dynamic, T>) return o.values.toSet();
-            return (o as Iterable)
-                .map(
-                  (tmp) => elementConverter != null
-                      ? elementConverter(tmp)
-                      : (tmp is T ? tmp : toType<T>(tmp)),
-                )
-                .toSet();
-          },
+          converter: (o) => _setFrom<T>(o, elementConverter),
         ) ??
         defaultValue;
   }
@@ -1405,54 +1450,27 @@ abstract class ConvertObjectImpl {
   }) {
     List<T>? data;
     try {
-      data = _convertObject<List<T>>(
+      data = _convertObject<List<T>?>(
         object,
         decodeInput: true,
         mapKey: mapKey,
         listIndex: listIndex,
         swallowConverterErrors: false,
-        converter: (o) {
-          if (o is Iterable && o.isEmpty) return <T>[];
-          if (o is List<T>) return o;
-          if (o is T) return <T>[o];
-          if (o is Set<T>) return o.toList();
-          if (o is Map<dynamic, T>) return o.values.toList();
-          if (o is Iterable) {
-            var index = 0;
-            final out = <T>[];
-            for (final tmp in o) {
-              try {
-                final value = elementConverter != null
-                    ? elementConverter(tmp)
-                    : (tmp is T ? tmp : toType<T>(tmp));
-                out.add(value);
-              } catch (e, s) {
-                final error = e is ConversionException ? e.error : e;
-                final trace = e is ConversionException ? e.stackTrace : s;
-                final ex = ConversionException(
-                  error: error,
-                  context: buildContext(
-                    method: 'toList<$T>',
-                    object: object,
-                    mapKey: mapKey,
-                    listIndex: listIndex,
-                    defaultValue: defaultValue,
-                    converter: elementConverter,
-                    targetType: List<T>,
-                    debugInfo: {...?debugInfo, 'elementIndex': index},
-                  ),
-                  stackTrace: trace,
-                );
-                Error.throwWithStackTrace(ex, trace);
-              }
-              index++;
-            }
-            return out;
-          }
-          // Single value fallback: convert to T and wrap
-          final single = toType<T>(o);
-          return <T>[single];
-        },
+        converter: (o) => _listFrom<T>(
+          o,
+          elementConverter,
+          convertScalar: true,
+          elementContext: (index) => buildContext(
+            method: 'toList<$T>',
+            object: object,
+            mapKey: mapKey,
+            listIndex: listIndex,
+            defaultValue: defaultValue,
+            converter: elementConverter,
+            targetType: List<T>,
+            debugInfo: {...?debugInfo, 'elementIndex': ?index},
+          ),
+        ),
       );
     } on ConversionException catch (e) {
       if (defaultValue != null) return defaultValue;
@@ -1510,23 +1528,7 @@ abstract class ConvertObjectImpl {
           decodeInput: true,
           mapKey: mapKey,
           listIndex: listIndex,
-          converter: (o) {
-            if (o is Iterable && o.isEmpty) return <T>[];
-            if (o is List<T>?) return o;
-            if (o is T) return <T>[o];
-            if (o is Set<T>) return o.toList();
-            if (o is Map<dynamic, T>) return o.values.toList();
-            if (o is Iterable) {
-              return o
-                  .map(
-                    (element) => elementConverter != null
-                        ? elementConverter(element)
-                        : (element is T ? element : toType<T>(element)),
-                  )
-                  .toList();
-            }
-            return null;
-          },
+          converter: (o) => _listFrom<T>(o, elementConverter),
         ) ??
         defaultValue;
   }

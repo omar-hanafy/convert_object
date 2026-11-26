@@ -33,7 +33,7 @@ extension _IterableIndexing<E> on Iterable<E> {
 /// final boolVal = data.getBool(2);     // true
 /// ```
 ///
-/// All methods support nested navigation via [innerMapKey] and [innerIndex]
+/// All methods support nested navigation via `innerMapKey` and `innerIndex`
 /// for complex structures like `List<Map<String, dynamic>>`.
 ///
 /// See also: [NullableIterableConversionX] for nullable-safe variants.

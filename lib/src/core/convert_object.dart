@@ -286,13 +286,14 @@ abstract class Convert {
 
   /// Converts [object] to a [DateTime], respecting [DateOptions] defaults.
   ///
-  /// Calendar-like inputs (e.g. `yyyyMMdd`, `MM/dd/yyyy`, long month names)
-  /// return a value in the local time zone unless `utc` is `true`. Instant
-  /// inputs (ISO strings with offsets, HTTP dates, Unix epochs) preserve their
-  /// UTC meaning but are converted back to local time if `utc` is `false`.
+  /// Automatically detected calendar dates and ISO text without an offset use
+  /// local time. Set [utc] to return their instant in UTC. For an explicit
+  /// [format], [utc] interprets the supplied calendar fields in UTC.
   ///
-  /// `format`, `locale`, and flags override [DateOptions] for this call.
-  /// Numeric inputs are treated as seconds or milliseconds since epoch.
+  /// ISO text with an offset or `Z` and HTTP dates marked `GMT` return UTC.
+  /// Numeric epochs use seconds or milliseconds and return local time unless
+  /// UTC is requested here or in [DateOptions]. An existing [DateTime] passes
+  /// through with its original time zone.
   static DateTime toDateTime(
     dynamic object, {
     dynamic mapKey,

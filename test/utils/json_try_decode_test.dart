@@ -11,8 +11,8 @@ void main() {
       final decoded = input.tryDecode();
 
       // Assert
-      expect(decoded, isA<Map>());
-      final map = decoded as Map;
+      expect(decoded, isA<Map<String, Object?>>());
+      final map = decoded as Map<String, Object?>;
       expect(map['a'], equals(1));
       expect(map['b'], equals('x'));
     });
@@ -25,7 +25,7 @@ void main() {
       final decoded = input.tryDecode();
 
       // Assert
-      expect(decoded, isA<List>());
+      expect(decoded, isA<List<Object?>>());
       expect(decoded, equals(<dynamic>[1, 2, 3]));
     });
 
@@ -61,8 +61,8 @@ void main() {
       final decoded = input.tryDecode();
 
       // Assert
-      expect(decoded, isA<Map>());
-      expect((decoded as Map)['a'], equals(1));
+      expect(decoded, isA<Map<String, Object?>>());
+      expect((decoded as Map<String, Object?>)['a'], equals(1));
     });
 
     test('decode() should throw when JSON is invalid', () {
@@ -81,8 +81,8 @@ void main() {
       final decoded = input.decode();
 
       // Assert
-      expect(decoded, isA<Map>());
-      expect((decoded as Map)['a'], equals(1));
+      expect(decoded, isA<Map<String, Object?>>());
+      expect((decoded as Map<String, Object?>)['a'], equals(1));
     });
   });
 }

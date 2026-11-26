@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 /// format/locale combination, which can be expensive.
 const int _kMaxNumberFormatCacheSize = 32;
 
-/// LRU cache for [NumberFormat] instances keyed by `'$format|$locale'`.
+/// LRU cache keyed by the format and the locale used by [NumberFormat].
 final LinkedHashMap<String, NumberFormat> _numberFormatCache =
     LinkedHashMap<String, NumberFormat>();
 
@@ -66,21 +66,32 @@ const _romanNumeralParts = <int, String>{
   1: 'I',
 };
 
+final _romanValueByToken = <String, int>{
+  for (final entry in _romanNumeralParts.entries) entry.value: entry.key,
+  // Historical subtractive pairs accepted in addition to the standard ones.
+  'IC': 99,
+  'XM': 990,
+};
+
 // LRU-cached NumberFormat lookup to avoid repeated construction overhead.
 NumberFormat _getNumberFormat(String format, String? locale) {
-  final key = '$format|${locale ?? ''}';
+  final effectiveLocale = locale ?? Intl.getCurrentLocale();
+  final key = '$format|$effectiveLocale';
   final cached = _numberFormatCache.remove(key);
   if (cached != null) {
     _numberFormatCache[key] = cached;
     return cached;
   }
-  final created = NumberFormat(format, locale);
+  final created = NumberFormat(format, effectiveLocale);
   _numberFormatCache[key] = created;
   if (_numberFormatCache.length > _kMaxNumberFormatCacheSize) {
     _numberFormatCache.remove(_numberFormatCache.keys.first);
   }
   return created;
 }
+
+int? _truncateFinite(num? value) =>
+    value != null && value.isFinite ? value.toInt() : null;
 
 /// Extension methods for parsing numeric strings with lenient formatting.
 ///
@@ -128,7 +139,7 @@ extension NumParsingTextX on String {
   int toInt() => toNum().toInt();
 
   /// Attempts [toInt], returning `null` on failure.
-  int? tryToInt() => tryToNum()?.toInt();
+  int? tryToInt() => _truncateFinite(tryToNum());
 
   /// Parses this string as a double.
   ///
@@ -141,7 +152,8 @@ extension NumParsingTextX on String {
   /// Parses this string using a [NumberFormat] pattern.
   ///
   /// The [format] pattern follows [NumberFormat] conventions (e.g., `'#,##0.00'`).
-  /// Uses [locale] for localized grouping and decimal separators.
+  /// Uses [locale] for grouping and decimal separators, or the current
+  /// [Intl] locale when [locale] is `null`.
   ///
   /// Throws if the string does not match the expected format.
   num toNumFormatted(String format, String? locale) {
@@ -167,7 +179,7 @@ extension NumParsingTextX on String {
 
   /// Attempts [toIntFormatted], returning `null` on failure.
   int? tryToIntFormatted(String format, String? locale) =>
-      tryToNumFormatted(format, locale)?.toInt();
+      _truncateFinite(tryToNumFormatted(format, locale));
 
   /// Parses a formatted double using [NumberFormat].
   ///
@@ -209,18 +221,19 @@ String intToRomanNumeral(int value) {
 ///
 /// Throws if the string contains unrecognized characters.
 int romanNumeralToInt(String romanNumeral) {
-  final romanMap = romanNumerals.map((key, value) => MapEntry(value, key));
   var i = 0;
   var result = 0;
   while (i < romanNumeral.length) {
-    if (i + 1 < romanNumeral.length &&
-        romanMap.containsKey(romanNumeral.substring(i, i + 2))) {
-      result += romanMap[romanNumeral.substring(i, i + 2)]!;
-      i += 2;
-    } else {
-      result += romanMap[romanNumeral[i]]!;
-      i += 1;
+    if (i + 1 < romanNumeral.length) {
+      final pair = _romanValueByToken[romanNumeral.substring(i, i + 2)];
+      if (pair != null) {
+        result += pair;
+        i += 2;
+        continue;
+      }
     }
+    result += _romanValueByToken[romanNumeral[i]]!;
+    i++;
   }
   return result;
 }

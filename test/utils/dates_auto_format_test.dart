@@ -91,6 +91,13 @@ void main() {
         expect(result.month, equals(6));
         expect(result.day, equals(3));
       });
+
+      test('rejects trailing input after a GMT date', () {
+        expect(
+          'Tue, 03 Jun 2008 11:05:30 GMT extra'.tryToDateAutoFormat(),
+          isNull,
+        );
+      });
     });
 
     group('slashed ambiguous numeric dates', () {
@@ -169,9 +176,99 @@ void main() {
         expect(result.month, equals(2));
         expect(result.day, equals(1));
       });
+
+      test(
+        'uses the other slash order when the preferred month is invalid',
+        () {
+          final expected = DateTime(2025, 1, 31, 14, 30);
+          expect(
+            '31/01/2025 14:30:00'.toDateAutoFormat(locale: 'en_US'),
+            expected,
+          );
+          expect(
+            '01/31/2025 14:30:00'.toDateAutoFormat(locale: 'en_GB'),
+            expected,
+          );
+        },
+      );
+
+      test('accepts the hyphenated US locale for ambiguous dates', () {
+        expect(
+          '01/02/2025'.toDateAutoFormat(locale: 'en-US'),
+          DateTime(2025, 1, 2),
+        );
+      });
+
+      test('rejects a date invalid in both slash orders', () {
+        expect('02/29/2023'.tryToDateAutoFormat(locale: 'en_US'), isNull);
+      });
     });
 
     group('compact numeric forms', () {
+      test('rejects impossible dates and unrelated separators', () {
+        for (final text in ['2025_02_30', '20250230', '2025//02//28']) {
+          expect(text.tryToDateAutoFormat(), isNull, reason: text);
+        }
+        expect('2024_02_29'.toDateAutoFormat(), DateTime(2024, 2, 29));
+      });
+
+      test(
+        'preserves year-first dates with common separators and ISO years',
+        () {
+          for (final text in [
+            '2025/01/31 15:30',
+            '2025.01.31 15:30',
+            '2025-01-31_1530',
+          ]) {
+            expect(text.toDateAutoFormat(), DateTime(2025, 1, 31, 15, 30));
+          }
+          for (final text in ['15000131', '1500-01-31']) {
+            expect(text.toDateAutoFormat(), DateTime.parse(text));
+          }
+        },
+      );
+
+      test('reads a signed calendar-shaped number as epoch milliseconds', () {
+        for (final text in ['-202501191430', '+202501191430']) {
+          expect(
+            text.toDateAutoFormat(utc: true),
+            DateTime.fromMillisecondsSinceEpoch(int.parse(text), isUtc: true),
+          );
+        }
+      });
+
+      test(
+        'recognizes ISO clock separators outside the heuristic year range',
+        () {
+          for (final text in [
+            '15000131 15:30',
+            '26000131 153000',
+            '1500-01-31 15:30',
+            '15000131T153000',
+          ]) {
+            expect(text.toDateAutoFormat(), DateTime.parse(text), reason: text);
+          }
+          const epoch = '150001311530';
+          expect(
+            epoch.toDateAutoFormat(utc: true),
+            DateTime.fromMillisecondsSinceEpoch(int.parse(epoch), isUtc: true),
+          );
+          expect('15000131_1530'.tryToDateAutoFormat(), isNull);
+        },
+      );
+
+      test('disambiguates twelve digits by the actual calendar day', () {
+        const text = '202502302319';
+        expect(
+          text.toDateAutoFormat(utc: true),
+          DateTime.fromMillisecondsSinceEpoch(int.parse(text), isUtc: true),
+        );
+        expect(
+          '202402292319'.toDateAutoFormat(),
+          DateTime(2024, 2, 29, 23, 19),
+        );
+      });
+
       test('should parse yyyyMMdd (8 digits) as a calendar date (local)', () {
         // Arrange
         const input = '20250131';
@@ -243,6 +340,30 @@ void main() {
     });
 
     group('long name formats', () {
+      for (final locale in [null, 'xx_YY']) {
+        test(
+          'formatted dates follow the current locale with locale=$locale',
+          () {
+            const format = 'MMMM d, yyyy';
+            final expected = DateTime(2025, 3, 5);
+            expect(
+              Intl.withLocale(
+                'en_US',
+                () => 'March 5, 2025'.toDateFormatted(format, locale),
+              ),
+              expected,
+            );
+            expect(
+              Intl.withLocale(
+                'fr_FR',
+                () => 'mars 5, 2025'.toDateFormatted(format, locale),
+              ),
+              expected,
+            );
+          },
+        );
+      }
+
       test('should parse long month name formats', () {
         // Arrange
         const input = 'January 2, 2025';
@@ -279,33 +400,46 @@ void main() {
     });
 
     group('long name formats and ordinals', () {
-      test(
-        'should parse month-name dates and remove ordinals when supported by intl data',
-        () {
-          // Arrange
-          // Ordinal should be normalized: "2nd" -> "2"
-          const input = 'January 2nd, 2025';
-
-          // Act
-          DateTime result;
-          try {
-            result = input.toDateAutoFormat(utc: false);
-          } catch (e) {
-            markTestSkipped(
-              'Intl date symbols for month names may be unavailable: $e',
-            );
-            return;
-          }
-
-          // Assert
-          expect(result.year, equals(2025));
-          expect(result.month, equals(1));
-          expect(result.day, equals(2));
-        },
-      );
+      test('removes English ordinal suffixes and preserves the day', () {
+        for (final (ordinal, day) in [
+          ('1st', 1),
+          ('2nd', 2),
+          ('3rd', 3),
+          ('11th', 11),
+        ]) {
+          expect(
+            'January $ordinal, 2025'.toDateAutoFormat(locale: 'en_US'),
+            DateTime(2025, 1, day),
+          );
+        }
+      });
     });
 
     group('time-only inputs', () {
+      test('requires an hour from 1 to 12 for meridiem clocks', () {
+        for (final text in [
+          '13:15 AM',
+          '00:30 PM',
+          '00:30:15 AM',
+          'January 2, 2025 13:15 AM',
+        ]) {
+          expect(
+            text.tryToDateAutoFormat(locale: 'en_US'),
+            isNull,
+            reason: text,
+          );
+        }
+        expect('12:15 PM'.toDateAutoFormat(locale: 'en_US').hour, 12);
+        expect('1:15 AM'.toDateAutoFormat(locale: 'en_US').hour, 1);
+        expect('٠١:١٥ م'.toDateAutoFormat(locale: 'ar_EG').hour, 13);
+        expect('٠٠:٣٠ م'.tryToDateAutoFormat(locale: 'ar_EG'), isNull);
+      });
+
+      test('reads AM/PM and rejects trailing text', () {
+        expect('11:30 PM'.toDateAutoFormat().hour, 23);
+        expect('12:15:01 AM'.toDateAutoFormat().hour, 0);
+        expect('14:30junk'.tryToDateAutoFormat(), isNull);
+      });
       bool sameLocalDate(DateTime a, DateTime b) =>
           a.year == b.year && a.month == b.month && a.day == b.day;
 

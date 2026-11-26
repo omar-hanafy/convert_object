@@ -174,6 +174,28 @@ void main() {
       expect(isoWithDays, equals('P1DT2H'));
     });
 
+    test('ISO durations use a leading sign for negative values', () {
+      const options = JsonOptions(durationStrategy: DurationStrategy.iso8601);
+      expect(
+        jsonSafe(const Duration(microseconds: -5), options: options),
+        '-PT0.000005S',
+      );
+      expect(
+        jsonSafe(
+          const Duration(days: -1, hours: -2, seconds: -3, milliseconds: -40),
+          options: options,
+        ),
+        '-P1DT2H3.04S',
+      );
+      expect(
+        jsonSafe(
+          const Duration(microseconds: -9223372036854775808),
+          options: options,
+        ),
+        '-P106751991DT4H54.775808S',
+      );
+    });
+
     test('should handle sets when cycle detection is enabled', () {
       // Arrange
       final input = <int>{1, 2, 3};
@@ -221,6 +243,16 @@ void main() {
       expect(outData, equals(expected));
     });
 
+    test('base64 encodes only the bytes in a ByteData view', () {
+      final bytes = Uint8List.fromList([11, 22, 33, 44]);
+      final slice = ByteData.sublistView(bytes, 1, 3);
+      final empty = ByteData.sublistView(bytes, 2, 2);
+      final json = {'value': slice, 'empty': empty}.toJsonMap();
+
+      expect(json['value'], base64Encode([22, 33]));
+      expect(json['empty'], '');
+    });
+
     test('should stringify map keys and walk nested values', () {
       // Arrange
       final input = <Object, Object?>{
@@ -233,14 +265,14 @@ void main() {
       final out = jsonSafe(input);
 
       // Assert
-      expect(out, isA<Map>());
-      final map = out as Map;
+      expect(out, isA<Map<String, Object?>>());
+      final map = out as Map<String, Object?>;
       expect(map.containsKey('1'), isTrue);
       expect(map['1'], equals('a'));
       expect(map.containsKey('true'), isTrue);
       expect(map['true'], equals(2));
 
-      final nested = map['nested'] as Map;
+      final nested = map['nested'] as Map<String, Object?>;
       expect(nested['3'], equals('red'));
     });
 
@@ -254,13 +286,14 @@ void main() {
 
       // Act
       final out =
-          jsonSafe(input, options: const JsonOptions(dropNulls: true)) as Map;
+          jsonSafe(input, options: const JsonOptions(dropNulls: true))
+              as Map<String, Object?>;
 
       // Assert
       expect(out.containsKey('a'), isFalse);
       expect(out['b'], equals(1));
 
-      final nested = out['nested'] as Map;
+      final nested = out['nested'] as Map<String, Object?>;
       expect(nested.containsKey('c'), isFalse);
       expect(nested['d'], equals(2));
     });
@@ -295,8 +328,8 @@ void main() {
         );
 
         // Assert
-        expect(out, isA<Map>());
-        final map = out as Map;
+        expect(out, isA<Map<String, Object?>>());
+        final map = out as Map<String, Object?>;
         expect(map['self'], equals('<cycle>'));
       },
     );
@@ -316,8 +349,8 @@ void main() {
       );
 
       // Assert
-      expect(out, isA<List>());
-      expect((out as List).first, equals('<cycle>'));
+      expect(out, isA<List<Object?>>());
+      expect((out as List<Object?>).first, equals('<cycle>'));
     });
 
     test('should still serialize sets when setsAsLists is false', () {
@@ -331,8 +364,8 @@ void main() {
       );
 
       // Assert
-      expect(out, isA<List>());
-      expect((out as List).toSet(), equals(<int>{1, 2}));
+      expect(out, isA<List<Object?>>());
+      expect((out as List<Object?>).toSet(), equals(<int>{1, 2}));
     });
 
     test('should allow toEncodable to transform unknown objects', () {
@@ -350,8 +383,8 @@ void main() {
       final out = jsonSafe(input, toEncodable: encoder);
 
       // Assert
-      expect(out, isA<Map>());
-      expect((out as Map)['x'], equals(7));
+      expect(out, isA<Map<String, Object?>>());
+      expect((out as Map<String, Object?>)['x'], equals(7));
     });
 
     test('should stringify unknown objects when stringifyUnknown is true', () {
@@ -384,6 +417,40 @@ void main() {
   });
 
   group('JsonMapX / JsonIterableX / JsonAnyX', () {
+    test('collection helpers detect cycles that return to their root', () {
+      const options = JsonOptions(detectCycles: true, cyclePlaceholder: 'loop');
+      final map = <String, Object?>{};
+      map['self'] = map;
+      final list = <Object?>[];
+      list.add(list);
+
+      expect(map.toJsonMap(options: options), {'self': 'loop'});
+      expect(list.toJsonList(options: options), ['loop']);
+    });
+
+    test('shared children are encoded for each occurrence', () {
+      const options = JsonOptions(detectCycles: true);
+      final child = <int>[1];
+      final list = [child, child];
+
+      expect(list.toJsonList(options: options), [
+        [1],
+        [1],
+      ]);
+    });
+
+    test('collection helpers preserve the root and encode child objects', () {
+      final child = <String, int>{'a': 1};
+      final map = {'child': child};
+      final list = [child];
+      Object? encode(Object? value) =>
+          value is Map || value is List ? 'encoded' : null;
+
+      expect(map.toJsonMap(toEncodable: encode), {'child': 'encoded'});
+      expect(list.toJsonList(toEncodable: encode), ['encoded']);
+      expect(Uint8List.fromList([1, 2]).toJsonList(), [1, 2]);
+    });
+
     test('Map.toJsonMap should produce JSON-safe values', () {
       // Arrange
       final dt = DateTime.utc(2025, 11, 11, 10, 15, 30);
@@ -426,8 +493,8 @@ void main() {
 
       // Assert
       expect(json, contains('\n'));
-      expect(decoded, isA<Map>());
-      expect((decoded as Map)['a'], equals(1));
+      expect(decoded, isA<Map<String, Object?>>());
+      expect((decoded as Map<String, Object?>)['a'], equals(1));
       expect(decoded['b'], equals('blue'));
     });
 
@@ -510,8 +577,8 @@ void main() {
       final out = input.toJsonSafe();
 
       // Assert
-      expect(out, isA<Map>());
-      final map = out as Map;
+      expect(out, isA<Map<String, Object?>>());
+      final map = out as Map<String, Object?>;
       expect(map['enum'], equals('post'));
       expect(map['dur'], equals(const Duration(minutes: 1).inMilliseconds));
     });

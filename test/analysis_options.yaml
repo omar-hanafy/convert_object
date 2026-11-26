@@ -1,0 +1,14 @@
+include: ../analysis_options.yaml
+
+linter:
+  rules:
+    # Test fixtures and assertions can use explicit constructor arguments.
+    prefer_const_constructors: false
+    prefer_const_literals_to_create_immutables: false
+    prefer_asserts_with_message: false
+
+    # Public API conventions apply to the published library.
+    public_member_api_docs: false
+    comment_references: false
+    avoid_positional_boolean_parameters: false
+    avoid_equals_and_hash_code_on_mutable_classes: false
