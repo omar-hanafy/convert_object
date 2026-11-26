@@ -1,3 +1,11 @@
+## 1.1.2
+
+- Date auto-detection now reads ambiguous slash dates, English ordinals, AM/PM times, and signed epoch strings without silently changing their meaning. Automatic patterns consume the whole input. Plain ISO text honors `utc: true`, and cached date and number formats follow the active `intl` locale.
+- Nullable integer string parsers return `null` for non-finite numbers. Roman numerals from 1 through 3999 round-trip through encoding and decoding, including `XIV` and `XIX`.
+- List and set converters apply element conversion to map values. When converting a set’s members to a list, an explicit element converter runs even if the member types already match. To convert a whole map to one string or model, pass `[map]`. Map key and value converters can return `null` for nullable targets.
+- A strict list or set reports a failed element once with its index. Hooks for independent conversion errors caught inside callbacks run in their original scope before the collection call finishes.
+- JSON encoding respects `ByteData` view boundaries, writes negative ISO durations with one leading sign, and detects cycles by object identity, including references back to the root collection.
+
 ## 1.1.1
 
 No Dart API changes. This release adds installable AI coding-assistant support

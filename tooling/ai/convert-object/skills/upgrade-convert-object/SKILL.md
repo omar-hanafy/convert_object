@@ -65,9 +65,18 @@ Behavioral changes to audit (each with how to find affected code):
 
 ## Patch releases (1.1.0 -> 1.1.x)
 
-Tooling/docs only unless the CHANGELOG says otherwise - read it:
-https://pub.dev/packages/convert_object/changelog. No code audit needed when
-only patch digits change.
+Version 1.1.1 added repository tooling. Version 1.1.2 corrects parsing and
+JSON output. For consumers upgrading from 1.1.0 or 1.1.1, check these cases:
+
+- Auto-detected dates now validate complete candidate patterns. Use an explicit
+  `format` when a schema intentionally relies on intl’s lenient pattern parsing.
+- List and set conversion takes values from maps that require element conversion.
+  Pass `[map]` to convert one whole record to a model or string.
+- Binary JSON now encodes only a view’s bytes. Supply the full `ByteBuffer`
+  explicitly when the wire format calls for every byte in the backing buffer.
+
+See the [package changelog](https://pub.dev/packages/convert_object/changelog)
+for the full list of corrected outputs.
 
 ## Step 2: Execute
 

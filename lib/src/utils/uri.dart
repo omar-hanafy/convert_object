@@ -1,3 +1,6 @@
+/// @docImport 'package:convert_object/src/config/convert_config.dart';
+library;
+
 /// Extension methods for validating and converting URI-like strings.
 ///
 /// Used internally by `Convert.toUri` for smart URI coercion. These methods

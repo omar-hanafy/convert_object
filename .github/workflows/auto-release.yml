@@ -3,114 +3,126 @@ name: Auto Tag & Release (convert_object)
 on:
   push:
     branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
 
-concurrency:
-  group: auto-release-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
 
 jobs:
-  tag-and-release:
-    permissions:
-      contents: write
-    outputs:
-      version_bumped: ${{ steps.bump.outputs.version_bumped }}
+  pub-dry-run:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      notes: ${{ steps.release.outputs.notes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.TAG_PUSH_PAT }}
+          persist-credentials: false
 
-      - name: Detect version bump in push
-        id: bump
+      - name: Check the release lane and changelog
+        id: release
+        env:
+          LANE: ${{ github.base_ref || github.ref_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
-          before="${{ github.event.before }}"
-          after="${{ github.sha }}"
-          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
-            before="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          name=$(yq -er '.name' pubspec.yaml)
+          if [[ "$name" != convert_object ]]; then
+            echo "Expected the convert_object package, found $name."
+            exit 1
           fi
-          if [ -z "$before" ]; then
-            echo "version_bumped=true" >> "$GITHUB_OUTPUT"
+          version=$(yq -er '.version' pubspec.yaml)
+          case "$LANE" in
+            main) pattern='^[0-9]+\.[0-9]+\.[0-9]+(\+[0-9A-Za-z.-]+)?$' ;;
+            dev)  pattern='^[0-9]+\.[0-9]+\.[0-9]+-dev(\.[0-9A-Za-z-]+)*(\+[0-9A-Za-z.-]+)?$' ;;
+            *) echo "Unknown release lane: $LANE"; exit 1 ;;
+          esac
+          if [[ ! $version =~ $pattern ]]; then
+            echo "Version $version does not belong on $LANE."
+            exit 1
+          fi
+
+          if [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            echo "New branch; no version change to release."
             exit 0
           fi
-          if git diff --name-only "$before" "$after" | grep -q '^pubspec.yaml$'; then
-            echo "version_bumped=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "version_bumped=false" >> "$GITHUB_OUTPUT"
+          previous=$(git show "$BASE_SHA:pubspec.yaml" | yq -er '.version')
+          if [[ "$version" == "$previous" ]]; then
+            echo "Manifest version remains $version."
+            exit 0
           fi
 
-      - name: Require TAG_PUSH_PAT
-        if: steps.bump.outputs.version_bumped == 'true'
-        env:
-          TAG_PUSH_PAT: ${{ secrets.TAG_PUSH_PAT }}
-        run: |
-          set -euo pipefail
-          if [ -z "${TAG_PUSH_PAT:-}" ]; then
-            echo "TAG_PUSH_PAT is not set."
+          tag="$name-v$version"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "Release tag $tag already exists. Choose an unused version."
             exit 1
           fi
 
-      - name: Skip release when no version bump
-        if: steps.bump.outputs.version_bumped != 'true'
-        run: echo "No version bump in this push; skipping tag/release."
-
-      - name: Read version
-        if: steps.bump.outputs.version_bumped == 'true'
-        id: vars
-        run: |
-          set -euo pipefail
-          version=$(awk -F': ' '/^version: /{print $2}' pubspec.yaml)
-          if [ -z "$version" ]; then
-            echo "Unable to read version from pubspec.yaml."
+          notes=$(awk -v heading="## $version" '
+            /^## / { if (selected) exit; selected = ($0 == heading); next }
+            selected && (started || NF) { print; started = 1 }
+          ' CHANGELOG.md)
+          if [[ -z "$notes" ]]; then
+            echo "Missing release notes under '## $version' in CHANGELOG.md."
             exit 1
           fi
-          branch="${GITHUB_REF_NAME}"
-          tag="convert_object-v${version}"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          delimiter=$(uuidgen)
+          {
+            echo "version=$version"
+            echo "notes<<$delimiter"
+            printf '%s\n' "$notes"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Validate version for branch
-        if: steps.bump.outputs.version_bumped == 'true'
+      - name: Set up Dart (stable)
+        uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # v1.8.2
+
+      - name: Validate the package and require full Pana points
         run: |
           set -euo pipefail
-          version="${{ steps.vars.outputs.version }}"
-          branch="${{ steps.vars.outputs.branch }}"
-          if [ "$branch" = "main" ] && [[ "$version" == *-* ]]; then
-            echo "Main must use a stable version (no pre-release): $version"
-            exit 1
-          fi
-          if [ "$branch" = "dev" ] && [[ "$version" != *-* ]]; then
-            echo "Dev must use a pre-release version: $version"
-            exit 1
-          fi
+          dart pub get
+          dart pub publish --dry-run
+          dart pub global activate pana 0.23.14
+          dart pub global run pana:pana --exit-code-threshold 0 .
 
-      - name: Ensure tag does not exist
-        if: steps.bump.outputs.version_bumped == 'true'
-        run: |
-          set -euo pipefail
-          tag="${{ steps.vars.outputs.tag }}"
-          if git ls-remote --tags origin "refs/tags/$tag" | grep -q "$tag"; then
-            echo "Tag already exists: $tag"
-            exit 1
-          fi
-
-      - name: Create tag
-        if: steps.bump.outputs.version_bumped == 'true'
-        run: |
-          set -euo pipefail
-          tag="${{ steps.vars.outputs.tag }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "$tag"
-          git push origin "$tag"
-
-      - name: Create GitHub Release
-        if: steps.bump.outputs.version_bumped == 'true'
-        uses: softprops/action-gh-release@v2
+  tag:
+    needs: pub-dry-run
+    if: github.event_name == 'push' && needs.pub-dry-run.outputs.version != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          tag_name: ${{ steps.vars.outputs.tag }}
-          name: ${{ steps.vars.outputs.tag }}
-          generate_release_notes: true
-          prerelease: ${{ steps.vars.outputs.branch == 'dev' }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push the new release tag
+        env:
+          GH_TOKEN: ${{ secrets.TAG_PUSH_PAT }}
+          TAG: convert_object-v${{ needs.pub-dry-run.outputs.version }}
+        run: |
+          set -euo pipefail
+          : "${GH_TOKEN:?TAG_PUSH_PAT is required to trigger the publishing workflow.}"
+          git tag "$TAG" "$GITHUB_SHA"
+          gh auth setup-git --hostname github.com
+          git push origin "refs/tags/$TAG"
+
+  release:
+    needs: [pub-dry-run, tag]
+    if: github.event_name == 'push' && needs.pub-dry-run.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: convert_object-v${{ needs.pub-dry-run.outputs.version }}
+          NOTES: ${{ needs.pub-dry-run.outputs.notes }}
+          PRERELEASE: ${{ github.ref_name == 'dev' }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$NOTES" | gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TAG" \
+            --notes-file - --prerelease="$PRERELEASE"

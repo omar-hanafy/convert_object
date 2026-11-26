@@ -1,10 +1,11 @@
-import 'dart:collection';
-
 import 'package:intl/intl.dart';
 
-// Reused matchers and formatters to avoid repeated allocations on hot paths.
-final RegExp _alphaRe = RegExp(r'[\p{L}]', unicode: true);
-final RegExp _digitsOnlyRe = RegExp(r'[^0-9]');
+final RegExp _compactDate = RegExp(
+  r'^(\d{4})(?:[ _]+|[-./])?(\d{2})(?:[ _]+|[-./])?(\d{2})'
+  r'(?:[ _]*(\d{2})(?:[ _]+|:)?(\d{2})(?:(?:[ _]+|:)?(\d{2}))?)?$',
+);
+final RegExp _epoch = RegExp(r'^[+-]?(\d{9,10}|\d{12,13})$');
+final RegExp _clockHour = RegExp(r'(\p{Nd}+):', unicode: true);
 final RegExp _ordinalsRe = RegExp(
   r'\b(\d+)(st|nd|rd|th)\b',
   caseSensitive: false,
@@ -14,13 +15,12 @@ final DateFormat _httpDateFmt = DateFormat(
   'en_US',
 );
 const int _kMaxDateFormatCacheSize = 32;
-final LinkedHashMap<String, DateFormat> _dateFormatCache =
-    LinkedHashMap<String, DateFormat>();
+final _dateFormatCache = <(String, String), DateFormat>{};
 
 /// Extension methods for parsing [String] values into [DateTime] instances.
 ///
 /// Provides multiple parsing strategies:
-/// * [toDateTime] - Strict ISO 8601 / RFC 3339 parsing.
+/// * [toDateTime] - ISO 8601 / RFC 3339 parsing with [DateTime.parse].
 /// * [toDateFormatted] - Custom pattern parsing via [DateFormat].
 /// * [toDateAutoFormat] - Heuristic auto-detection for diverse formats.
 ///
@@ -48,7 +48,7 @@ extension DateParsingTextX on String {
   /// Parses this string using the supplied [format] and [locale].
   ///
   /// The [format] string should follow the [DateFormat] patterns (e.g., "MM/dd/yyyy").
-  /// If [utc] is true, the result will be in UTC.
+  /// With [utc] enabled, the supplied clock fields are interpreted in UTC.
   DateTime toDateFormatted(String format, String? locale, {bool utc = false}) {
     final df = _createDateFormat(format, locale);
     final input = trim();
@@ -75,18 +75,18 @@ extension DateParsingTextX on String {
   /// `MM/dd/yyyy`, long month names) unless [utc] is `true`, in which case the
   /// parsed value is converted to UTC.
   ///
-  /// Inputs that describe an instant (ISO strings with offsets/`Z`, HTTP-date with `GMT`,
-  /// or Unix epochs) preserve their UTC meaning. If [utc] is `false`, the result is
-  /// converted back to the local time zone.
+  /// ISO strings with an offset or `Z` and HTTP dates with `GMT` return UTC.
+  /// Epochs preserve their instant and use the local time zone unless [utc]
+  /// is `true`.
   ///
-  /// ### Parsing Priority
-  /// 1. **Unix Epoch:** 9–10 digits (seconds) or 12–13 digits (milliseconds).
-  /// 2. **ISO-8601 / RFC3339:** Standard `DateTime.parse`.
-  /// 3. **HTTP Date:** RFC 7231 (e.g., `EEE, dd MMM yyyy HH:mm:ss 'GMT'`).
-  /// 4. **Ambiguous Numeric:** Slashed dates (e.g., `MM/dd/yyyy`) resolved by locale.
-  /// 5. **Compact Numeric:** `yyyyMMdd` (8 digits), `yyyyMMddHHmm` (12 digits), etc.
-  /// 6. **Long Form:** `MMMM d, yyyy`, etc.
-  /// 7. **Time Only:** `HH:mm:ss` (defaults to today's date).
+  /// Epochs use 9-10 digits for seconds and 12-13 for milliseconds. An
+  /// unsigned, valid `yyyyMMddHHmm` in years 1800-2500 takes precedence over
+  /// a 12-digit epoch. Compact dates also accept spaces and underscores.
+  ///
+  /// Other formats include ISO strings accepted by [DateTime.parse], HTTP
+  /// dates in GMT, locale-ordered slashed dates and long month names.
+  /// Time-only input uses today's local date. A clock with a day period
+  /// such as AM or PM accepts hours from 1 through 12.
   DateTime toDateAutoFormat({
     String? locale,
     bool useCurrentLocale = false,
@@ -100,26 +100,33 @@ extension DateParsingTextX on String {
     // Effective locale for ambiguous decisions.
     final effectiveLocale =
         locale ?? (useCurrentLocale ? Intl.getCurrentLocale() : null);
-    final isUS = (effectiveLocale ?? Intl.getCurrentLocale()).startsWith(
-      'en_US',
-    );
+    final isUS = Intl.canonicalizedLocale(
+      effectiveLocale ?? Intl.getCurrentLocale(),
+    ).startsWith('en_US');
 
-    // 0) Unix epoch first (handles pure digits), with 12-digit disambiguation.
+    // A valid unsigned calendar takes precedence over a 12-digit epoch.
+    final compactMatch = _compactDate.firstMatch(raw);
+    if (compactMatch != null) {
+      final date = _parseCompactDate(compactMatch);
+      if (date != null) return utc ? date.toUtc() : date;
+    }
     final unix = _tryParseUnix(raw);
     if (unix != null) {
-      // _tryParseUnix returns a UTC DateTime.
-      return utc ? unix.toUtc() : unix.toLocal();
+      return utc ? unix : unix.toLocal();
     }
-
-    // 1) ISO/RFC3339
-    try {
-      final iso = DateTime.parse(raw);
-      return utc ? iso.toUtc() : iso;
-    } catch (_) {}
+    // A bare yyyyMMdd has already been checked for calendar validity. Other
+    // ISO forms, including a basic date followed by a time, use Dart's parser.
+    if (compactMatch == null || raw.length != 8) {
+      final iso = DateTime.tryParse(raw);
+      if (iso != null) return utc ? iso.toUtc() : iso;
+    }
+    if (compactMatch != null) {
+      throw FormatException('Invalid compact calendar date', raw);
+    }
 
     // 2) HTTP-date (RFC 7231 IMF-fixdate)
     final http = _tryParseHttpDate(raw);
-    if (http != null) return utc ? http.toUtc() : http;
+    if (http != null) return http;
 
     // Normalize variants we might want to try
     final variants = <String>{
@@ -151,11 +158,7 @@ extension DateParsingTextX on String {
       }
     }
 
-    // 4) Compact numeric (yyyyMMdd[HHmm[ss]]) and underscored/space variants
-    final compact = _tryParseCompactDate(raw, utc: utc);
-    if (compact != null) return compact;
-
-    // 5) Long/alpha forms via intl
+    // Long/alpha forms via intl
     const intlPatterns = <String>[
       "EEEE, MMMM d, yyyy 'at' h:mm a",
       'EEEE, MMMM d, yyyy',
@@ -174,7 +177,7 @@ extension DateParsingTextX on String {
       }
     }
 
-    // 6) Time-only → today (local)
+    // Time-only → today (local)
     for (final fmt in ['HH:mm:ss', 'HH:mm', 'hh:mm:ss a', 'hh:mm a']) {
       for (final text in variants) {
         final t = _tryParseWith(fmt, text, effectiveLocale);
@@ -216,173 +219,96 @@ extension DateParsingTextX on String {
   }
 }
 
-// Parses RFC 7231 HTTP-date format (used in HTTP headers like Last-Modified).
-DateTime? _tryParseHttpDate(String s) {
+// The HTTP formatter needs English locale data even when the input is local.
+DateTime? _tryParseHttpDate(String text) {
   try {
-    final dt = _httpDateFmt.parseUtc(s);
-    return dt.toUtc();
+    return _httpDateFmt.parseStrict(text, true);
   } catch (_) {
     return null;
   }
 }
 
-// Distinguishes 12-digit calendar timestamps (yyyyMMddHHmm) from Unix milliseconds.
-// Without this check, dates like "202501191430" would be misinterpreted as epochs.
-bool _looksLikeYYYYMMDDHHMM(String digits12) {
-  if (digits12.length != 12) return false;
-  final y = int.tryParse(digits12.substring(0, 4));
-  final mo = int.tryParse(digits12.substring(4, 6));
-  final d = int.tryParse(digits12.substring(6, 8));
-  final hh = int.tryParse(digits12.substring(8, 10));
-  final mm = int.tryParse(digits12.substring(10, 12));
-  if (y == null || mo == null || d == null || hh == null || mm == null) {
-    return false;
-  }
-  if (y < 1800 || y > 2500) return false;
-  if (mo < 1 || mo > 12) return false;
-  if (d < 1 || d > 31) return false;
-  if (hh < 0 || hh > 23) return false;
-  if (mm < 0 || mm > 59) return false;
-  return true;
-}
-
-// Parses Unix timestamps: 9-10 digits as seconds, 12-13 digits as milliseconds.
-// Returns UTC DateTime; caller converts to local if needed.
-DateTime? _tryParseUnix(String s) {
-  final trimmed = s.trim();
-  if (!RegExp(r'^[+-]?\d+$').hasMatch(trimmed)) return null;
-
-  final negative = trimmed.startsWith('-');
-  final body = (negative || trimmed.startsWith('+'))
-      ? trimmed.substring(1)
-      : trimmed;
-  final len = body.length;
-
-  try {
-    if (len == 9 || len == 10) {
-      // seconds
-      final secs = int.parse(trimmed);
-      return DateTime.fromMillisecondsSinceEpoch(secs * 1000, isUtc: true);
-    }
-    if (len == 12 || len == 13) {
-      // milliseconds (12 or 13 digits)
-      if (len == 12 && _looksLikeYYYYMMDDHHMM(body)) {
-        // Let compact calendar parser handle yyyyMMddHHmm
-        return null;
-      }
-      final ms = int.parse(trimmed);
-      return DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
-    }
-  } catch (_) {
-    return null;
-  }
-  return null;
+DateTime? _tryParseUnix(String text) {
+  final match = _epoch.firstMatch(text);
+  if (match == null) return null;
+  final value = int.parse(text);
+  final milliseconds = match[1]!.length <= 10
+      ? value * Duration.millisecondsPerSecond
+      : value;
+  return DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: true);
 }
 
 // Normalizes date strings by replacing underscores with spaces and stripping
 // English ordinals (1st, 2nd, 3rd) that would otherwise cause parsing failures.
 String _normalize(String s) {
   var out = s.replaceAll('_', ' ');
-  out = out.replaceAll(_ordinalsRe, r'$1');
+  out = out.replaceAllMapped(_ordinalsRe, (match) => match[1]!);
   return out.trim();
 }
 
 // Attempts to parse a date string with a specific format pattern.
-DateTime? _tryParseWith(String fmt, String s, String? locale) {
+DateTime? _tryParseWith(String pattern, String input, String? locale) {
   try {
-    final f = _createDateFormat(fmt, locale);
-    return f.parse(s);
+    final formatter = _createDateFormat(pattern, locale);
+    final date = formatter.parseStrict(input);
+    if (pattern.contains('h:mm')) {
+      // intl validates the converted 24-hour value. Check the input hour too,
+      // since values such as 13 AM and 00 PM survive that conversion.
+      final digits = _clockHour.firstMatch(input)![1]!;
+      final zero = formatter.localeZeroCodeUnit;
+      final hour = digits.codeUnits.fold(
+        0,
+        (n, digit) => n * 10 + digit - zero,
+      );
+      if (hour < 1 || hour > 12) return null;
+    }
+    return date;
   } catch (_) {
     return null;
   }
 }
 
-// Parses compact numeric date formats (yyyyMMdd, yyyyMMddHHmm, yyyyMMddHHmmss).
-// We parse manually instead of using intl because intl is too lenient with these patterns.
-DateTime? _tryParseCompactDate(String input, {bool utc = false}) {
-  if (_alphaRe.hasMatch(input)) return null;
+DateTime? _parseCompactDate(RegExpMatch match) {
+  final year = int.parse(match[1]!);
+  final month = int.parse(match[2]!);
+  final day = int.parse(match[3]!);
+  final hour = int.parse(match[4] ?? '0');
+  final minute = int.parse(match[5] ?? '0');
+  final second = int.parse(match[6] ?? '0');
 
-  final digitsOnly = input.replaceAll(_digitsOnlyRe, '');
-  if (digitsOnly.isEmpty) return null;
-
-  // 8 -> parse yyyyMMdd manually (intl parsing is lenient for this pattern).
-  if (digitsOnly.length == 8) {
-    try {
-      final year = int.parse(digitsOnly.substring(0, 4));
-      final month = int.parse(digitsOnly.substring(4, 6));
-      final day = int.parse(digitsOnly.substring(6, 8));
-
-      if (year < 1800 || year > 2500) return null;
-      if (month < 1 || month > 12) return null;
-      if (day < 1 || day > 31) return null;
-
-      final local = DateTime(year, month, day);
-      return utc ? local.toUtc() : local;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  if (digitsOnly.length != 12 && digitsOnly.length != 14) {
+  // A plain eight-digit ISO date supports every four-digit year. The
+  // other compact forms use a narrower range to distinguish epochs.
+  if (match[0]!.length != 8 && (year < 1800 || year > 2500)) return null;
+  if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) {
     return null;
   }
-
-  try {
-    final year = int.parse(digitsOnly.substring(0, 4));
-    final month = int.parse(digitsOnly.substring(4, 6));
-    final day = int.parse(digitsOnly.substring(6, 8));
-    final hour = int.parse(digitsOnly.substring(8, 10));
-    final minute = int.parse(digitsOnly.substring(10, 12));
-    var second = 0;
-
-    if (digitsOnly.length == 14) {
-      second = int.parse(digitsOnly.substring(12, 14));
-    }
-
-    if (year < 1800 || year > 2500) return null;
-    if (month < 1 || month > 12) return null;
-    if (day < 1 || day > 31) return null;
-    if (hour < 0 || hour > 23) return null;
-    if (minute < 0 || minute > 59) return null;
-    if (digitsOnly.length == 14 && (second < 0 || second > 59)) return null;
-
-    final local = DateTime(year, month, day, hour, minute, second);
-    return utc ? local.toUtc() : local;
-  } catch (_) {
-    return null;
-  }
+  final lastDay = DateTime.utc(year, month + 1, 0).day;
+  if (day < 1 || day > lastDay) return null;
+  return DateTime(year, month, day, hour, minute, second);
 }
 
-// Creates a DateFormat with LRU caching. Falls back through locale variants
-// (full -> language only -> default) to handle unsupported locales gracefully.
 DateFormat _createDateFormat(String pattern, String? locale) {
-  final key = '$pattern|${locale ?? ''}';
-  final cached = _dateFormatCache.remove(key);
-  if (cached != null) {
-    _dateFormatCache[key] = cached;
-    return cached;
-  }
-
-  final attempts = <String?>[
-    locale,
-    if (locale != null && locale.contains('_')) locale.split('_').first,
-    null,
-  ];
-  DateFormat? created;
-  for (final candidate in attempts) {
+  // Resolve before looking in the cache. The scoped Intl locale and the set
+  // of initialized date symbols can change between calls.
+  String? resolved;
+  if (locale != null) {
     try {
-      created = candidate == null
-          ? DateFormat(pattern)
-          : DateFormat(pattern, candidate);
-      break;
-    } catch (_) {
-      continue;
+      resolved = Intl.verifiedLocale(
+        locale,
+        DateFormat.localeExists,
+        onFailure: (_) => null,
+      );
+    } on Exception {
+      // Locale data initialization is optional. Try the current locale.
     }
   }
-  created ??= DateFormat(pattern);
-  _dateFormatCache[key] = created;
+  resolved ??= Intl.verifiedLocale(null, DateFormat.localeExists)!;
+
+  final key = (pattern, resolved);
+  final format = _dateFormatCache.remove(key) ?? DateFormat(pattern, resolved);
+  _dateFormatCache[key] = format;
   if (_dateFormatCache.length > _kMaxDateFormatCacheSize) {
     _dateFormatCache.remove(_dateFormatCache.keys.first);
   }
-  return created;
+  return format;
 }

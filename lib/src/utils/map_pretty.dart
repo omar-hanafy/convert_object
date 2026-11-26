@@ -147,10 +147,17 @@ dynamic jsonSafe(
   dynamic value, {
   JsonOptions options = const JsonOptions(),
   Object? Function(dynamic object)? toEncodable,
-}) {
-  final seen = options.detectCycles ? <int>{} : null;
+}) => _createJsonWalker(options, toEncodable)(value);
 
-  dynamic walk(dynamic v) {
+dynamic Function(Object?) _createJsonWalker(
+  JsonOptions options,
+  Object? Function(dynamic object)? toEncodable, {
+  Object? rootContainer,
+}) {
+  final ancestors = options.detectCycles ? HashSet<Object>.identity() : null;
+  if (rootContainer != null) ancestors?.add(rootContainer);
+
+  dynamic walk(Object? v) {
     // Handle null, bool, and string early.
     if (v == null || v is bool || v is String) return v;
 
@@ -170,115 +177,79 @@ dynamic jsonSafe(
       return v; // finite number
     }
 
-    // Optional cycle detection.
-    if (options.detectCycles) {
-      final id = identityHashCode(v);
-      if (seen!.contains(id)) return options.cyclePlaceholder;
-      seen.add(id);
+    if (ancestors != null && !ancestors.add(v)) {
+      return options.cyclePlaceholder;
     }
 
-    // Allow a caller-provided encoder to run first.
-    if (toEncodable != null) {
-      final transformed = toEncodable(v);
-      if (transformed != null && !identical(transformed, v)) {
-        final out = walk(transformed);
-        if (options.detectCycles) seen!.remove(identityHashCode(v));
-        return out;
+    try {
+      if (toEncodable != null) {
+        final transformed = toEncodable(v);
+        if (transformed != null && !identical(transformed, v)) {
+          return walk(transformed);
+        }
       }
-    }
 
-    // Common helpful encodings.
-    if (v is Enum) {
-      final out = options.encodeEnumsAsName ? v.name : v.index;
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return out;
-    }
-    if (v is DateTime) {
-      final out = switch (options.dateTimeStrategy) {
-        DateTimeStrategy.iso8601String => v.toIso8601String(),
-        DateTimeStrategy.millisecondsSinceEpoch => v.millisecondsSinceEpoch,
-        DateTimeStrategy.microsecondsSinceEpoch => v.microsecondsSinceEpoch,
-      };
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return out;
-    }
-    if (v is Duration) {
-      final out = switch (options.durationStrategy) {
-        DurationStrategy.milliseconds => v.inMilliseconds,
-        DurationStrategy.microseconds => v.inMicroseconds,
-        DurationStrategy.iso8601 => _durationToIso8601(v),
-      };
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return out;
-    }
-    if (v is Uri) {
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return v.toString();
-    }
-    if (v is BigInt) {
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return v.toString();
-    }
-    if (v is Uint8List) {
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return base64Encode(v);
-    }
-    if (v is ByteBuffer) {
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return base64Encode(v.asUint8List());
-    }
-    if (v is ByteData) {
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return base64Encode(v.buffer.asUint8List());
-    }
+      if (v is Enum) return options.encodeEnumsAsName ? v.name : v.index;
+      if (v is DateTime) {
+        return switch (options.dateTimeStrategy) {
+          DateTimeStrategy.iso8601String => v.toIso8601String(),
+          DateTimeStrategy.millisecondsSinceEpoch => v.millisecondsSinceEpoch,
+          DateTimeStrategy.microsecondsSinceEpoch => v.microsecondsSinceEpoch,
+        };
+      }
+      if (v is Duration) {
+        return switch (options.durationStrategy) {
+          DurationStrategy.milliseconds => v.inMilliseconds,
+          DurationStrategy.microseconds => v.inMicroseconds,
+          DurationStrategy.iso8601 => _durationToIso8601(v),
+        };
+      }
+      if (v is Uri || v is BigInt) return v.toString();
+      if (v is Uint8List) return base64Encode(v);
+      if (v is ByteBuffer) return base64Encode(v.asUint8List());
+      if (v is ByteData) return base64Encode(Uint8List.sublistView(v));
 
-    // Collections.
-    if (v is Map) {
-      final map = <String, dynamic>{};
-      v.forEach((key, val) {
-        if (options.dropNulls && val == null) return;
-        map[key.toString()] = walk(val);
-      });
-      final result = options.sortKeys
-          ? SplayTreeMap<String, dynamic>.from(map, (a, b) => a.compareTo(b))
-          : map;
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return result;
-    }
-    if (v is Set && options.setsAsLists) {
-      final list = v.map(walk).toList();
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return list;
-    }
-    if (v is Iterable) {
-      final list = v.map(walk).toList();
-      if (options.detectCycles) seen!.remove(identityHashCode(v));
-      return list;
-    }
+      if (v is Map<Object?, Object?>) return _encodeJsonMap(v, options, walk);
+      if (v is Set<Object?> && options.setsAsLists) return v.map(walk).toList();
+      if (v is Iterable<Object?>) return v.map(walk).toList();
 
-    // Fallback.
-    if (options.detectCycles) seen!.remove(identityHashCode(v));
-    if (options.stringifyUnknown) {
-      return v.toString();
+      if (options.stringifyUnknown) return v.toString();
+      throw UnsupportedError(
+        'Value of type ${v.runtimeType} is not JSON encodable. '
+        'Provide JsonOptions.stringifyUnknown=true or a toEncodable handler.',
+      );
+    } finally {
+      ancestors?.remove(v);
     }
-    throw UnsupportedError(
-      'Value of type ${v.runtimeType} is not JSON encodable. '
-      'Provide JsonOptions.stringifyUnknown=true or a toEncodable handler.',
-    );
   }
 
-  return walk(value);
+  return walk;
+}
+
+Map<String, dynamic> _encodeJsonMap(
+  Map<Object?, Object?> input,
+  JsonOptions options,
+  dynamic Function(Object?) walk,
+) {
+  final out = <String, dynamic>{};
+  input.forEach((key, value) {
+    if (options.dropNulls && value == null) return;
+    out[key.toString()] = walk(value);
+  });
+  return options.sortKeys
+      ? SplayTreeMap<String, dynamic>.from(out, (a, b) => a.compareTo(b))
+      : out;
 }
 
 String _durationToIso8601(Duration d) {
-  // PnDTnHnMnS with fractional seconds if needed.
-  final days = d.inDays;
-  final hours = d.inHours.remainder(24);
-  final minutes = d.inMinutes.remainder(60);
-  final seconds = d.inSeconds.remainder(60);
-  final micros = d.inMicroseconds.remainder(1000000);
+  // Taking the magnitude of each component also handles the minimum Duration.
+  final days = d.inDays.abs();
+  final hours = d.inHours.remainder(24).abs();
+  final minutes = d.inMinutes.remainder(60).abs();
+  final seconds = d.inSeconds.remainder(60).abs();
+  final micros = d.inMicroseconds.remainder(1000000).abs();
 
-  final b = StringBuffer('P');
+  final b = StringBuffer(d.isNegative ? '-P' : 'P');
   if (days != 0) {
     b
       ..write(days)
@@ -333,20 +304,11 @@ extension JsonMapX<K, V> on Map<K, V> {
   Map<String, dynamic> toJsonMap({
     JsonOptions options = const JsonOptions(),
     Object? Function(dynamic object)? toEncodable,
-  }) {
-    final out = <String, dynamic>{};
-    forEach((key, value) {
-      if (options.dropNulls && value == null) return;
-      out[key.toString()] = jsonSafe(
-        value,
-        options: options,
-        toEncodable: toEncodable,
-      );
-    });
-    return options.sortKeys
-        ? SplayTreeMap<String, dynamic>.from(out, (a, b) => a.compareTo(b))
-        : out;
-  }
+  }) => _encodeJsonMap(
+    this,
+    options,
+    _createJsonWalker(options, toEncodable, rootContainer: this),
+  );
 
   /// Converts this map to a JSON string (pretty if [indent] is provided).
   String toJsonString({
@@ -378,7 +340,7 @@ extension JsonIterableX<T> on Iterable<T> {
     JsonOptions options = const JsonOptions(),
     Object? Function(dynamic object)? toEncodable,
   }) => map<dynamic>(
-    (e) => jsonSafe(e, options: options, toEncodable: toEncodable),
+    _createJsonWalker(options, toEncodable, rootContainer: this),
   ).toList();
 
   /// Converts this iterable to a JSON string (pretty if [indent] is provided).

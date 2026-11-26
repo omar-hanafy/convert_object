@@ -1,3 +1,11 @@
+/// @docImport 'src/config/convert_config.dart';
+/// @docImport 'src/core/convert_object.dart';
+/// @docImport 'src/core/converter.dart';
+/// @docImport 'src/core/enum_parsers.dart';
+/// @docImport 'src/exceptions/conversion_exception.dart';
+/// @docImport 'src/result/conversion_result.dart';
+/// @docImport 'src/top_level_functions.dart';
+///
 /// A comprehensive type conversion library for Dart that handles the messy
 /// realities of dynamic data from APIs, databases, and user input.
 ///
@@ -22,8 +30,9 @@
 ///
 /// ### Error Handling
 ///
-/// All `toX` methods throw [ConversionException] on failure with rich context.
-/// Use `tryToX` variants for null-returning, exception-free alternatives.
+/// Strict conversions throw [ConversionException] with the failing input and
+/// conversion context. Use the corresponding try method to receive a nullable
+/// result. [Convert.toBool] defaults to false for unrecognized inputs.
 ///
 /// See also:
 /// * [ConversionResult] for monadic success/failure handling.

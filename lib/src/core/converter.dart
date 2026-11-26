@@ -28,7 +28,7 @@ typedef DynamicConverter<T> = T Function(Object? value);
 ///
 /// ### With Custom Pre-Processing
 /// ```dart
-/// final value = raw.convert.withConverter((v) => v?.trim()).string();
+/// final value = raw.convert.withConverter((v) => (v as String).trim()).to<String>();
 /// ```
 ///
 /// Unlike `Convert`, which is stateless, `Converter` wraps a value and allows
@@ -78,10 +78,9 @@ class Converter {
   Converter withDefault(Object? value) =>
       Converter(_value, defaultValue: value, customConverter: _customConverter);
 
-  /// Applies a custom transformation to the value before any conversion attempt.
+  /// Applies [converter] before a generic [to], [tryTo], or [toOr] conversion.
   ///
-  /// The [converter] function is called with the current value, and its result
-  /// is used for subsequent operations.
+  /// For a typed shortcut such as [toInt], pass its conversion callback directly.
   Converter withConverter(DynamicConverter<dynamic> converter) => Converter(
     _value,
     defaultValue: _defaultValue,
@@ -442,6 +441,8 @@ class Converter {
 
   /// Converts to [bool], falling back to [defaultValue] on failure.
   bool toBoolOr(
+    // Preserve the positional fallback shared by the toXOr methods.
+    // ignore: avoid_positional_boolean_parameters
     bool defaultValue, {
     dynamic mapKey,
     int? listIndex,

@@ -96,6 +96,61 @@ void main() {
       },
     );
 
+    test(
+      'converts map values before deduplicating, including JSON objects',
+      () {
+        final input = <String, Object?>{'first': '2', 'second': 1, 'third': 2};
+        expect(convertToSet<int>(input), {2, 1});
+        expect(
+          [
+            {'items': input},
+          ].tryGetSet<int>(0, innerMapKey: 'items'),
+          {2, 1},
+        );
+        expect('{"first":"2","second":1,"third":2}'.convert.tryToSet<int>(), {
+          2,
+          1,
+        });
+        expect(Convert.tryToSet<int>(<Object?, Object?>{}), isEmpty);
+      },
+    );
+
+    test('converts each map value once before removing duplicates', () {
+      final input = <String, int>{'a': 1, 'b': 3, 'c': 4};
+      final seen = <Object?>[];
+      final result = Convert.toSet<int>(
+        input,
+        elementConverter: (value) {
+          seen.add(value);
+          return (value as int).remainder(2);
+        },
+      );
+      expect(seen, [1, 3, 4]);
+      expect(result, {1, 0});
+      expect(Convert.tryToSet<Object>(input)!.single, same(input));
+      expect(Convert.toSet<Map<String, int>>(input).single, same(input));
+    });
+
+    test('keeps the failed map value index and discards partial results', () {
+      final input = <String, Object?>{
+        'first': '2',
+        'second': 'bad',
+        'third': 1,
+      };
+      expect(
+        () => [input].getSet<int>(0),
+        throwsA(
+          isA<ConversionException>()
+              .having((e) => e.context['index'], 'selected index', 0)
+              .having((e) => e.context['elementIndex'], 'failed value index', 1)
+              .having((e) => e.error, 'parse error', isA<FormatException>()),
+        ),
+      );
+      final fallback = <int>{42};
+      expect(Convert.toSet<int>(input, defaultValue: fallback), same(fallback));
+      expect(Convert.tryToSet<int>(input), isNull);
+    });
+
     test('should convert from map.values (Iterable) into a Set<T>', () {
       // Arrange
       final map = <String, String>{'a': '1', 'b': '2'};

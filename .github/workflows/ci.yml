@@ -13,53 +13,49 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  PACKAGE_DIR: .
-
 jobs:
   test:
     name: Test on ${{ matrix.sdk }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         sdk: [stable, beta]
-    continue-on-error: ${{ matrix.sdk == 'beta' }}
-
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Dart (${{ matrix.sdk }})
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # v1.8.2
         with:
           sdk: ${{ matrix.sdk }}
 
-      - name: Cache pub cache & .dart_tool
-        uses: actions/cache@v4
+      - name: Cache package downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            ~/.pub-cache
-            ${{ env.PACKAGE_DIR }}/.dart_tool
-          key: ${{ runner.os }}-dart-${{ matrix.sdk }}-${{ hashFiles(format('{0}/pubspec.yaml', env.PACKAGE_DIR)) }}
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ matrix.sdk }}-${{ hashFiles('pubspec.yaml', 'example/pubspec.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-dart-${{ matrix.sdk }}-
-            ${{ runner.os }}-dart-
+            ${{ runner.os }}-pub-${{ matrix.sdk }}-
 
       - name: Install dependencies
-        working-directory: ${{ env.PACKAGE_DIR }}
         run: dart pub get
 
       - name: Check formatting
-        working-directory: ${{ env.PACKAGE_DIR }}
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze
-        working-directory: ${{ env.PACKAGE_DIR }}
-        run: dart analyze .
+        run: dart analyze --fatal-infos .
 
-      - name: Validate agent plugin
-        working-directory: ${{ env.PACKAGE_DIR }}
+      - name: Validate plugin manifests
         run: dart run tool/validate_agent_plugin.dart
 
       - name: Test
-        working-directory: ${{ env.PACKAGE_DIR }}
         run: dart test --reporter expanded
+
+      - name: Run examples
+        working-directory: example
+        run: |
+          dart run --enable-asserts lib/main.dart
+          dart run --enable-asserts lib/convert_object_example.dart

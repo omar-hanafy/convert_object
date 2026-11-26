@@ -1,6 +1,6 @@
 {
   "name": "convert-object",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Package-specific skills for the convert_object Dart package: model parsing from dynamic data, configuration (ConvertConfig/TypeRegistry), conversion debugging, migration from dart_helper_utils, and version upgrades.",
   "author": {
     "name": "Omar Hanafy",

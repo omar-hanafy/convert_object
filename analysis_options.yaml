@@ -1,35 +1,10 @@
-# analysis_options.yaml — publishable packages focus
-# Conservative defaults + strict import/pubspec hygiene for pub.dev
-
 include: package:lints/recommended.yaml
 
-linter:
-  rules:
-    # --- Hygiene that directly affects publishability / maintainability ---
-    always_use_package_imports: true
-    avoid_relative_lib_imports: true
-    depend_on_referenced_packages: true
-    implementation_imports: true
-    public_member_api_docs: true
-    secure_pubspec_urls: true               # https:// URLs in pubspec
-
-    library_private_types_in_public_api: true
-
-    # --- Sensible preferences that rarely cause churn ---
-    prefer_single_quotes: true
-    prefer_const_constructors: true
-    sort_pub_dependencies: true
-
-    # --- Turn OFF chatty / conflicting style nits ---
-    prefer_relative_imports: false          # conflicts with package imports
-    lines_longer_than_80_chars: false       # let formatter/IDE handle this
-    constant_identifier_names: false        # don’t fight existing APIs
-    avoid_print: false                      # allow prints in packages by default
-    avoid_redundant_argument_values: false
-
-    # You can re-enable more rules later per repo as you like.
-
 analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
   # Keep analyzer from touching codegen / tool output
   exclude:
     - "**/*.g.dart"
@@ -55,7 +30,7 @@ analyzer:
     # Keep these helpful but non-blocking
     library_private_types_in_public_api: warning
     directives_ordering: warning
-    use_key_in_widget_constructors: warning        # useful in Flutter libs
+    use_key_in_widget_constructors: warning
     deprecated_member_use_from_same_package: warning
     unawaited_futures: warning
     comment_references: info
@@ -65,3 +40,55 @@ analyzer:
     constant_identifier_names: ignore
     lines_longer_than_80_chars: ignore
     prefer_relative_imports: ignore
+
+linter:
+  rules:
+    # --- Hygiene that directly affects publishability / maintainability ---
+    always_use_package_imports: true
+    avoid_relative_lib_imports: true
+    depend_on_referenced_packages: true
+    implementation_imports: true
+    public_member_api_docs: true
+    secure_pubspec_urls: true               # https:// URLs in pubspec
+
+    library_private_types_in_public_api: true
+
+    # --- Sensible preferences that rarely cause churn ---
+    prefer_single_quotes: true
+    prefer_const_constructors: true
+    sort_pub_dependencies: true
+
+    # --- Turn OFF chatty / conflicting style nits ---
+    prefer_relative_imports: false          # conflicts with package imports
+    lines_longer_than_80_chars: false       # let formatter/IDE handle this
+    constant_identifier_names: false        # don’t fight existing APIs
+    avoid_print: false                      # allow prints in packages by default
+    avoid_redundant_argument_values: false
+
+    # Additional checks for package code. Tests and examples inherit their own overrides.
+    unawaited_futures: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    avoid_type_to_string: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    only_throw_errors: true
+    unnecessary_statements: true
+    no_self_assignments: true
+    no_literal_bool_comparisons: true
+    directives_ordering: true
+    combinators_ordering: true
+    unnecessary_parenthesis: true
+    avoid_multiple_declarations_per_line: true
+    avoid_bool_literals_in_conditional_expressions: true
+    matching_super_parameters: true
+    use_string_buffers: true
+    use_enums: true
+    document_ignores: true
+    comment_references: true
+    avoid_positional_boolean_parameters: true
+    avoid_equals_and_hash_code_on_mutable_classes: true
+    use_setters_to_change_properties: true
+    avoid_returning_this: true
+    prefer_asserts_with_message: true
+    deprecated_member_use_from_same_package: true

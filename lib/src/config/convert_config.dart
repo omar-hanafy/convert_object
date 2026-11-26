@@ -1,3 +1,6 @@
+/// @docImport 'package:intl/intl.dart';
+library;
+
 import 'dart:async';
 
 import 'package:convert_object/src/exceptions/conversion_exception.dart';
@@ -5,9 +8,8 @@ import 'package:meta/meta.dart';
 
 /// Signature for a callback that is invoked when a conversion fails.
 ///
-/// If `ConvertConfig.onException` is provided, the hook is called with the
-/// thrown [ConversionException] just before it is rethrown. Use this to log
-/// errors or collect metrics; do not modify control flow.
+/// [ConvertConfig.onException] receives the [ConversionException] reported
+/// by a failing conversion. Use it to log errors or collect metrics.
 typedef ExceptionHook = void Function(ConversionException error);
 
 // Default string tokens recognized as boolean `true` by [BoolOptions].
@@ -43,25 +45,25 @@ bool _setEquals(Set<String> a, Set<String> b) {
 bool _isDefaultNumberOptions(NumberOptions options) =>
     options.defaultFormat == null &&
     options.defaultLocale == null &&
-    options.tryFormattedFirst == true;
+    options.tryFormattedFirst;
 
 bool _isDefaultDateOptions(DateOptions options) =>
     options.defaultFormat == null &&
     options.locale == null &&
-    options.utc == false &&
-    options.autoDetectFormat == false &&
-    options.useCurrentLocale == false &&
+    !options.utc &&
+    !options.autoDetectFormat &&
+    !options.useCurrentLocale &&
     options.extraAutoDetectPatterns.isEmpty;
 
 bool _isDefaultBoolOptions(BoolOptions options) =>
-    options.numericPositiveIsTrue == true &&
+    options.numericPositiveIsTrue &&
     _setEquals(options.truthy, _kDefaultTruthy) &&
     _setEquals(options.falsy, _kDefaultFalsy);
 
 bool _isDefaultUriOptions(UriOptions options) =>
     options.defaultScheme == null &&
-    options.coerceBareDomainsToDefaultScheme == false &&
-    options.allowRelative == true;
+    !options.coerceBareDomainsToDefaultScheme &&
+    options.allowRelative;
 
 bool _isDefaultRegistry(TypeRegistry registry) => registry._parsers.isEmpty;
 
@@ -188,9 +190,11 @@ class ConvertConfig {
   /// A registry of custom parsers for handling additional types in `Convert.toType`.
   final TypeRegistry registry;
 
-  /// An optional hook that is invoked whenever a [ConversionException] is thrown.
+  /// Receives the exception reported by a failing strict conversion.
   ///
-  /// Use this to log errors or collect metrics without interrupting the control flow.
+  /// A failed list or set element is reported with its index if the collection
+  /// throws. If a callback catches an independent conversion failure, its
+  /// hook runs in its original scope before the collection call finishes.
   final ExceptionHook? onException;
 
   // Bitmask tracking which fields were explicitly set via `ConvertConfig.overrides`.
@@ -360,7 +364,8 @@ class DateOptions {
 
   /// The default [DateFormat] pattern to use for parsing calendar-style inputs.
   ///
-  /// Used when [autoDetectFormat] is `false` or as a fallback.
+  /// An explicit per-call format takes precedence. Either one selects
+  /// formatted parsing and skips automatic detection.
   final String? defaultFormat;
 
   /// The locale identifier to use for date parsing when a format is applied.
@@ -379,7 +384,7 @@ class DateOptions {
   /// before failing.
   final bool autoDetectFormat;
 
-  /// Determines whether to use [Intl.getCurrentLocale()] as a fallback.
+  /// Determines whether to use [Intl.getCurrentLocale] as a fallback.
   ///
   /// If `true` and no specific locale is provided, the system locale is used.
   final bool useCurrentLocale;

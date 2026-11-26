@@ -114,13 +114,11 @@ void main() {
 
       test('should evict date format cache when size exceeds max', () {
         // Arrange
-        const input = '2025-01-31';
-
-        // Act
+        final expected = DateTime(2025, 1, 31);
         for (var i = 0; i < 35; i++) {
-          final locale = 'xx_$i';
-          final result = input.tryToDateFormatted('yyyy-MM-dd', locale);
-          expect(result, isA<DateTime>());
+          final input = '2025-01-31 #$i';
+          final format = "yyyy-MM-dd '#$i'";
+          expect(input.toDateFormatted(format, 'en_US'), expected);
         }
       });
     });

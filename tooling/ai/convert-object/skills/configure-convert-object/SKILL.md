@@ -108,8 +108,10 @@ Firing semantics (verify assumptions against these before promising behavior):
   without a rescuing `defaultValue`.
 - Does NOT fire for `tryToX`/`tryGetX` (they never throw) nor when
   `defaultValue` rescued the call.
-- Fires at most once per exception instance, even across rethrows; hook errors
-  are swallowed. Do not put control flow in the hook.
+- Fires at most once per exception instance. If a collection callback catches an
+  independent conversion failure, the original scoped hook receives it before
+  the collection call finishes. A failure that escapes a strict list or set
+  element is reported with its index. Hook errors are swallowed.
 
 ## Where to configure
 

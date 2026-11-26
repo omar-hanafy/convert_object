@@ -5,6 +5,14 @@ import 'package:test/test.dart';
 import '../helpers/fixtures.dart';
 import '../helpers/matchers.dart';
 
+class _UnavailableDateOptions extends DateOptions {
+  const _UnavailableDateOptions();
+
+  @override
+  List<String> get extraAutoDetectPatterns =>
+      throw StateError('missing options');
+}
+
 void main() {
   late ConvertConfig prev;
   late String? prevIntlLocale;
@@ -40,6 +48,19 @@ void main() {
   });
 
   group('Convert.toDateTime (epoch numbers)', () {
+    test('rejects an epoch outside the DateTime range before scaling', () {
+      final value = int.parse('-9223372036854775808');
+      expect(
+        () => Convert.toDateTime(value),
+        throwsConversionException(method: 'toDateTime'),
+      );
+      expect(Convert.tryToDateTime(value), isNull);
+      expect(
+        Convert.toDateTime(value, defaultValue: kKnownUtcInstant),
+        kKnownUtcInstant,
+      );
+    });
+
     test('should treat 10-digit numbers as seconds since epoch', () {
       // Arrange
       const seconds = 1700000000;
@@ -76,7 +97,76 @@ void main() {
     });
   });
 
+  group('Convert.toDateTime (default ISO parser)', () {
+    test(
+      'resolves options before handling typed inputs, defaults or custom converters',
+      () {
+        Convert.configure(
+          const ConvertConfig(dates: _UnavailableDateOptions()),
+        );
+        final typed = DateTime.utc(2025, 1, 1);
+        expect(
+          () => Convert.toDateTime(typed, defaultValue: typed),
+          throwsStateError,
+        );
+        expect(
+          () => Convert.tryToDateTime(typed, defaultValue: typed),
+          throwsStateError,
+        );
+        expect(
+          () => Convert.toDateTime('custom', converter: (_) => typed),
+          throwsStateError,
+        );
+        expect(
+          () => Convert.tryToDateTime('custom', converter: (_) => typed),
+          throwsStateError,
+        );
+      },
+    );
+
+    test('honors utc on all five date conversion surfaces', () {
+      const input = '2025-01-31T00:15:00';
+      final expected = DateTime.parse(input).toUtc();
+      final results = [
+        Convert.toDateTime(input, utc: true),
+        Convert.tryToDateTime(input, utc: true),
+        convertToDateTime(input, utc: true),
+        tryConvertToDateTime(input, utc: true),
+        input.convert.toDateTime(utc: true),
+        input.convert.tryToDateTime(utc: true),
+        {'d': input}.getDateTime('d', utc: true),
+        {'d': input}.tryGetDateTime('d', utc: true),
+        [input].getDateTime(0, utc: true),
+        [input].tryGetDateTime(0, utc: true),
+        withScopedConfig(
+          const ConvertConfig(dates: DateOptions(utc: true)),
+          () => Convert.toDateTime(input),
+        ),
+      ];
+      expect(results, everyElement(expected));
+    });
+
+    test('preserves Dart ISO parsing and existing typed or custom results', () {
+      const overflow = '2025-02-30';
+      expect(Convert.toDateTime(overflow), DateTime.parse(overflow));
+      final local = DateTime(2025, 1, 31);
+      expect(Convert.toDateTime(local, utc: true), same(local));
+      expect(
+        Convert.tryToDateTime('custom', utc: true, converter: (_) => local),
+        same(local),
+      );
+    });
+  });
+
   group('Convert.toDateTime (explicit format)', () {
+    test('keeps intl leniency for a caller-selected pattern', () {
+      const input = '31/01/2025 remaining text';
+      expect(
+        Convert.toDateTime(input, format: 'dd/MM/yyyy'),
+        DateTime(2025, 1, 31),
+      );
+    });
+
     test('should parse using an explicit format with utc true', () {
       // Arrange
       const input = '2025-01-31';
@@ -316,6 +406,60 @@ void main() {
       expect(parsed.month, equals(1));
       expect(parsed.day, equals(31));
     });
+
+    test('tries the next extra pattern when a prefix would lose the time', () {
+      const input = '31.01.2025 14:30';
+      const config = ConvertConfig(
+        dates: DateOptions(
+          extraAutoDetectPatterns: ['dd.MM.yyyy', 'dd.MM.yyyy HH:mm'],
+        ),
+      );
+      withScopedConfig(config, () {
+        final expected = DateTime(2025, 1, 31, 14, 30);
+        expect(Convert.toDateTime(input, autoDetectFormat: true), expected);
+        expect(Convert.tryToDateTime(input, autoDetectFormat: true), expected);
+        expect(
+          Convert.tryToDateTime('32.01.2025', autoDetectFormat: true),
+          isNull,
+        );
+      });
+    });
+
+    test('allows outer whitespace in configured auto-detection', () {
+      DateTime? parse(String text, List<String> patterns) => withScopedConfig(
+        ConvertConfig(dates: DateOptions(extraAutoDetectPatterns: patterns)),
+        () => Convert.tryToDateTime(text, autoDetectFormat: true),
+      );
+
+      final expected = DateTime(2025, 1, 31);
+      expect(parse('31.01.2025 ', ['dd.MM.yyyy']), expected);
+      expect(parse(' 31.01.2025  ', [' dd.MM.yyyy']), expected);
+      expect(parse('  31.01.2025 ', ['dd.MM.yyyy ']), expected);
+      expect(
+        parse(' 02.03.2025 ', ['MM.dd.yyyy', ' dd.MM.yyyy ']),
+        DateTime(2025, 3, 2),
+      );
+      expect(parse('31.01.2025 trailing', ['dd.MM.yyyy']), isNull);
+    });
+
+    test(
+      'matches literal whitespace in extra patterns against the raw input',
+      () {
+        const config = ConvertConfig(
+          dates: DateOptions(extraAutoDetectPatterns: [' dd.MM.yyyy ']),
+        );
+        withScopedConfig(config, () {
+          const text = ' 31.01.2025 ';
+          final expected = DateTime(2025, 1, 31);
+          expect(Convert.toDateTime(text, autoDetectFormat: true), expected);
+          expect(Convert.tryToDateTime(text, autoDetectFormat: true), expected);
+          expect(
+            Convert.tryToDateTime(text.trim(), autoDetectFormat: true),
+            isNull,
+          );
+        });
+      },
+    );
   });
 
   group('Convert.toDateTime error handling', () {

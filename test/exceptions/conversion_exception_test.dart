@@ -30,7 +30,6 @@ void main() {
 
       // Act / Assert
       expect(() {
-        // ignore: avoid_dynamic_calls
         (ex.context as dynamic)['b'] = 2;
       }, throwsA(isA<UnsupportedError>()));
     });
